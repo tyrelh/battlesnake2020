@@ -5,7 +5,8 @@ const s = require("./self");
 const params = require("./params");
 const search = require("./search")
 const log = require("./logger");
-
+const a = require("./astar");
+const u = require("./utils");
 
 
 // target closest reachable food
@@ -28,11 +29,26 @@ const eat = (grid, data) => {
       return buildMove(grid, data, null, 0);
     }
     move = search.astar(grid, data, target, keys.FOOD);
+
+    try {
+      let newAstar = a.astar(myHead, target, grid, keys.SNAKE_BODY);
+      log.debug(`new astar pos = ${newAstar ? u.pairToString(newAstar) : "null"}`);
+    } catch (e) {
+      log.error(`ex in new astar: ${e}`, data.turn);
+    }
+    
+
     while (move === null && target != null) {
       gridCopy[target.y][target.x] = keys.DANGER;
       target = t.closestFood(gridCopy, myHead);
       if (target === null) break;
       move = search.astar(grid, data, target, keys.FOOD);
+      try {
+        let newAstar = a.astar(myHead, target, grid, keys.SNAKE_BODY, []);
+        log.debug(`new astar pos = ${newAstar ? u.pairToString(newAstar) : "null"}`);
+      } catch (e) {
+        log.error(`ex in new astar: ${e}`, data.turn);
+      }
     }
   }
   catch (e) { log.error(`ex in move.eat: ${e}`, data.turn); }
