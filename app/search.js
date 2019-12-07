@@ -264,11 +264,6 @@ const astar = (grid, data, destination, searchType = keys.FOOD, alternateStartPo
   // if reach this point and open set is empty, no path
   if (!openSet.length) {
     if (params.STATUS) log.status("COULD NOT FIND PATH!");
-    // if (p.DEBUG_MAPS) {
-    //   localStorage.debug("astar grid after search failure:");
-    //   printFScores(searchScores);
-    // }
-    // TODO: some a* redundancy?
     return null;
   }
 };
@@ -647,6 +642,35 @@ const getKillZonesInOrderOfDistanceFromWall = (grid, target) => {
 }
 
 
+const getScoresForDistanceFromBigSnakes = (grid) => {
+  try {
+    let enemyDistances = [0, 0, 0, 0];
+    let largestDistance = 0;
+    let largestDistanceMove = 0;
+    let uniqueLargestDistanceMove = false;
+    for (let m = 0; m < 4; m++) {
+      const currentDistance = search.distanceToEnemy(m, grid, data, keys.ENEMY_HEAD);
+      log.debug(`Distance to closest dangerous snake for move ${keys.DIRECTION[m]} is ${currentDistance}`);
+      if (enemyDistances[m] < currentDistance) {
+        enemyDistances[m] = currentDistance;
+        if (largestDistance === currentDistance) uniqueLargestDistanceMove = false;
+        else if (largestDistance < currentDistance) {
+          largestDistance = currentDistance;
+          largestDistanceMove = m;
+          uniqueLargestDistanceMove = true;
+        }
+      }
+    }
+    if (uniqueLargestDistanceMove){
+      log.debug(`Add ENEMY_DISTANCE ${params.ENEMY_DISTANCE} to move ${keys.DIRECTION[largestDistanceMove]} for farther ENEMY_HEAD`);
+      scores[largestDistanceMove] += params.ENEMY_DISTANCE;
+    }
+  }
+  catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`, data.turn); }
+  log.status(`Move scores: ${scoresToString(scores)}`);
+}
+
+
 
 // calculate the distance a position is from walls
 const distanceFromWall = (pos, grid) => {
@@ -662,42 +686,6 @@ const distanceFromWall = (pos, grid) => {
   catch (e) { log.error(`ex in search.distanceFromWall: ${e}`) };
   return 0;
 }
-
-
-
-// TODO: this is broken?
-// const enemySearchForFood = (grid, data) => {
-//   const you = data.you;
-
-//   try {
-//     data.board.snakes.forEach(({ id, name, health, body }) => {
-//       if (id === you.id) return;
-
-//       const head = body[0];
-//       let gridCopy = g.copyGrid(grid);
-//       let target = t.closestFood(grid, head);
-//       let move = astar(grid, data, target, k.FOOD, body[0]);
-//       while (move === null) {
-//         if (target === null) {
-//           target = t.closestTarget(grid, head, k.TAIL);
-//           move = astar(gridCopy, data, target, k.TAIL, body[0]);
-//           break; 
-//         }
-//         gridCopy[target.y][target.x] = k.WARNING;
-//         target = t.closestFood(grid, head);
-//         move = astar(gridCopy, data, target, k.FOOD, body[0]);
-
-//       }
-
-//       if (move != null) {
-//         grid[move.y][move.x] = k.DANGER;
-//       }
-
-//     });
-//   }
-//   catch (e) { log.error(`ex in search.enemySearchForFood: ${e}`, data.turn); }
-//   return grid;
-// }
 
 
 
