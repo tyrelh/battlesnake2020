@@ -3,7 +3,7 @@ const u = require("./utils");
 const log = require("./logger");
 
 
-const astar = (start, destination, grid, avoidThreshold) => {
+const search = (start, destination, grid, avoidThreshold) => {
   if (start === null || destination === null) {
     log.status("Start or destination is null in astar. Must call with start and destination coords.");
     return null;
@@ -157,5 +157,5 @@ class AstarScoreCell {
 
 
 module.exports = {
-  astar: astar
+  search: search
 }
