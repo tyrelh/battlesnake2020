@@ -61,13 +61,19 @@ const error = (message, turn = null) => {
   if (p.CONSOLE_LOG) console.log(`ERROR: ${message}`);
   exLog += `EX ON TURN ${turn != null ? turn : "none"}: ${message}\n`
 }
+
 const status = message => {
-  log += `${message}\n`
-  if (p.CONSOLE_LOG) console.log(`${message}`);
+  if (p.STATUS) {
+    log += `${message}\n`
+    if (p.CONSOLE_LOG) console.log(`${message}`);
+  }
 }
+
 const debug = message => {
-  log += `DEBUG: ${message}\n`
-  if (p.CONSOLE_LOG) console.log(`DEBUG: ${message}`);
+  if (p.DEBUG) {
+    log += `DEBUG: ${message}\n`
+    if (p.CONSOLE_LOG) console.log(`DEBUG: ${message}`);
+  }
 }
 
 
