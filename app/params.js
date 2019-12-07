@@ -2,12 +2,12 @@ module.exports = {
   // logging
   DEBUG: true,
   STATUS: true,
-  DEBUG_MAPS: true,
+  DEBUG_MAPS: false,
   CONSOLE_LOG: true,
 
   // basic game params
-  INITIAL_FEEDING: 10,  // started @  5   +++++++-
-  SURVIVAL_MIN: 47,     // started @ 50   --+++++
+  INITIAL_FEEDING: 5,  // started @  5   +++++++-
+  SURVIVAL_MIN: 47,     // started @ 50   --+++++ 47
   LONG_GAME_ENDURANCE: 80, // started @ 80
   INITIAL_TIME_KILL: 0, // started @ 70   ---------------
   WALL_NEAR_BASE_MOVE_MULTIPLIER: 12, // started @ 1.6 +++++++++++++
