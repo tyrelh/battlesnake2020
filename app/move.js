@@ -5,7 +5,7 @@ const s = require("./self");
 const params = require("./params");
 const search = require("./search")
 const log = require("./logger");
-const a = require("./astar");
+const astar = require("./astar");
 const u = require("./utils");
 
 
@@ -15,40 +15,33 @@ const eat = (grid, data) => {
   const myHead = s.location(data);
   const health = you.health;
   let urgencyScore = (110 - health);
+  let target = null;
+  let move = null;
+  let movePos = null;
+  const gridCopy = g.copyGrid(grid);
+
   if (data.turn > params.INITIAL_FEEDING) {
     urgencyScore = Math.round(urgencyScore * params.FEEDING_URGENCY_MULTIPLIER);
   }
   if (params.STATUS) log.status(`EATING w/ urgency ${urgencyScore}`);
-  let target = null;
-  let move = null;
-  const gridCopy = g.copyGrid(grid);
+  
   try {
     target = t.closestFood(grid, myHead);
     if (target === null) {
       if (params.STATUS) log.status("No food was found on board.");
       return buildMove(grid, data, null, 0);
     }
-    move = search.astar(grid, data, target, keys.FOOD);
-
-    try {
-      let newAstar = a.astar(myHead, target, grid, keys.SNAKE_BODY);
-      log.debug(`new astar pos = ${newAstar ? u.pairToString(newAstar) : "null"}`);
-    } catch (e) {
-      log.error(`ex in new astar: ${e}`, data.turn);
-    }
-    
+    // move = search.astar(grid, data, target, keys.FOOD);
+    movePos = astar.search(myHead, target, grid, keys.SNAKE_BODY);
+    move = u.calcDirection(movePos);
 
     while (move === null && target != null) {
       gridCopy[target.y][target.x] = keys.DANGER;
       target = t.closestFood(gridCopy, myHead);
-      if (target === null) break;
-      move = search.astar(grid, data, target, keys.FOOD);
-      try {
-        let newAstar = a.astar(myHead, target, grid, keys.SNAKE_BODY, []);
-        log.debug(`new astar pos = ${newAstar ? u.pairToString(newAstar) : "null"}`);
-      } catch (e) {
-        log.error(`ex in new astar: ${e}`, data.turn);
-      }
+      if (target === null) { break };
+      movePos = astar.search(myHead, target, grid, keys.SNAKE_BODY);
+      move = u.calcDirection(movePos);
+      // move = search.astar(grid, data, target, keys.FOOD);
     }
   }
   catch (e) { log.error(`ex in move.eat: ${e}`, data.turn); }
@@ -126,18 +119,23 @@ const killTime = (grid, data) => {
 
 const getFallbackMove = (grid, data) => {
   try {
+    const myHead = s.location(data);
     if (params.STATUS) log.status("Resorting to fallback move");
     // try finding a path to tail first
     let target = s.tailLocation(data);
-    let move = search.astar(grid, data, target, keys.TAIL);
+    let movePos = astar.search(myHead, target, grid, keys.SNAKE_BODY);
+    let move = u.calcDirection(movePos);
+    // let move = search.astar(grid, data, target, keys.TAIL);
     let score = 0;
     // if no path to own tail, try searching for food
     const gridCopy = g.copyGrid(grid);
     while (move === null) {
-      target = t.closestFood(gridCopy, s.location(data));
+      target = t.closestFood(gridCopy, myHead);
       if (target != null) {
         gridCopy[target.y][target.x] = keys.WARNING;
-        move = search.astar(grid, data, target, keys.FOOD);
+        movePos = astar.search(myHead, target, grid, keys.SNAKE_BODY);
+        move = u.calcDirection(movePos);
+        // move = search.astar(grid, data, target, keys.FOOD);
       }
       // if no more food to search for just quit
       else break;
