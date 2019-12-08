@@ -5,6 +5,7 @@
 # Logs
 *.log
 logs/*.txt
+logs/index.html
 
 # Runtime data
 pids
