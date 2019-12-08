@@ -1,6 +1,7 @@
 const log = require("./logger");
 const k = require("./keys");
 
+
 // return pair as string
 const pairToString = pair => {
   try {
@@ -12,6 +13,16 @@ const pairToString = pair => {
   }
 };
 
+
+// return scores array in a human readable string
+const scoresToString = scores => {
+  try {
+    return `{up: ${scores[0]}, down: ${scores[1]}, left: ${scores[2]}, right: ${scores[3]}}`
+  }
+  catch (e) { log.error(`ex in move.scoresToString: ${e}`); }
+};
+
+
 // test if cells are the same
 const sameCell = (a, b) => {
   try {
@@ -21,7 +32,8 @@ const sameCell = (a, b) => {
     log.error(`ex in utils.sameCell: ${e}`);
     return false;
   }
-}
+};
+
 
 // check if array contains a given pair
 const arrayIncludesPair = (arr, pair) => {
@@ -32,6 +44,7 @@ const arrayIncludesPair = (arr, pair) => {
   }
   return false;
 };
+
 
 // calculate direction from a to b
 // could be inaccurate if a and b are far apart
@@ -52,6 +65,7 @@ const calcDirection = (a, b) => {
   }
 };
 
+
 // manhattan distance
 const getDistance = (a, b) => {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
@@ -60,6 +74,7 @@ const getDistance = (a, b) => {
 
 module.exports = {
   pairToString: pairToString,
+  scoresToString: scoresToString,
   sameCell: sameCell,
   calcDirection: calcDirection,
   arrayIncludesPair: arrayIncludesPair,

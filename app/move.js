@@ -43,7 +43,7 @@ const eat = (grid, data) => {
 
   try {
     if (movePos != null) {
-      if (target != null) log.debug(`target in eat: ${pairToString(target)}`);
+      if (target != null) log.debug(`target in eat: ${u.pairToString(target)}`);
       move = u.calcDirection(myHead, movePos);
       log.debug(`Score for a* move: {${k.DIRECTION[move]}: ${urgencyScore}}`);
       return buildMove(grid, data, move, urgencyScore);
@@ -129,7 +129,7 @@ const getFallbackMove = (grid, data) => {
     }
     if (move != null) {
       score = p.ASTAR_SUCCESS / 5;
-      log.debug(`getFallbackMove target: ${pairToString(target)}`);
+      log.debug(`getFallbackMove target: ${u.pairToString(target)}`);
       log.debug(`getFallbackMove move: ${k.DIRECTION[move]}`);
       log.debug(`getFallbackMove score: ${score}`);
       return { move: move, score: score };
@@ -198,7 +198,7 @@ const buildMove = (grid, data, move, moveScore = 0) => {
       // get base next move scores
       log.status(`Adding moveScore ${moveScore} to move ${k.DIRECTION[move]}`);
       scores[move] += moveScore;
-      log.status(`Move scores: ${scoresToString(scores)}`);
+      log.status(`Move scores: ${u.scoresToString(scores)}`);
     }
    }
   catch (e) { log.error(`ex in move.buildMove.baseMoveScores: ${e}`, data.turn); }
@@ -224,7 +224,7 @@ const buildMove = (grid, data, move, moveScore = 0) => {
     }
   }
   catch (e) { log.error(`ex in move.buildMove.fill: ${e}`, data.turn); }
-  log.status(`Move scores: ${scoresToString(scores)}`);
+  log.status(`Move scores: ${u.scoresToString(scores)}`);
 
   // see if a particular move will bring you farther from dangerous snake
   try {
@@ -251,7 +251,7 @@ const buildMove = (grid, data, move, moveScore = 0) => {
     }
   }
   catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`, data.turn); }
-  log.status(`Move scores: ${scoresToString(scores)}`);
+  log.status(`Move scores: ${u.scoresToString(scores)}`);
 
   // see if a particular move will bring you closer to a killable snake
   try {
@@ -279,7 +279,7 @@ const buildMove = (grid, data, move, moveScore = 0) => {
     }
   }
   catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`, data.turn); }
-  log.status(`Move scores: ${scoresToString(scores)}`);
+  log.status(`Move scores: ${u.scoresToString(scores)}`);
 
   // see if a particular move will bring you farther from wall
   try {
@@ -307,7 +307,7 @@ const buildMove = (grid, data, move, moveScore = 0) => {
     }
   }
   catch (e) { log.error(`ex in move.buildMove.fartherFromWall: ${e}`, data.turn); }
-  log.status(`Move scores: ${scoresToString(scores)}`);
+  log.status(`Move scores: ${u.scoresToString(scores)}`);
 
   const bestMove = highestScoreMove(scores);
   previousMove = bestMove;
@@ -427,22 +427,6 @@ const suggestMove = (direction, pos, grid) => {
   }
   catch(e) { log.error(`ex in move.suggestMove: ${e}`); }
   return direction;
-};
-
-
-// return pair as string
-const pairToString = pair => {
-  try { return `{x: ${pair.x}, y: ${pair.y}}`; }
-  catch (e) { log.error(`ex in move.pairToString: ${e}`); }
-};
-
-
-// return scores array in a human readable string
-const scoresToString = scores => {
-  try {
-    return `{up: ${scores[0]}, down: ${scores[1]}, left: ${scores[2]}, right: ${scores[3]}}`
-  }
-  catch (e) { log.error(`ex in move.scoresToString: ${e}`); }
 };
 
 
