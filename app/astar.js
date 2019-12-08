@@ -72,13 +72,13 @@ const search = (start, destination, grid, avoidThreshold) => {
         neighborCell.previous = current;
         
         // trace path back to origin to find optimal next move
-        let temp = neighbor;
+        let nextPos = neighbor;
         log.debug(`Astar start pos: ${u.pairToString(start)}`);
-        while (!u.sameCell(searchScores[temp.y][temp.x].previous, start)) {
-          temp = searchScores[temp.y][temp.x].previous;
+        while (!u.sameCell(searchScores[nextPos.y][nextPos.x].previous, start)) {
+          nextPos = searchScores[nextPos.y][nextPos.x].previous;
         }
-        log.debug(`Astar next move: ${u.pairToString(temp)}`);
-        return ({ x: temp.x, y: temp.y });
+        log.debug(`Astar next move (neighbor): ${u.pairToString(nextPos)}`);
+        return (nextPos);
       }
 
       // else keep searching
