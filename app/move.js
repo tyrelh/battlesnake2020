@@ -11,9 +11,8 @@ const u = require("./utils");
 
 // target closest reachable food
 const eat = (grid, data) => {
-  const you = data.you;
   const myHead = s.location(data);
-  const health = you.health;
+  const health = data.you.health;
   let urgencyScore = (110 - health);
   let target = null;
   let move = null;
@@ -59,23 +58,26 @@ const eat = (grid, data) => {
 const hunt = (grid, data) => {
   let score = 0;
   let move = null;
-  if (p.STATUS) log.status("HUNTING");
+  log.status("HUNTING");
 
   try {
     move = search.closeAccessableKillZoneFarFromWall(grid, data);
-    if (move != null) score = p.ASTAR_SUCCESS;
+    if (move != null) {
+      score = p.ASTAR_SUCCESS;
+    }
   }
   catch (e) { log.error(`ex in move.hunt: ${e}`, data.turn); }
 
-  if (p.DEBUG && move != null) log.debug(`In hunt calulated score ${score} for move ${k.DIRECTION[move]}`)
-  else if (p.DEBUG && move === null) log.debug(`Move in hunt was NULL.`);
+  if (move != null) log.debug(`In hunt calulated score ${score} for move ${k.DIRECTION[move]}`)
+  else if (move === null) log.debug(`Move in hunt was NULL.`);
   return buildMove(grid, data, move, score);
 };
+
 
 const lateHunt = (grid, data) => {
   let score = 0;
   let move = null;
-  if (p.STATUS) log.status("HUNTING, LATE GAME");
+  log.status("HUNTING, LATE GAME");
 
   try {
     move = search.closeAccessableFuture2FarFromWall(grid, data);
@@ -83,15 +85,15 @@ const lateHunt = (grid, data) => {
   }
   catch (e) { log.error(`ex in move.lateHunt: ${e}`, data.turn); }
 
-  if (p.DEBUG && move != null) log.debug(`In lateHunt calulated score ${score} for move ${k.DIRECTION[move]}`)
-  else if (p.DEBUG && move === null) log.debug(`Move in lateHunt was NULL.`);
+  if (move != null) log.debug(`In lateHunt calulated score ${score} for move ${k.DIRECTION[move]}`)
+  else if (move === null) log.debug(`Move in lateHunt was NULL.`);
   return buildMove(grid, data, move, score);
 };
 
 
 // track own tail
 const killTime = (grid, data) => {
-  if (p.STATUS) log.status("KILLING TIME");
+  log.status("KILLING TIME");
 
   // const fallbackMove = getFallbackMove(grid, data);
   // let move = fallbackMove.move;
@@ -105,7 +107,7 @@ const killTime = (grid, data) => {
 const getFallbackMove = (grid, data) => {
   try {
     const myHead = s.location(data);
-    if (p.STATUS) log.status("Resorting to fallback move");
+    log.status("Resorting to fallback move");
     // try finding a path to tail first
     let target = s.tailLocation(data);
     let movePos = astar.search(myHead, target, grid, k.SNAKE_BODY);
@@ -127,11 +129,9 @@ const getFallbackMove = (grid, data) => {
     }
     if (move != null) {
       score = p.ASTAR_SUCCESS / 5;
-      if (p.DEBUG) {
-        log.debug(`getFallbackMove target: ${pairToString(target)}`);
-        log.debug(`getFallbackMove move: ${k.DIRECTION[move]}`);
-        log.debug(`getFallbackMove score: ${score}`);
-      }
+      log.debug(`getFallbackMove target: ${pairToString(target)}`);
+      log.debug(`getFallbackMove move: ${k.DIRECTION[move]}`);
+      log.debug(`getFallbackMove score: ${score}`);
       return { move: move, score: score };
     }
   }
@@ -141,7 +141,7 @@ const getFallbackMove = (grid, data) => {
 
 
 const coil = (grid, data) => {
-  if (p.STATUS) log.status("Trying to coil to save space");
+  log.status("Trying to coil to save space");
   try {
     let tailLocation = s.tailLocation(data);
     let tailDistances = [0, 0, 0, 0];
@@ -167,7 +167,7 @@ const coil = (grid, data) => {
         coilScores[m] += p.COIL;
       }
     }
-    if (p.DEBUG) log.debug(`Coil scores are ${coilScores}`);
+    log.debug(`Coil scores are ${coilScores}`);
     return coilScores
   }
   catch (e) { log.error(`ex in move.coil: ${e}`, data.turn); }
@@ -196,16 +196,16 @@ const buildMove = (grid, data, move, moveScore = 0) => {
       }
     } else {
       // get base next move scores
-      if (p.STATUS) log.status(`Adding moveScore ${moveScore} to move ${k.DIRECTION[move]}`);
+      log.status(`Adding moveScore ${moveScore} to move ${k.DIRECTION[move]}`);
       scores[move] += moveScore;
-      if (p.STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
+      log.status(`Move scores: ${scoresToString(scores)}`);
     }
    }
   catch (e) { log.error(`ex in move.buildMove.baseMoveScores: ${e}`, data.turn); }
   
   // get flood fill scores for each move
   try {
-    if (p.STATUS) log.status("Performing flood fill searches");
+    log.status("Performing flood fill searches");
     for (let m = 0; m < 4; m++) {
       let gridCopy = g.copyGrid(grid)
       scores[m] += search.fill(m, grid, data);
@@ -224,7 +224,7 @@ const buildMove = (grid, data, move, moveScore = 0) => {
     }
   }
   catch (e) { log.error(`ex in move.buildMove.fill: ${e}`, data.turn); }
-  if (p.STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
+  log.status(`Move scores: ${scoresToString(scores)}`);
 
   // see if a particular move will bring you farther from dangerous snake
   try {
@@ -251,7 +251,7 @@ const buildMove = (grid, data, move, moveScore = 0) => {
     }
   }
   catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`, data.turn); }
-  if (p.STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
+  log.status(`Move scores: ${scoresToString(scores)}`);
 
   // see if a particular move will bring you closer to a killable snake
   try {
@@ -279,7 +279,7 @@ const buildMove = (grid, data, move, moveScore = 0) => {
     }
   }
   catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`, data.turn); }
-  if (p.STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
+  log.status(`Move scores: ${scoresToString(scores)}`);
 
   // see if a particular move will bring you farther from wall
   try {
@@ -307,7 +307,7 @@ const buildMove = (grid, data, move, moveScore = 0) => {
     }
   }
   catch (e) { log.error(`ex in move.buildMove.fartherFromWall: ${e}`, data.turn); }
-  if (p.STATUS) log.status(`Move scores: ${scoresToString(scores)}`);
+  log.status(`Move scores: ${scoresToString(scores)}`);
 
   const bestMove = highestScoreMove(scores);
   previousMove = bestMove;
@@ -338,7 +338,7 @@ const baseMoveScores = (grid, self) => {
   scores[k.DOWN] += baseScoreForBoardPosition(head.x, head.y + 1, grid);
   scores[k.LEFT] += baseScoreForBoardPosition(head.x - 1, head.y, grid);
   scores[k.RIGHT] += baseScoreForBoardPosition(head.x + 1, head.y, grid);
-  if (p.DEBUG) log.debug(`Base move scores: {up: ${scores[k.UP]}, down: ${scores[k.DOWN]}, left: ${scores[k.LEFT]}, right: ${scores[k.RIGHT]}}`)
+  log.debug(`Base move scores: {up: ${scores[k.UP]}, down: ${scores[k.DOWN]}, left: ${scores[k.LEFT]}, right: ${scores[k.RIGHT]}}`)
   return scores;
 };
 
