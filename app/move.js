@@ -45,7 +45,7 @@ const eat = (grid, data) => {
     if (movePos != null) {
       if (target != null) log.debug(`Target in eat: ${u.pairToString(target)}`);
       move = u.calcDirection(myHead, movePos);
-      log.debug(`Move in eat: { move: ${k.DIRECTION[move]}, score: ${urgencyScore} }`);
+      log.status(`Move in eat: {move: ${k.DIRECTION[move]}, score: ${urgencyScore.toFixed(2)}}`);
       let scores = u.applyMoveToScores(move, urgencyScore);
       return buildMove(scores, grid, data);
     }
@@ -69,7 +69,7 @@ const hunt = (grid, data) => {
   }
   catch (e) { log.error(`ex in move.hunt: ${e}`, data.turn); }
 
-  if (move != null) log.debug(`Move in hunt { move: ${k.DIRECTION[move]}, score: ${score} }`);
+  if (move != null) log.status(`Move in hunt {move: ${k.DIRECTION[move]}, score: ${score.toFixed(2)}}`);
   else if (move === null) log.debug(`Move in hunt was NULL.`);
 
   let scores = u.applyMoveToScores(move, score);
@@ -331,7 +331,7 @@ const baseMoveScores = (grid, self) => {
   scores[k.DOWN] += baseScoreForBoardPosition(head.x, head.y + 1, grid);
   scores[k.LEFT] += baseScoreForBoardPosition(head.x - 1, head.y, grid);
   scores[k.RIGHT] += baseScoreForBoardPosition(head.x + 1, head.y, grid);
-  log.debug(`Base move scores: {up: ${scores[k.UP]}, down: ${scores[k.DOWN]}, left: ${scores[k.LEFT]}, right: ${scores[k.RIGHT]}}`)
+  // log.debug(`Base move scores: {up: ${scores[k.UP]}, down: ${scores[k.DOWN]}, left: ${scores[k.LEFT]}, right: ${scores[k.RIGHT]}}`)
   return scores;
 };
 
