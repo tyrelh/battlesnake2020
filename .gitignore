@@ -38,6 +38,8 @@ npm-debug.log
 
 # IntelliJ
 .idea
+.idea/
+.idea/*
 
 other
 *.md
