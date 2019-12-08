@@ -174,8 +174,8 @@ const coil = (grid, data) => {
 // build up move scores and return best move
 const buildMove = (scores = [0, 0, 0, 0], grid, data) => {
   log.status(`Move scores: ${u.scoresToString(scores)}`);
-  const you = data.you;
-  let baseScores = baseMoveScores(grid, you);
+  const myHead = s.location(data);
+  let baseScores = baseMoveScores(grid, myHead);
   log.status(`Base scores: ${u.scoresToString(baseScores)}`);
   try {
     // if move is null, try to find fallback move
@@ -323,15 +323,13 @@ const highestScoreMove = scores => {
 
 
 // get base score for each possible move
-const baseMoveScores = (grid, self) => {
-  const head = self.body[0];
+const baseMoveScores = (grid, myHead) => {
   let scores = [0, 0, 0, 0];
   // get score for each direction
-  scores[k.UP] += baseScoreForBoardPosition(head.x, head.y - 1, grid);
-  scores[k.DOWN] += baseScoreForBoardPosition(head.x, head.y + 1, grid);
-  scores[k.LEFT] += baseScoreForBoardPosition(head.x - 1, head.y, grid);
-  scores[k.RIGHT] += baseScoreForBoardPosition(head.x + 1, head.y, grid);
-  // log.debug(`Base move scores: {up: ${scores[k.UP]}, down: ${scores[k.DOWN]}, left: ${scores[k.LEFT]}, right: ${scores[k.RIGHT]}}`)
+  scores[k.UP] += baseScoreForBoardPosition(myHead.x, myHead.y - 1, grid);
+  scores[k.DOWN] += baseScoreForBoardPosition(myHead.x, myHead.y + 1, grid);
+  scores[k.LEFT] += baseScoreForBoardPosition(myHead.x - 1, myHead.y, grid);
+  scores[k.RIGHT] += baseScoreForBoardPosition(myHead.x + 1, myHead.y, grid);
   return scores;
 };
 
@@ -365,6 +363,7 @@ const baseScoreForBoardPosition = (x, y, grid) => {
     }
   }
   catch (e) { log.error(`ex in move.baseScoreForBoardPosition: ${e}`); }
+  return 0;
 };
 
 
