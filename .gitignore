@@ -36,6 +36,9 @@ npm-debug.log
 # Visual Studio Code
 .vscode
 
+# IntelliJ
+.idea
+
 other
 *.md
 
