@@ -23,7 +23,7 @@ const eat = (grid, data) => {
   if (data.turn > params.INITIAL_FEEDING) {
     urgencyScore = Math.round(urgencyScore * params.FEEDING_URGENCY_MULTIPLIER);
   }
-  if (params.STATUS) log.status(`EATING w/ urgency ${urgencyScore}`);
+  log.status(`EATING w/ urgency ${urgencyScore}`);
   
   try {
     target = t.closestFood(grid, myHead);
@@ -31,35 +31,25 @@ const eat = (grid, data) => {
       if (params.STATUS) log.status("No food was found on board.");
       return buildMove(grid, data, null, 0);
     }
-    // move = search.astar(grid, data, target, keys.FOOD);
     movePos = astar.search(myHead, target, grid, keys.SNAKE_BODY);
-    move = u.calcDirection(movePos);
 
-    while (move === null && target != null) {
+    while (movePos === null && target != null) {
       gridCopy[target.y][target.x] = keys.DANGER;
       target = t.closestFood(gridCopy, myHead);
-      if (target === null) { break };
+      if (target === null) break;
       movePos = astar.search(myHead, target, grid, keys.SNAKE_BODY);
-      move = u.calcDirection(movePos);
-      // move = search.astar(grid, data, target, keys.FOOD);
     }
   }
   catch (e) { log.error(`ex in move.eat: ${e}`, data.turn); }
 
   try {
-    if (move != null) {
-      if (params.DEBUG) {
-        if (target != null) log.debug(`target in eat: ${pairToString(target)}`);
-        log.debug(`Score for a* move: ${keys.DIRECTION[move]}: ${urgencyScore}`);
-      }
+    if (movePos != null) {
+      log.debug("got to final eating block");
+      if (target != null) log.debug(`target in eat: ${pairToString(target)}`);
+      move = u.calcDirection(myHead, movePos);
+      log.debug(`Score for a* move: ${keys.DIRECTION[move]}: ${urgencyScore}`);
       return buildMove(grid, data, move, urgencyScore);
     }
-    // else {
-    //   const fallbackMove = getFallbackMove(grid, data);
-    //   if (fallbackMove.score != 0) {
-    //     return buildMove(grid, data, fallbackMove.move, fallbackMove.score);
-    //   }
-    // }
   }
   catch (e) { log.error(`ex in move.eat.buildmove: ${e}`, data.turn); }
   return buildMove(grid, data, null, 0);
@@ -99,7 +89,7 @@ const lateHunt = (grid, data) => {
   if (params.DEBUG && move != null) log.debug(`In lateHunt calulated score ${score} for move ${keys.DIRECTION[move]}`)
   else if (params.DEBUG && move === null) log.debug(`Move in lateHunt was NULL.`);
   return buildMove(grid, data, move, score);
-}
+};
 
 
 
@@ -113,7 +103,7 @@ const killTime = (grid, data) => {
 
   // if (params.DEBUG && move != null) log.debug(`Score for a* move: ${keys.DIRECTION[move]}: ${params.ASTAR_SUCCESS}`);
   return buildMove(grid, data, null, 0);
-}
+};
 
 
 
@@ -124,7 +114,7 @@ const getFallbackMove = (grid, data) => {
     // try finding a path to tail first
     let target = s.tailLocation(data);
     let movePos = astar.search(myHead, target, grid, keys.SNAKE_BODY);
-    let move = u.calcDirection(movePos);
+    let move = u.calcDirection(myHead, movePos);
     // let move = search.astar(grid, data, target, keys.TAIL);
     let score = 0;
     // if no path to own tail, try searching for food
@@ -134,7 +124,7 @@ const getFallbackMove = (grid, data) => {
       if (target != null) {
         gridCopy[target.y][target.x] = keys.WARNING;
         movePos = astar.search(myHead, target, grid, keys.SNAKE_BODY);
-        move = u.calcDirection(movePos);
+        move = u.calcDirection(myHead, movePos);
         // move = search.astar(grid, data, target, keys.FOOD);
       }
       // if no more food to search for just quit
@@ -152,7 +142,7 @@ const getFallbackMove = (grid, data) => {
   }
   catch (e) { log.error(`ex in move.getFallbackMove: ${e}`, data.turn); }
   return { move: null, score: 0 };
-}
+};
 
 
 
