@@ -22,6 +22,8 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * [My 2018 Python Entry](https://github.com/tyrelh/battlesnake2018)
 
 ## Changelog
+* v3.0:
+    * Refactored A* search to be more modular.
 * **v2:**
   * My [2019 entry written in JavaScript/Node](https://github.com/tyrelh/battlesnake2019), ported from my 2018 entry.
   
