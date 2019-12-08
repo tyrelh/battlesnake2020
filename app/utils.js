@@ -17,7 +17,7 @@ const pairToString = pair => {
 // return scores array in a human readable string
 const scoresToString = scores => {
   try {
-    return `{up: ${scores[0]}, down: ${scores[1]}, left: ${scores[2]}, right: ${scores[3]}}`
+    return `{up: ${scores[0].toFixed(2)}, down: ${scores[1].toFixed(2)}, left: ${scores[2].toFixed(2)}, right: ${scores[3].toFixed(2)}}`
   }
   catch (e) { log.error(`ex in move.scoresToString: ${e}`); }
 };
@@ -72,11 +72,49 @@ const getDistance = (a, b) => {
 };
 
 
+// check if there is any move in a scores array
+const moveInScores = (scores) => {
+  try {
+    for (move in scores) {
+      if (move > 0) return true
+    }
+  }
+  catch (e) { log.error(`ex in utils.moveInScores: ${e}`); }
+  return false
+};
+
+
+// add score for a given move to the scores array
+const applyMoveToScores = (move, score, scores = [0, 0, 0, 0]) => {
+  try { scores[move] += score; }
+  catch (e) { log.error(`ex in utils.applyMoveToScore: ${e}`); }
+  return scores
+};
+
+
+// combine two score arrays
+const combineScores = (scoresA, scoresB) => {
+  let scores = [0, 0, 0, 0];
+  try {
+    for (let i = 0; i < scoresA.length; i++) {
+      scores[i] = scoresA[i] + scoresB[i];
+    }
+    return scores;
+  }
+  catch (e) { log.error(`ex in utils.combineScores: ${e}`); }
+  if (scoresA === null) return scoresB;
+  return scoresA;
+};
+
+
 module.exports = {
   pairToString: pairToString,
   scoresToString: scoresToString,
   sameCell: sameCell,
   calcDirection: calcDirection,
   arrayIncludesPair: arrayIncludesPair,
-  getDistance: getDistance
+  getDistance: getDistance,
+  moveInScores: moveInScores,
+  applyMoveToScores: applyMoveToScores,
+  combineScores: combineScores
 };
