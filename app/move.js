@@ -27,8 +27,8 @@ const eat = (grid, data) => {
   try {
     target = t.closestFood(grid, myHead);
     if (target === null) {
-      if (p.STATUS) log.status("No food was found on board.");
-      return buildMove(grid, data, null, 0);
+      log.status("No food was found on board.");
+      return buildMove([0, 0, 0, 0], grid, data);
     }
     movePos = astar.search(myHead, target, grid, k.SNAKE_BODY);
 
@@ -43,14 +43,15 @@ const eat = (grid, data) => {
 
   try {
     if (movePos != null) {
-      if (target != null) log.debug(`target in eat: ${u.pairToString(target)}`);
+      if (target != null) log.debug(`Target in eat: ${u.pairToString(target)}`);
       move = u.calcDirection(myHead, movePos);
-      log.debug(`Score for a* move: {${k.DIRECTION[move]}: ${urgencyScore}}`);
-      return buildMove(grid, data, move, urgencyScore);
+      log.debug(`Move in eat: { move: ${k.DIRECTION[move]}, score: ${urgencyScore} }`);
+      let scores = u.applyMoveToScores(move, urgencyScore);
+      return buildMove(scores, grid, data);
     }
   }
   catch (e) { log.error(`ex in move.eat.buildmove: ${e}`, data.turn); }
-  return buildMove(grid, data, null, 0);
+  return buildMove([0, 0, 0, 0], grid, data);
 };
  
 
@@ -68,9 +69,11 @@ const hunt = (grid, data) => {
   }
   catch (e) { log.error(`ex in move.hunt: ${e}`, data.turn); }
 
-  if (move != null) log.debug(`In hunt calulated score ${score} for move ${k.DIRECTION[move]}`)
+  if (move != null) log.debug(`Move in hunt { move: ${k.DIRECTION[move]}, score: ${score} }`);
   else if (move === null) log.debug(`Move in hunt was NULL.`);
-  return buildMove(grid, data, move, score);
+
+  let scores = u.applyMoveToScores(move, score);
+  return buildMove(scores, grid, data);
 };
 
 
@@ -87,20 +90,17 @@ const lateHunt = (grid, data) => {
 
   if (move != null) log.debug(`In lateHunt calulated score ${score} for move ${k.DIRECTION[move]}`)
   else if (move === null) log.debug(`Move in lateHunt was NULL.`);
-  return buildMove(grid, data, move, score);
+
+  let scores = u.applyMoveToScores(move, score);
+  return buildMove(scores, grid, data);
 };
 
 
 // track own tail
 const killTime = (grid, data) => {
   log.status("KILLING TIME");
-
-  // const fallbackMove = getFallbackMove(grid, data);
-  // let move = fallbackMove.move;
-  // let score = fallbackMove.score;
-
-  // if (params.DEBUG && move != null) log.debug(`Score for a* move: ${keys.DIRECTION[move]}: ${params.ASTAR_SUCCESS}`);
-  return buildMove(grid, data, null, 0);
+  // rely on default move in buildMove
+  return buildMove([0, 0, 0, 0], grid, data);
 };
 
 
@@ -112,7 +112,6 @@ const getFallbackMove = (grid, data) => {
     let target = s.tailLocation(data);
     let movePos = astar.search(myHead, target, grid, k.SNAKE_BODY);
     let move = u.calcDirection(myHead, movePos);
-    // let move = search.astar(grid, data, target, keys.TAIL);
     let score = 0;
     // if no path to own tail, try searching for food
     const gridCopy = g.copyGrid(grid);
@@ -122,7 +121,6 @@ const getFallbackMove = (grid, data) => {
         gridCopy[target.y][target.x] = k.WARNING;
         movePos = astar.search(myHead, target, grid, k.SNAKE_BODY);
         move = u.calcDirection(myHead, movePos);
-        // move = search.astar(grid, data, target, keys.FOOD);
       }
       // if no more food to search for just quit
       else break;
@@ -132,16 +130,17 @@ const getFallbackMove = (grid, data) => {
       log.debug(`getFallbackMove target: ${u.pairToString(target)}`);
       log.debug(`getFallbackMove move: ${k.DIRECTION[move]}`);
       log.debug(`getFallbackMove score: ${score}`);
-      return { move: move, score: score };
+      return u.applyMoveToScores(move, score);
     }
   }
   catch (e) { log.error(`ex in move.getFallbackMove: ${e}`, data.turn); }
-  return { move: null, score: 0 };
+  return [0, 0, 0, 0];
 };
 
 
 const coil = (grid, data) => {
   log.status("Trying to coil to save space");
+  let coilScores = [0, 0, 0, 0];
   try {
     let tailLocation = s.tailLocation(data);
     let tailDistances = [0, 0, 0, 0];
@@ -161,53 +160,47 @@ const coil = (grid, data) => {
       }
     }
 
-    let coilScores = [0, 0, 0, 0];
     for (let m = 0; m < 4; m++) {
       if (tailDistances[m] === largestDistance) {
         coilScores[m] += p.COIL;
       }
     }
-    log.debug(`Coil scores are ${coilScores}`);
-    return coilScores
   }
   catch (e) { log.error(`ex in move.coil: ${e}`, data.turn); }
-  return [];
+  return coilScores
 };
 
 
 // build up move scores and return best move
-const buildMove = (grid, data, move, moveScore = 0) => {
+const buildMove = (scores = [0, 0, 0, 0], grid, data) => {
+  log.status(`Move scores: ${u.scoresToString(scores)}`);
   const you = data.you;
-  let scores = baseMoveScores(grid, you);
+  let baseScores = baseMoveScores(grid, you);
+  log.status(`Base scores: ${u.scoresToString(baseScores)}`);
   try {
-
     // if move is null, try to find fallback move
-    if (move === null) {
-      const fallbackMove = getFallbackMove(grid, data);
-      move = fallbackMove.move;
+    if (!u.moveInScores(scores)) {
+      const fallbackScores = getFallbackMove(grid, data);
       // if no fallback move, try to coil on self to save space
-      if (move != null) {
-        scores[move] += fallbackMove.score;
+      if (u.moveInScores(fallbackScores)) {
+        log.status(`Fallback scores: ${u.scoresToString(fallbackScores)}`);
+        scores = u.combineScores(fallbackScores, scores);
       } else {
-        const coilScores = coil(grid, data);
-        for (let m = 0; m < coilScores.length; m++) {
-          scores[m] += coilScores[m];
-        }
+        scores = coil(grid, data);
+        log.status(`Coil scores: ${u.scoresToString(scores)}`);
       }
-    } else {
-      // get base next move scores
-      log.status(`Adding moveScore ${moveScore} to move ${k.DIRECTION[move]}`);
-      scores[move] += moveScore;
-      log.status(`Move scores: ${u.scoresToString(scores)}`);
     }
-   }
+  }
   catch (e) { log.error(`ex in move.buildMove.baseMoveScores: ${e}`, data.turn); }
+
+  // set scores
+  scores = u.combineScores(baseScores, scores);
   
   // get flood fill scores for each move
   try {
     log.status("Performing flood fill searches");
     for (let m = 0; m < 4; m++) {
-      let gridCopy = g.copyGrid(grid)
+      let gridCopy = g.copyGrid(grid);
       scores[m] += search.fill(m, grid, data);
       gridCopy = g.moveTails(1, grid, data);
       if (p.DEBUG_MAPS) {
