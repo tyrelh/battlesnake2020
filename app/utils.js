@@ -1,4 +1,5 @@
 const log = require("./logger");
+const k = require("./keys");
 
 // return pair as string
 const pairToString = pair => {
@@ -34,15 +35,16 @@ const arrayIncludesPair = (arr, pair) => {
 
 // calculate direction from a to b
 // could be inaccurate if a and b are far apart
+// TODO tyrelh rethink how this works if there are two directions that are the same distance
 const calcDirection = (a, b) => {
   try {
-    const x = a.x - b.x;
-    const y = a.y - b.y;
-    let direction = keys.UP;
-    if (x < 0) direction = keys.RIGHT;
-    else if (x > 0) direction = keys.LEFT;
-    else if (y < 0) direction = keys.DOWN;
-    return direction;
+    const xDelta = a.x - b.x;
+    const yDelta = a.y - b.y;
+    if (xDelta < 0) return k.RIGHT;
+    else if (xDelta > 0) return k.LEFT;
+    else if (yDelta < 0) return k.DOWN;
+    else if (yDelta > 0) return k.UP;
+    return null;
   }
   catch (e) {
     log.error(`ex in utils.calcDirection: ${e}`);
@@ -62,4 +64,4 @@ module.exports = {
   calcDirection: calcDirection,
   arrayIncludesPair: arrayIncludesPair,
   getDistance: getDistance
-}
+};
