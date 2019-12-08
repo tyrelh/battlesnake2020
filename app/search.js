@@ -144,130 +144,6 @@ const fill = (direction, grid, data, constraints = []) => {
 };
 
 
-// a* pathfinding algorithm that will find the shortest path from current head
-// location to a given destination
-// const astar = (grid, data, destination, searchType = keys.FOOD, alternateStartPos = null) => {
-//   if (params.STATUS) log.status("Calculating path (astar)...");
-//   // init search fields
-//   const searchScores = buildAstarGrid(grid);
-//   let openSet = [];
-//   let closedSet = [];
-//   // start location for search is current head location
-//
-//   const start = (alternateStartPos === null) ? s.location(data) : alternateStartPos;
-//   // on first few moves, point to closest food no matter what
-//   if (data.turn < params.INITIAL_FEEDING) {
-//     if (params.DEBUG) log.debug("Within initial feeding, overriding move with closest food.")
-//     destination = t.closestFood(grid, start);
-//     searchType = keys.FOOD;
-//   }
-//   if (destination == null) {
-//     log.debug("In search.astar, destination was null, trying to target tail.");
-//     destination = s.tailLocation(data);
-//     searchType = keys.TAIL;
-//   }
-//   if (params.DEBUG) log.debug(`astar destination: ${keys.TYPE[searchType]}, ${pairToString(destination)}`);
-//   openSet.push(start);
-//   // while the open set is not empty keep searching
-//   while (openSet.length) {
-//     let lowestCell = { x: 9999, y: 9999 };
-//     let lowestF = 9999;
-//     // find cell with lowest f score
-//     openSet.forEach(({ x, y }) => {
-//       if (searchScores[y][x].f < lowestF) {
-//         // 2018 NOTE: consider changing to <= and then also comparing g scores
-//         lowestF = searchScores[y][x].f;
-//         lowestCell = { x: x, y: y };
-//       }
-//     });
-//     // check if found destination
-//     if (sameCell(lowestCell, destination)) {
-//       if (params.STATUS) log.status("Found a path!");
-//       // if (p.DEBUG_MAPS) {
-//       //   log.debug("astar grid after search success:");
-//       //   printFScores(astarGrid);
-//       // }
-//       // re-trace path back to origin to find optimal next move
-//       let tempCell = lowestCell;
-//       if (params.DEBUG) log.debug(`astar start pos: ${pairToString(start)}`);
-//       while (
-//         searchScores[tempCell.y][tempCell.x].previous.x != start.x ||
-//         searchScores[tempCell.y][tempCell.x].previous.y != start.y
-//       ) {
-//         tempCell = searchScores[tempCell.y][tempCell.x].previous;
-//       }
-//       if (params.DEBUG) log.debug(`astar next move: ${pairToString(tempCell)}`);
-//       return calcDirection(start, tempCell);
-//     }
-//     // else continue searching
-//     let current = lowestCell;
-//     currentCell = searchScores[current.y][current.x];
-//     // update sets
-//     openSet = openSet.filter(
-//       pair => !(pair.x === current.x && pair.y === current.y)
-//     );
-//     closedSet.push(current);
-//     // check every viable neighbor to current cell
-//     // searchScores[current.y][current.x].neighbors.forEach(neighbor => {
-//     const currentNeighbors = searchScores[current.y][current.x].neighbors;
-//     for (let n = 0; n < currentNeighbors.length; n++) {
-//       const neighbor = currentNeighbors[n];
-//       let neighborCell = searchScores[neighbor.y][neighbor.x];
-//       if (sameCell(neighbor, destination)) {
-//         if (params.STATUS) log.status("Found a path (neighbor)");
-//         neighborCell.previous = current;
-//         // if (p.DEBUG_MAPS) {
-//         //   log.debug("astar grid after search success:");
-//         //   printFScores(searchScores);
-//         // }
-//         // re-trace path back to origin to find optimal next move
-//         let temp = neighbor;
-//         if (params.DEBUG) log.debug(`astar start pos: ${pairToString(start)}`);
-//         while (
-//           searchScores[temp.y][temp.x].previous.x != start.x ||
-//           searchScores[temp.y][temp.x].previous.y != start.y
-//         ) {
-//           temp = searchScores[temp.y][temp.x].previous;
-//         }
-//         if (params.DEBUG) log.debug(`astar next move: ${pairToString(temp)}`);
-//         return calcDirection(start, temp);
-//       }
-//       // check if neighbor can be moved to
-//       if (neighborCell.state < keys.SNAKE_BODY) {
-//         // check if neighbor has already been evaluated
-//         if (!arrayIncludesPair(closedSet, neighbor)) {
-//           const tempG = currentCell.g + 1;
-//           let shorter = true;
-//           // check if already evaluated with lower g score
-//           if (arrayIncludesPair(openSet, neighbor)) {
-//             if (tempG > neighborCell.g) {
-//               // 2018 NOTE: change to >= ?
-//               shorter = false;
-//             }
-//           }
-//           // if not in either set, add to open set
-//           else {
-//             openSet.push(neighbor);
-//           }
-//           // this is the current best path, record it
-//           if (shorter) {
-//             neighborCell.g = tempG;
-//             neighborCell.h = g.getDistance(neighbor, destination);
-//             neighborCell.f = neighborCell.g + neighborCell.h;
-//             neighborCell.previous = current;
-//           }
-//         }
-//       }
-//     }
-//   }
-//   // if reach this point and open set is empty, no path
-//   if (!openSet.length) {
-//     if (params.STATUS) log.status("COULD NOT FIND PATH!");
-//     return null;
-//   }
-// };
-
-
 // preprocess grid to find valuable cells
 const preprocessGrid = (grid, data) => {
   try {
@@ -698,77 +574,8 @@ const distanceToEnemy = (direction, grid, data, type = k.ENEMY_HEAD) => {
 };
 
 
-
 // test if cells are the same
 const sameCell = (a, b) => (a.x === b.x && a.y === b.y);
-
-
-// check if array contains a given pair
-// const arrayIncludesPair = (arr, pair) => {
-//   for (let i = 0; i < arr.length; i++) {
-//     if (sameCell(arr[i], pair)) return true;
-//   }
-//   return false;
-// };
-
-
-// calculate direction from a to b
-// const calcDirection = (a, b) => {
-//   const x = a.x - b.x;
-//   const y = a.y - b.y;
-//   let direction = k.UP;
-//   if (x < 0) direction = k.RIGHT;
-//   else if (x > 0) direction = k.LEFT;
-//   else if (y < 0) direction = k.DOWN;
-//   return direction;
-// };
-
-
-// construct a parallel search grid to store a* scores
-// const buildAstarGrid = grid => {
-//   let astarGrid = new Array(grid.length);
-//   for (let i = 0; i < grid.length; i++) {
-//     astarGrid[i] = new Array(grid[0].length);
-//     for (let j = 0; j < grid[0].length; j++) {
-//       astarGrid[i][j] = new Cell(j, i, grid[0].length, grid.length, grid[i][j]);
-//     }
-//   }
-//   return astarGrid;
-// };
-
-
-// print search grid f scores
-// const printFScores = astarGrid => {
-//   for (let i = 0; i < astarGrid.length; i++) {
-//     let row = "";
-//     for (let j = 0; j < astarGrid[0].length; j++) {
-//       row +=
-//         astarGrid[i][j].f < 10
-//           ? "  " + astarGrid[i][j].f
-//           : " " + astarGrid[i][j].f;
-//     }
-//     log.status(row);
-//   }
-// };
-
-
-// cell of search grid to store a* scores
-// class Cell {
-//   constructor(x, y, width, height, state) {
-//     this.f = 0;
-//     this.g = 0;
-//     this.h = 0;
-//     this.x = x;
-//     this.y = y;
-//     this.state = state;
-//     this.neighbors = [];
-//     this.previous = { x: 9998, y: 9998 };
-//     if (this.x < width - 1) this.neighbors.push({ x: this.x + 1, y: this.y });
-//     if (this.x > 0) this.neighbors.push({ x: this.x - 1, y: this.y });
-//     if (this.y < height - 1) this.neighbors.push({ x: this.x, y: this.y + 1 });
-//     if (this.y > 0) this.neighbors.push({ x: this.x, y: this.y - 1 });
-//   }
-// };
 
 
 // return pair as string
@@ -824,7 +631,6 @@ const applyMoveToPos = (move, pos) => {
 
 module.exports = {
   outOfBounds: outOfBounds,
-  // astar: astar,
   fill: fill,
   distanceToEnemy: distanceToEnemy,
   applyMoveToPos: applyMoveToPos,
