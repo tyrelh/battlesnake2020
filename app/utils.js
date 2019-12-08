@@ -86,7 +86,10 @@ const moveInScores = (scores) => {
 
 // add score for a given move to the scores array
 const applyMoveToScores = (move, score, scores = [0, 0, 0, 0]) => {
-  try { scores[move] += score; }
+  try {
+    if (move === null || score === null) return scores;
+    scores[move] += score;
+  }
   catch (e) { log.error(`ex in utils.applyMoveToScore: ${e}`); }
   return scores
 };
