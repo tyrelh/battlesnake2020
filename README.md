@@ -22,13 +22,15 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * [My 2018 Python Entry](https://github.com/tyrelh/battlesnake2018)
 
 ## Changelog
-* v3.0:
+* v3:
+    * More accurately scores all possible moves based on distance from dangerous enemy heads, distance to killable enemy heads, and distance from wall.
     * Refactored A* search to be more modular.
+    * Refactored non-behaviour searches to be more modular.
 * **v2:**
-  * My [2019 entry written in JavaScript/Node](https://github.com/tyrelh/battlesnake2019), ported from my 2018 entry.
+  * [2019 entry written in JavaScript/Node](https://github.com/tyrelh/battlesnake2019), ported from my 2018 entry.
   
 * **v1:**
-  * My [2018 entry written in Python](https://github.com/tyrelh/battlesnake2018).
+  * [2018 entry written in Python](https://github.com/tyrelh/battlesnake2018).
 
 ## Notes from 2019
 ### Things to work on for next year
