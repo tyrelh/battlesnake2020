@@ -1,6 +1,7 @@
 const log = require("./logger");
 const k = require("./keys");
 
+
 // return pair as string
 const pairToString = pair => {
   try {
@@ -12,6 +13,16 @@ const pairToString = pair => {
   }
 };
 
+
+// return scores array in a human readable string
+const scoresToString = scores => {
+  try {
+    return `{up: ${scores[0].toFixed(2)}, down: ${scores[1].toFixed(2)}, left: ${scores[2].toFixed(2)}, right: ${scores[3].toFixed(2)}}`
+  }
+  catch (e) { log.error(`ex in move.scoresToString: ${e}`); }
+};
+
+
 // test if cells are the same
 const sameCell = (a, b) => {
   try {
@@ -21,7 +32,8 @@ const sameCell = (a, b) => {
     log.error(`ex in utils.sameCell: ${e}`);
     return false;
   }
-}
+};
+
 
 // check if array contains a given pair
 const arrayIncludesPair = (arr, pair) => {
@@ -32,6 +44,7 @@ const arrayIncludesPair = (arr, pair) => {
   }
   return false;
 };
+
 
 // calculate direction from a to b
 // could be inaccurate if a and b are far apart
@@ -52,16 +65,74 @@ const calcDirection = (a, b) => {
   }
 };
 
+
 // manhattan distance
 const getDistance = (a, b) => {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 };
 
 
+// check if there is any move in a scores array
+const moveInScores = (scores) => {
+  try {
+    for (move in scores) {
+      if (move > 0) return true
+    }
+  }
+  catch (e) { log.error(`ex in utils.moveInScores: ${e}`); }
+  return false
+};
+
+
+// add score for a given move to the scores array
+const applyMoveToScores = (move, score, scores = [0, 0, 0, 0]) => {
+  try {
+    if (move === null || score === null) return scores;
+    scores[move] += score;
+  }
+  catch (e) { log.error(`ex in utils.applyMoveToScore: ${e}`); }
+  return scores
+};
+
+
+// combine two score arrays
+const combineScores = (scoresA, scoresB) => {
+  let scores = [0, 0, 0, 0];
+  try {
+    for (let i = 0; i < scoresA.length; i++) {
+      scores[i] = scoresA[i] + scoresB[i];
+    }
+    return scores;
+  }
+  catch (e) { log.error(`ex in utils.combineScores: ${e}`); }
+  if (scoresA === null) return scoresB;
+  return scoresA;
+};
+
+
+// get highest score move
+const highestScoreMove = (scores) => {
+  let bestMove = 0;
+  let bestScore = -9999;
+  for (let i = 0; i < scores.length; i++) {
+    if (scores[i] > bestScore) {
+      bestScore = scores[i];
+      bestMove = i;
+    }
+  }
+  return bestMove;
+};
+
+
 module.exports = {
   pairToString: pairToString,
+  scoresToString: scoresToString,
   sameCell: sameCell,
   calcDirection: calcDirection,
   arrayIncludesPair: arrayIncludesPair,
-  getDistance: getDistance
+  getDistance: getDistance,
+  moveInScores: moveInScores,
+  applyMoveToScores: applyMoveToScores,
+  combineScores: combineScores,
+  highestScoreMove: highestScoreMove
 };

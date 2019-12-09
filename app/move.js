@@ -27,8 +27,8 @@ const eat = (grid, data) => {
   try {
     target = t.closestFood(grid, myHead);
     if (target === null) {
-      if (p.STATUS) log.status("No food was found on board.");
-      return buildMove(grid, data, null, 0);
+      log.status("No food was found on board.");
+      return buildMove([0, 0, 0, 0], grid, data);
     }
     movePos = astar.search(myHead, target, grid, k.SNAKE_BODY);
 
@@ -43,14 +43,15 @@ const eat = (grid, data) => {
 
   try {
     if (movePos != null) {
-      if (target != null) log.debug(`target in eat: ${pairToString(target)}`);
+      if (target != null) log.debug(`Target in eat: ${u.pairToString(target)}`);
       move = u.calcDirection(myHead, movePos);
-      log.debug(`Score for a* move: {${k.DIRECTION[move]}: ${urgencyScore}}`);
-      return buildMove(grid, data, move, urgencyScore);
+      log.status(`Move in eat: {move: ${k.DIRECTION[move]}, score: ${urgencyScore.toFixed(2)}}`);
+      let scores = u.applyMoveToScores(move, urgencyScore);
+      return buildMove(scores, grid, data);
     }
   }
   catch (e) { log.error(`ex in move.eat.buildmove: ${e}`, data.turn); }
-  return buildMove(grid, data, null, 0);
+  return buildMove([0, 0, 0, 0], grid, data);
 };
  
 
@@ -68,9 +69,11 @@ const hunt = (grid, data) => {
   }
   catch (e) { log.error(`ex in move.hunt: ${e}`, data.turn); }
 
-  if (move != null) log.debug(`In hunt calulated score ${score} for move ${k.DIRECTION[move]}`)
+  if (move != null) log.status(`Move in hunt {move: ${k.DIRECTION[move]}, score: ${score.toFixed(2)}}`);
   else if (move === null) log.debug(`Move in hunt was NULL.`);
-  return buildMove(grid, data, move, score);
+
+  let scores = u.applyMoveToScores(move, score);
+  return buildMove(scores, grid, data);
 };
 
 
@@ -87,20 +90,65 @@ const lateHunt = (grid, data) => {
 
   if (move != null) log.debug(`In lateHunt calulated score ${score} for move ${k.DIRECTION[move]}`)
   else if (move === null) log.debug(`Move in lateHunt was NULL.`);
-  return buildMove(grid, data, move, score);
+
+  let scores = u.applyMoveToScores(move, score);
+  return buildMove(scores, grid, data);
 };
 
 
 // track own tail
 const killTime = (grid, data) => {
   log.status("KILLING TIME");
+  // rely on default move in buildMove
+  return buildMove([0, 0, 0, 0], grid, data);
+};
 
-  // const fallbackMove = getFallbackMove(grid, data);
-  // let move = fallbackMove.move;
-  // let score = fallbackMove.score;
 
-  // if (params.DEBUG && move != null) log.debug(`Score for a* move: ${keys.DIRECTION[move]}: ${params.ASTAR_SUCCESS}`);
-  return buildMove(grid, data, null, 0);
+// build up move scores and return best move
+const buildMove = (scores = [0, 0, 0, 0], grid, data) => {
+  log.status(`Behaviour scores:\n${u.scoresToString(scores)}`);
+  const myHead = s.location(data);
+  let baseScores = baseMoveScores(grid, myHead);
+  log.status(`Base scores:\n ${u.scoresToString(baseScores)}`);
+  try {
+    // if move is null, try to find fallback move
+    if (!u.moveInScores(scores)) {
+      const fallbackScores = getFallbackMove(grid, data);
+      // if no fallback move, try to coil on self to save space
+      if (u.moveInScores(fallbackScores)) {
+        log.status(`Fallback scores:\n ${u.scoresToString(fallbackScores)}`);
+        scores = u.combineScores(fallbackScores, scores);
+      } else {
+        scores = coil(grid, data);
+        log.status(`Coil scores:\n ${u.scoresToString(scores)}`);
+      }
+    }
+  }
+  catch (e) { log.error(`ex in move.buildMove.fallback: ${e}`, data.turn); }
+  scores = u.combineScores(baseScores, scores);
+
+  // get flood fill scores for each move
+  let floodScores = search.completeFloodSearch(grid, data);
+  log.status(`Flood scores:\n ${u.scoresToString(floodScores)}`);
+  scores = u.combineScores(scores, floodScores);
+
+  // see if a particular move will bring you farther from dangerous snake
+  let fartherFromDangerousSnakesScores = search.scoresFartherFromDangerousSnake(grid, data);
+  log.status(`Farther from danger snakes scores:\n ${u.scoresToString(fartherFromDangerousSnakesScores)}`);
+  scores = u.combineScores(scores, fartherFromDangerousSnakesScores);
+
+  // see if a particular move will bring you closer to a killable snake
+  let closerToKillableSnakesScores = search.scoresCloserToKillableSnakes(grid, data);
+  log.status(`Closer to killable snakes scores:\n ${u.scoresToString(closerToKillableSnakesScores)}`);
+  scores = u.combineScores(scores, closerToKillableSnakesScores);
+
+  // see if a particular move will bring you farther from wall
+  let fartherFromWallsScores = search.scoresFartherFromWall(grid, data);
+  log.status(`Farther from walls scores:\n ${u.scoresToString(fartherFromWallsScores)}`);
+  scores = u.combineScores(scores, fartherFromWallsScores);
+
+  log.status(`Final scores:\n ${u.scoresToString(scores)}`);
+  return u.highestScoreMove(scores)
 };
 
 
@@ -112,7 +160,6 @@ const getFallbackMove = (grid, data) => {
     let target = s.tailLocation(data);
     let movePos = astar.search(myHead, target, grid, k.SNAKE_BODY);
     let move = u.calcDirection(myHead, movePos);
-    // let move = search.astar(grid, data, target, keys.TAIL);
     let score = 0;
     // if no path to own tail, try searching for food
     const gridCopy = g.copyGrid(grid);
@@ -122,26 +169,26 @@ const getFallbackMove = (grid, data) => {
         gridCopy[target.y][target.x] = k.WARNING;
         movePos = astar.search(myHead, target, grid, k.SNAKE_BODY);
         move = u.calcDirection(myHead, movePos);
-        // move = search.astar(grid, data, target, keys.FOOD);
       }
       // if no more food to search for just quit
       else break;
     }
     if (move != null) {
       score = p.ASTAR_SUCCESS / 5;
-      log.debug(`getFallbackMove target: ${pairToString(target)}`);
+      log.debug(`getFallbackMove target: ${u.pairToString(target)}`);
       log.debug(`getFallbackMove move: ${k.DIRECTION[move]}`);
       log.debug(`getFallbackMove score: ${score}`);
-      return { move: move, score: score };
+      return u.applyMoveToScores(move, score);
     }
   }
   catch (e) { log.error(`ex in move.getFallbackMove: ${e}`, data.turn); }
-  return { move: null, score: 0 };
+  return [0, 0, 0, 0];
 };
 
 
 const coil = (grid, data) => {
   log.status("Trying to coil to save space");
+  let coilScores = [0, 0, 0, 0];
   try {
     let tailLocation = s.tailLocation(data);
     let tailDistances = [0, 0, 0, 0];
@@ -161,184 +208,25 @@ const coil = (grid, data) => {
       }
     }
 
-    let coilScores = [0, 0, 0, 0];
     for (let m = 0; m < 4; m++) {
       if (tailDistances[m] === largestDistance) {
         coilScores[m] += p.COIL;
       }
     }
-    log.debug(`Coil scores are ${coilScores}`);
-    return coilScores
   }
   catch (e) { log.error(`ex in move.coil: ${e}`, data.turn); }
-  return [];
-};
-
-
-// build up move scores and return best move
-const buildMove = (grid, data, move, moveScore = 0) => {
-  const you = data.you;
-  let scores = baseMoveScores(grid, you);
-  try {
-
-    // if move is null, try to find fallback move
-    if (move === null) {
-      const fallbackMove = getFallbackMove(grid, data);
-      move = fallbackMove.move;
-      // if no fallback move, try to coil on self to save space
-      if (move != null) {
-        scores[move] += fallbackMove.score;
-      } else {
-        const coilScores = coil(grid, data);
-        for (let m = 0; m < coilScores.length; m++) {
-          scores[m] += coilScores[m];
-        }
-      }
-    } else {
-      // get base next move scores
-      log.status(`Adding moveScore ${moveScore} to move ${k.DIRECTION[move]}`);
-      scores[move] += moveScore;
-      log.status(`Move scores: ${scoresToString(scores)}`);
-    }
-   }
-  catch (e) { log.error(`ex in move.buildMove.baseMoveScores: ${e}`, data.turn); }
-  
-  // get flood fill scores for each move
-  try {
-    log.status("Performing flood fill searches");
-    for (let m = 0; m < 4; m++) {
-      let gridCopy = g.copyGrid(grid)
-      scores[m] += search.fill(m, grid, data);
-      gridCopy = g.moveTails(1, grid, data);
-      if (p.DEBUG_MAPS) {
-        log.debug("Map for fill search 1 move in advance");
-        g.printGrid(gridCopy);
-      }
-      scores[m] += search.fill(m, gridCopy, data, [k.KILL_ZONE, k.DANGER, k.WARNING]);
-      gridCopy = g.moveTails(2, grid, data);
-      if (p.DEBUG_MAPS) {
-        log.debug("Map for fill search 2 moves in advance");
-        g.printGrid(gridCopy);
-      }
-      scores[m] += search.fill(m, gridCopy, data, [k.KILL_ZONE, k.DANGER, k.WARNING, k.FUTURE_2]);
-    }
-  }
-  catch (e) { log.error(`ex in move.buildMove.fill: ${e}`, data.turn); }
-  log.status(`Move scores: ${scoresToString(scores)}`);
-
-  // see if a particular move will bring you farther from dangerous snake
-  try {
-    let enemyDistances = [0, 0, 0, 0];
-    let largestDistance = 0;
-    let largestDistanceMove = 0;
-    let uniqueLargestDistanceMove = false;
-    for (let m = 0; m < 4; m++) {
-      const currentDistance = search.distanceToEnemy(m, grid, data, k.ENEMY_HEAD);
-      log.debug(`Distance to closest dangerous snake for move ${k.DIRECTION[m]} is ${currentDistance}`);
-      if (enemyDistances[m] < currentDistance) {
-        enemyDistances[m] = currentDistance;
-        if (largestDistance === currentDistance) uniqueLargestDistanceMove = false;
-        else if (largestDistance < currentDistance) {
-          largestDistance = currentDistance;
-          largestDistanceMove = m;
-          uniqueLargestDistanceMove = true;
-        }
-      }
-    }
-    if (uniqueLargestDistanceMove){
-      log.debug(`Add ENEMY_DISTANCE ${p.ENEMY_DISTANCE} to move ${k.DIRECTION[largestDistanceMove]} for farther ENEMY_HEAD`);
-      scores[largestDistanceMove] += p.ENEMY_DISTANCE;
-    }
-  }
-  catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`, data.turn); }
-  log.status(`Move scores: ${scoresToString(scores)}`);
-
-  // see if a particular move will bring you closer to a killable snake
-  try {
-    let enemyDistances = [9999, 9999, 9999, 9999];
-    let smallestDistance = 9999;
-    let smallestDistanceMove = 0;
-    let uniqueSmallestDistanceMove = false;
-    for (let m = 0; m < 4; m++) {
-      const currentDistance = search.distanceToEnemy(m, grid, data, k.KILL_ZONE);
-      log.debug(`Distance to closest killable snake for move ${k.DIRECTION[m]} is ${currentDistance}`);
-      if (currentDistance === 0) continue;
-      if (enemyDistances[m] > currentDistance) {
-        enemyDistances[m] = currentDistance;
-        if (smallestDistance === currentDistance) uniqueSmallestDistanceMove = false;
-        else if (smallestDistance > currentDistance) {
-          smallestDistance = currentDistance;
-          smallestDistanceMove = m;
-          uniqueSmallestDistanceMove = true;
-        }
-      }
-    }
-    if (uniqueSmallestDistanceMove){
-      log.debug(`Add ENEMY_DISTANCE ${p.ENEMY_DISTANCE} to move ${k.DIRECTION[smallestDistanceMove]} for closer KILL_ZONE`);
-      scores[smallestDistanceMove] += p.ENEMY_DISTANCE;
-    }
-  }
-  catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`, data.turn); }
-  log.status(`Move scores: ${scoresToString(scores)}`);
-
-  // see if a particular move will bring you farther from wall
-  try {
-    let centerDistances = [0, 0, 0, 0];
-    let largestDistance = 0;
-    let largestDistanceMove = 0;
-    let uniqueLargestDistanceMove = false;
-    for (let m = 0; m < 4; m++) {
-      const currentDistance = search.distanceToCenter(m, s.location(data), grid, data);
-      log.debug(`Distance from wall for move ${k.DIRECTION[m]} is ${currentDistance}`);
-      // if (currentDistance === 0) continue;
-      if (centerDistances[m] < currentDistance) {
-        centerDistances[m] = currentDistance;
-        if (largestDistance === currentDistance) uniqueLargestDistanceMove = false;
-        else if (largestDistance < currentDistance) {
-          largestDistance = currentDistance;
-          largestDistanceMove = m;
-          uniqueLargestDistanceMove = true;
-        }
-      }
-    }
-    if (uniqueLargestDistanceMove){
-      log.debug(`Add ${p.WALL_DISTANCE} to move ${k.DIRECTION[largestDistanceMove]} for farther from wall`);
-      scores[largestDistanceMove] += p.WALL_DISTANCE;
-    }
-  }
-  catch (e) { log.error(`ex in move.buildMove.fartherFromWall: ${e}`, data.turn); }
-  log.status(`Move scores: ${scoresToString(scores)}`);
-
-  const bestMove = highestScoreMove(scores);
-  previousMove = bestMove;
-  return bestMove
-};
-
-
-// get highest score move
-const highestScoreMove = scores => {
-  let bestMove = 0;
-  let bestScore = -9999;
-  for (let i = 0; i < scores.length; i++) {
-    if (scores[i] > bestScore) {
-      bestScore = scores[i];
-      bestMove = i;
-    }
-  }
-  return bestMove;
+  return coilScores
 };
 
 
 // get base score for each possible move
-const baseMoveScores = (grid, self) => {
-  const head = self.body[0];
+const baseMoveScores = (grid, myHead) => {
   let scores = [0, 0, 0, 0];
   // get score for each direction
-  scores[k.UP] += baseScoreForBoardPosition(head.x, head.y - 1, grid);
-  scores[k.DOWN] += baseScoreForBoardPosition(head.x, head.y + 1, grid);
-  scores[k.LEFT] += baseScoreForBoardPosition(head.x - 1, head.y, grid);
-  scores[k.RIGHT] += baseScoreForBoardPosition(head.x + 1, head.y, grid);
-  log.debug(`Base move scores: {up: ${scores[k.UP]}, down: ${scores[k.DOWN]}, left: ${scores[k.LEFT]}, right: ${scores[k.RIGHT]}}`)
+  scores[k.UP] += baseScoreForBoardPosition(myHead.x, myHead.y - 1, grid);
+  scores[k.DOWN] += baseScoreForBoardPosition(myHead.x, myHead.y + 1, grid);
+  scores[k.LEFT] += baseScoreForBoardPosition(myHead.x - 1, myHead.y, grid);
+  scores[k.RIGHT] += baseScoreForBoardPosition(myHead.x + 1, myHead.y, grid);
   return scores;
 };
 
@@ -372,6 +260,7 @@ const baseScoreForBoardPosition = (x, y, grid) => {
     }
   }
   catch (e) { log.error(`ex in move.baseScoreForBoardPosition: ${e}`); }
+  return 0;
 };
 
 
@@ -392,57 +281,7 @@ const validMove = (direction, pos, grid) => {
     return false;
   }
   catch (e) { log.error(`ex in move.validMove: ${e}`); }
-};
-
-
-// if move is no good, suggest a similar move that is valid
-const suggestMove = (direction, pos, grid) => {
-  try {
-    switch (direction) {
-      // if up, check right, left, down
-      case k.UP:
-        if (validMove(k.RIGHT, pos, grid)) return k.RIGHT;
-        else if (validMove(k.LEFT, pos, grid)) return k.LEFT;
-        else if (validMove(k.DOWN, pos, grid)) return k.DOWN;
-        return direction;
-      // if down, check left, right, up
-      case k.DOWN:
-        if (validMove(k.LEFT, pos, grid)) return k.LEFT;
-        else if (validMove(k.RIGHT, pos, grid)) return k.RIGHT;
-        else if (validMove(k.UP, pos, grid)) return k.UP;
-        return direction;
-      // if left, check up, down, right
-      case k.LEFT:
-        if (validMove(k.UP, pos, grid)) return k.UP;
-        else if (validMove(k.DOWN, pos, grid)) return k.DOWN;
-        else if (validMove(k.RIGHT, pos, grid)) return k.RIGHT;
-        return direction;
-      // if right, check down, up, left
-      case k.RIGHT:
-        if (validMove(k.DOWN, pos, grid)) return k.DOWN;
-        else if (validMove(k.UP, pos, grid)) return k.UP;
-        else if (validMove(k.LEFT, pos, grid)) return k.LEFT;
-        return direction;
-    }
-  }
-  catch(e) { log.error(`ex in move.suggestMove: ${e}`); }
-  return direction;
-};
-
-
-// return pair as string
-const pairToString = pair => {
-  try { return `{x: ${pair.x}, y: ${pair.y}}`; }
-  catch (e) { log.error(`ex in move.pairToString: ${e}`); }
-};
-
-
-// return scores array in a human readable string
-const scoresToString = scores => {
-  try {
-    return `{up: ${scores[0]}, down: ${scores[1]}, left: ${scores[2]}, right: ${scores[3]}}`
-  }
-  catch (e) { log.error(`ex in move.scoresToString: ${e}`); }
+  return false;
 };
 
 

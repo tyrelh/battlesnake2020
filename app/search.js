@@ -144,6 +144,127 @@ const fill = (direction, grid, data, constraints = []) => {
 };
 
 
+// get flood fill scores for each move
+const completeFloodSearch = (grid, data) => {
+  let scores = [0, 0, 0, 0];
+  try {
+    log.status("Performing flood fill searches");
+    for (let m = 0; m < 4; m++) {
+      let gridCopy = g.copyGrid(grid);
+      scores[m] += fill(m, grid, data);
+      gridCopy = g.moveTails(1, grid, data);
+      if (p.DEBUG_MAPS) {
+        log.debug("Map for fill search 1 move in advance");
+        g.printGrid(gridCopy);
+      }
+      scores[m] += fill(m, gridCopy, data, [k.KILL_ZONE, k.DANGER, k.WARNING]);
+      gridCopy = g.moveTails(2, grid, data);
+      if (p.DEBUG_MAPS) {
+        log.debug("Map for fill search 2 moves in advance");
+        g.printGrid(gridCopy);
+      }
+      scores[m] += fill(m, gridCopy, data, [k.KILL_ZONE, k.DANGER, k.WARNING, k.FUTURE_2]);
+    }
+  }
+  catch (e) { log.error(`ex in search.completeFloodSearch: ${e}`, data.turn); }
+  return scores;
+};
+
+
+// see if a particular move will bring you farther from dangerous snake
+const scoresFartherFromDangerousSnake = (grid, data) => {
+  let scores = [0, 0, 0, 0];
+  try {
+    let enemyDistances = [0, 0, 0, 0];
+    let largestDistance = 0;
+    let largestDistanceMove = 0;
+    let uniqueLargestDistanceMove = false;
+    for (let m = 0; m < 4; m++) {
+      const currentDistance = distanceToEnemy(m, grid, data, k.ENEMY_HEAD);
+      log.debug(`Distance to closest dangerous snake for move ${k.DIRECTION[m]} is ${currentDistance}`);
+      if (enemyDistances[m] < currentDistance) {
+        enemyDistances[m] = currentDistance;
+        if (largestDistance === currentDistance) uniqueLargestDistanceMove = false;
+        else if (largestDistance < currentDistance) {
+          largestDistance = currentDistance;
+          largestDistanceMove = m;
+          uniqueLargestDistanceMove = true;
+        }
+      }
+    }
+    if (uniqueLargestDistanceMove){
+      log.debug(`Add ENEMY_DISTANCE ${p.ENEMY_DISTANCE} to move ${k.DIRECTION[largestDistanceMove]} for farther ENEMY_HEAD`);
+      scores[largestDistanceMove] += p.ENEMY_DISTANCE;
+    }
+  }
+  catch (e) { log.error(`ex in search.fartherFromDangerousSnake: ${e}`, data.turn); }
+  return scores;
+};
+
+
+// see if a particular move will bring you closer to a killable snake
+const scoresCloserToKillableSnakes = (grid, data) => {
+  let scores = [0, 0, 0, 0];
+  try {
+    let enemyDistances = [9999, 9999, 9999, 9999];
+    let smallestDistance = 9999;
+    let smallestDistanceMove = 0;
+    let uniqueSmallestDistanceMove = false;
+    for (let m = 0; m < 4; m++) {
+      const currentDistance = distanceToEnemy(m, grid, data, k.KILL_ZONE);
+      log.debug(`Distance to closest killable snake for move ${k.DIRECTION[m]} is ${currentDistance}`);
+      if (currentDistance === 0) continue;
+      if (enemyDistances[m] > currentDistance) {
+        enemyDistances[m] = currentDistance;
+        if (smallestDistance === currentDistance) uniqueSmallestDistanceMove = false;
+        else if (smallestDistance > currentDistance) {
+          smallestDistance = currentDistance;
+          smallestDistanceMove = m;
+          uniqueSmallestDistanceMove = true;
+        }
+      }
+    }
+    if (uniqueSmallestDistanceMove){
+      log.debug(`Add ENEMY_DISTANCE ${p.ENEMY_DISTANCE} to move ${k.DIRECTION[smallestDistanceMove]} for closer KILL_ZONE`);
+      scores[smallestDistanceMove] += p.ENEMY_DISTANCE;
+    }
+  }
+  catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`, data.turn); }
+  return scores;
+};
+
+
+// see if a particular move will bring you farther from wall
+const scoresFartherFromWall = (grid, data) => {
+  let scores = [0, 0, 0, 0];
+  try {
+    let centerDistances = [0, 0, 0, 0];
+    let largestDistance = 0;
+    let largestDistanceMove = 0;
+    let uniqueLargestDistanceMove = false;
+    for (let m = 0; m < 4; m++) {
+      const currentDistance = distanceToCenter(m, s.location(data), grid, data);
+      log.debug(`Distance from wall for move ${k.DIRECTION[m]} is ${currentDistance}`);
+      if (centerDistances[m] < currentDistance) {
+        centerDistances[m] = currentDistance;
+        if (largestDistance === currentDistance) uniqueLargestDistanceMove = false;
+        else if (largestDistance < currentDistance) {
+          largestDistance = currentDistance;
+          largestDistanceMove = m;
+          uniqueLargestDistanceMove = true;
+        }
+      }
+    }
+    if (uniqueLargestDistanceMove){
+      log.debug(`Add ${p.WALL_DISTANCE} to move ${k.DIRECTION[largestDistanceMove]} for farther from wall`);
+      scores[largestDistanceMove] += p.WALL_DISTANCE;
+    }
+  }
+  catch (e) { log.error(`ex in msearch.scoresFartherFromWall: ${e}`, data.turn); }
+  return scores;
+};
+
+
 // preprocess grid to find valuable cells
 const preprocessGrid = (grid, data) => {
   try {
@@ -632,6 +753,10 @@ const applyMoveToPos = (move, pos) => {
 module.exports = {
   outOfBounds: outOfBounds,
   fill: fill,
+  completeFloodSearch: completeFloodSearch,
+  scoresFartherFromDangerousSnake: scoresFartherFromDangerousSnake,
+  scoresCloserToKillableSnakes: scoresCloserToKillableSnakes,
+  scoresFartherFromWall: scoresFartherFromWall,
   distanceToEnemy: distanceToEnemy,
   applyMoveToPos: applyMoveToPos,
   closeAccessableKillZoneFarFromWall: closeAccessableKillZoneFarFromWall,
