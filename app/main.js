@@ -10,6 +10,7 @@ const search = require("./search");
 // will break if multiple games are running simultaneosly
 let slowest = 0;
 let slowestMove = 0;
+let moveTimes = [];
 
 
 // called for every move
@@ -66,11 +67,13 @@ const move = (req, res) => {
 
   let date2 = new Date();
   let endTime = date2.getMilliseconds();
-  if (endTime - startTime > slowest) {
-    slowest = endTime - startTime;
+  let timeTaken = endTime - startTime;
+  if (timeTaken > slowest) {
+    slowest = timeTaken;
     slowestMove = data.turn;
   }
-  log.status(`Move ${data.turn} took ${endTime - startTime}ms.`);
+  moveTimes.push(timeTaken);
+  log.status(`Move ${data.turn} took ${timeTaken}ms.`);
   return res.json({ move: move ? keys.DIRECTION[move] : keys.DIRECTION[keys.UP] });
 };
 
@@ -83,6 +86,7 @@ const start = (req, res) => {
   log.status(`My snake id is ${req.body.you.id}`);
   slowest = 0;
   slowestMove = 0;
+  moveTimes = [];
 
   log.status("Snakes playing this game are:");
   try {
@@ -109,6 +113,10 @@ const start = (req, res) => {
 // called when you die, or end of game if you win
 const end = (req, res) => {
   log.status(`\nSlowest move ${slowestMove} took ${slowest}ms.`);
+  const totalTime = moveTimes.reduce((acc, c) => acc + c, 0);
+  const averageTime = totalTime / moveTimes.length;
+  log.status(`Total time computing was ${totalTime}ms.`);
+  log.status(`Average move time was ${averageTime.toFixed(1)}ms.`);
   // write logs for this game to file
   log.writeLogs(req.body);
   return res.json({});
