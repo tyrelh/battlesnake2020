@@ -2,24 +2,28 @@ const fs = require("fs");
 const p = require("./params");
 
 
+// globals for logging across whole game
+// will cause errors when multiple games running simultaneously
 let log = "";
 let exLog = "############################# EXCEPTIONS\n";
+let errorHappened = false;
 
 
 const initGameLogs = () => {
   log = "";
   exLog = "############################# EXCEPTIONS\n";
+  errorHappened = false;
 };
 
 
 // write logs for game to file and update the index of logs
 const writeLogs = (data) => {
   try {
-    if (p.CONSOLE_LOG) console.log(exLog);
+    if (errorHappened && p.CONSOLE_LOG) console.log(exLog);
     const gameId = data.game.id;
     const path = `${__dirname}/../logs/${gameId}.txt`;
     // append game exeptions to end of log for easy viewing
-    log += "\n" + exLog;
+    if (errorHappened) log += "\n" + exLog;
     // write log
     fs.writeFile(
       path,
@@ -58,6 +62,7 @@ const writeLogs = (data) => {
 // debug levels
 const error = (message, turn = null) => {
   try {
+    errorHappened = true;
     log += `ERROR: ${message}\n`;
     if (p.CONSOLE_LOG) console.log(`ERROR: ${message}`);
     exLog += `EX ON TURN ${turn != null ? turn : "none"}: ${message}\n`;
