@@ -25,7 +25,7 @@ const eat = (staySafe, grid, data) => {
   log.status(`EATING w/ urgency ${urgencyScore}`);
   
   try {
-    target = t.closestFood(grid, myHead);
+    target = t.closestFood(myHead, gridCopy, data);
     if (target === null) {
       log.status("No food was found on board.");
       return buildMove([0, 0, 0, 0], staySafe, grid, data);
@@ -34,7 +34,7 @@ const eat = (staySafe, grid, data) => {
 
     while (movePos === null && target != null) {
       gridCopy[target.y][target.x] = k.DANGER;
-      target = t.closestFood(gridCopy, myHead);
+      target = t.closestFood(myHead, gridCopy, data);
       if (target === null) break;
       movePos = astar.search(myHead, target, grid, k.SNAKE_BODY);
     }
@@ -170,7 +170,7 @@ const getFallbackMove = (grid, data) => {
     // if no path to own tail, try searching for food
     const gridCopy = g.copyGrid(grid);
     while (move === null) {
-      target = t.closestFood(gridCopy, myHead);
+      target = t.closestFood(myHead, gridCopy, data);
       if (target != null) {
         gridCopy[target.y][target.x] = k.WARNING;
         movePos = astar.search(myHead, target, grid, k.SNAKE_BODY);
