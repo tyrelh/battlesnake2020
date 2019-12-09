@@ -104,6 +104,54 @@ const killTime = (grid, data) => {
 };
 
 
+// build up move scores and return best move
+const buildMove = (scores = [0, 0, 0, 0], grid, data) => {
+  log.status(`Behaviour scores:\n${u.scoresToString(scores)}`);
+  const myHead = s.location(data);
+  let baseScores = baseMoveScores(grid, myHead);
+  log.status(`Base scores:\n ${u.scoresToString(baseScores)}`);
+  try {
+    // if move is null, try to find fallback move
+    if (!u.moveInScores(scores)) {
+      const fallbackScores = getFallbackMove(grid, data);
+      // if no fallback move, try to coil on self to save space
+      if (u.moveInScores(fallbackScores)) {
+        log.status(`Fallback scores:\n ${u.scoresToString(fallbackScores)}`);
+        scores = u.combineScores(fallbackScores, scores);
+      } else {
+        scores = coil(grid, data);
+        log.status(`Coil scores:\n ${u.scoresToString(scores)}`);
+      }
+    }
+  }
+  catch (e) { log.error(`ex in move.buildMove.fallback: ${e}`, data.turn); }
+  scores = u.combineScores(baseScores, scores);
+
+  // get flood fill scores for each move
+  let floodScores = search.completeFloodSearch(grid, data);
+  log.status(`Flood scores:\n ${u.scoresToString(floodScores)}`);
+  scores = u.combineScores(scores, floodScores);
+
+  // see if a particular move will bring you farther from dangerous snake
+  let fartherFromDangerousSnakesScores = search.scoresFartherFromDangerousSnake(grid, data);
+  log.status(`Farther from danger snakes scores:\n ${u.scoresToString(fartherFromDangerousSnakesScores)}`);
+  scores = u.combineScores(scores, fartherFromDangerousSnakesScores);
+
+  // see if a particular move will bring you closer to a killable snake
+  let closerToKillableSnakesScores = search.scoresCloserToKillableSnakes(grid, data);
+  log.status(`Closer to killable snakes scores:\n ${u.scoresToString(closerToKillableSnakesScores)}`);
+  scores = u.combineScores(scores, closerToKillableSnakesScores);
+
+  // see if a particular move will bring you farther from wall
+  let fartherFromWallsScores = search.scoresFartherFromWall(grid, data);
+  log.status(`Farther from walls scores:\n ${u.scoresToString(fartherFromWallsScores)}`);
+  scores = u.combineScores(scores, fartherFromWallsScores);
+
+  log.status(`Final scores:\n ${u.scoresToString(scores)}`);
+  return u.highestScoreMove(scores)
+};
+
+
 const getFallbackMove = (grid, data) => {
   try {
     const myHead = s.location(data);
@@ -171,71 +219,6 @@ const coil = (grid, data) => {
 };
 
 
-// build up move scores and return best move
-const buildMove = (scores = [0, 0, 0, 0], grid, data) => {
-  log.status(`Move scores:\n${u.scoresToString(scores)}`);
-  const myHead = s.location(data);
-  let baseScores = baseMoveScores(grid, myHead);
-  log.status(`Base scores:\n ${u.scoresToString(baseScores)}`);
-  try {
-    // if move is null, try to find fallback move
-    if (!u.moveInScores(scores)) {
-      const fallbackScores = getFallbackMove(grid, data);
-      // if no fallback move, try to coil on self to save space
-      if (u.moveInScores(fallbackScores)) {
-        log.status(`Fallback scores:\n ${u.scoresToString(fallbackScores)}`);
-        scores = u.combineScores(fallbackScores, scores);
-      } else {
-        scores = coil(grid, data);
-        log.status(`Coil scores:\n ${u.scoresToString(scores)}`);
-      }
-    }
-  }
-  catch (e) { log.error(`ex in move.buildMove.baseMoveScores: ${e}`, data.turn); }
-
-  // set scores
-  scores = u.combineScores(baseScores, scores);
-  
-  // get flood fill scores for each move
-  let floodScores = search.completeFloodSearch(grid, data);
-  log.status(`Flood scores:\n ${u.scoresToString(floodScores)}`);
-  scores = u.combineScores(scores, floodScores);
-
-  // see if a particular move will bring you farther from dangerous snake
-  let fartherFromDangerousSnakesScores = search.scoresFartherFromDangerousSnake(grid, data);
-  log.status(`Farther from danger snakes scores:\n ${u.scoresToString(fartherFromDangerousSnakesScores)}`);
-  scores = u.combineScores(scores, fartherFromDangerousSnakesScores);
-
-  // see if a particular move will bring you closer to a killable snake
-  let closerToKillableSnakesScores = search.scoresCloserToKillableSnakes(grid, data);
-  log.status(`Closer to killable snakes scores:\n ${u.scoresToString(closerToKillableSnakesScores)}`);
-  scores = u.combineScores(scores, closerToKillableSnakesScores);
-
-  // see if a particular move will bring you farther from wall
-  let fartherFromWallsScores = search.scoresFartherFromWall(grid, data);
-  log.status(`Farther from walls scores:\n ${u.scoresToString(fartherFromWallsScores)}`);
-  scores = u.combineScores(scores, fartherFromWallsScores);
-
-  // const bestMove = highestScoreMove(scores);
-  // previousMove = bestMove;
-  return highestScoreMove(scores)
-};
-
-
-// get highest score move
-const highestScoreMove = scores => {
-  let bestMove = 0;
-  let bestScore = -9999;
-  for (let i = 0; i < scores.length; i++) {
-    if (scores[i] > bestScore) {
-      bestScore = scores[i];
-      bestMove = i;
-    }
-  }
-  return bestMove;
-};
-
-
 // get base score for each possible move
 const baseMoveScores = (grid, myHead) => {
   let scores = [0, 0, 0, 0];
@@ -298,41 +281,7 @@ const validMove = (direction, pos, grid) => {
     return false;
   }
   catch (e) { log.error(`ex in move.validMove: ${e}`); }
-};
-
-
-// if move is no good, suggest a similar move that is valid
-const suggestMove = (direction, pos, grid) => {
-  try {
-    switch (direction) {
-      // if up, check right, left, down
-      case k.UP:
-        if (validMove(k.RIGHT, pos, grid)) return k.RIGHT;
-        else if (validMove(k.LEFT, pos, grid)) return k.LEFT;
-        else if (validMove(k.DOWN, pos, grid)) return k.DOWN;
-        return direction;
-      // if down, check left, right, up
-      case k.DOWN:
-        if (validMove(k.LEFT, pos, grid)) return k.LEFT;
-        else if (validMove(k.RIGHT, pos, grid)) return k.RIGHT;
-        else if (validMove(k.UP, pos, grid)) return k.UP;
-        return direction;
-      // if left, check up, down, right
-      case k.LEFT:
-        if (validMove(k.UP, pos, grid)) return k.UP;
-        else if (validMove(k.DOWN, pos, grid)) return k.DOWN;
-        else if (validMove(k.RIGHT, pos, grid)) return k.RIGHT;
-        return direction;
-      // if right, check down, up, left
-      case k.RIGHT:
-        if (validMove(k.DOWN, pos, grid)) return k.DOWN;
-        else if (validMove(k.UP, pos, grid)) return k.UP;
-        else if (validMove(k.LEFT, pos, grid)) return k.LEFT;
-        return direction;
-    }
-  }
-  catch(e) { log.error(`ex in move.suggestMove: ${e}`); }
-  return direction;
+  return false;
 };
 
 

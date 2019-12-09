@@ -110,6 +110,20 @@ const combineScores = (scoresA, scoresB) => {
 };
 
 
+// get highest score move
+const highestScoreMove = (scores) => {
+  let bestMove = 0;
+  let bestScore = -9999;
+  for (let i = 0; i < scores.length; i++) {
+    if (scores[i] > bestScore) {
+      bestScore = scores[i];
+      bestMove = i;
+    }
+  }
+  return bestMove;
+};
+
+
 module.exports = {
   pairToString: pairToString,
   scoresToString: scoresToString,
@@ -119,5 +133,6 @@ module.exports = {
   getDistance: getDistance,
   moveInScores: moveInScores,
   applyMoveToScores: applyMoveToScores,
-  combineScores: combineScores
+  combineScores: combineScores,
+  highestScoreMove: highestScoreMove
 };
