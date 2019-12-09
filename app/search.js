@@ -175,11 +175,11 @@ const completeFloodSearch = (grid, data) => {
 const scoresFartherFromDangerousSnake = (grid, data) => {
   let enemyDistanceScores = [0, 0, 0, 0];
   try {
-    for (let m = 0; m < 4; m++) {
-      const currentDistance = distanceToEnemy(m, grid, data, k.ENEMY_HEAD);
-      log.debug(`Distance to closest dangerous snake for move ${k.DIRECTION[m]} is ${currentDistance}`);
-      if (enemyDistanceScores[m] < currentDistance) {
-        enemyDistanceScores[m] = (currentDistance * p.ENEMY_DISTANCE);
+    for (let direction = 0; direction < 4; direction++) {
+      const currentDistance = distanceToEnemy(direction, grid, data, k.ENEMY_HEAD);
+      log.debug(`Distance to closest dangerous snake for move ${k.DIRECTION[direction]} is ${currentDistance}`);
+      if (enemyDistanceScores[direction] < currentDistance) {
+        enemyDistanceScores[direction] = (currentDistance * p.ENEMY_DISTANCE);
       }
     }
   }
@@ -192,12 +192,12 @@ const scoresFartherFromDangerousSnake = (grid, data) => {
 const scoresCloserToKillableSnakes = (grid, data) => {
   let enemyDistanceScores = [0, 0, 0, 0];
   try {
-    for (let m = 0; m < 4; m++) {
-      const currentDistance = distanceToEnemy(m, grid, data, k.KILL_ZONE);
-      log.debug(`Distance to closest killable snake for move ${k.DIRECTION[m]} is ${currentDistance}`);
+    for (let direction = 0; direction < 4; direction++) {
+      const currentDistance = distanceToEnemy(direction, grid, data, k.KILL_ZONE);
+      log.debug(`Distance to closest killable snake for move ${k.DIRECTION[direction]} is ${currentDistance}`);
       if (currentDistance === 0) continue;
-      if (enemyDistanceScores[m] < currentDistance) {
-        enemyDistanceScores[m] = -(currentDistance * p.ENEMY_DISTANCE);
+      if (enemyDistanceScores[direction] < currentDistance) {
+        enemyDistanceScores[direction] = -(currentDistance * p.ENEMY_DISTANCE);
       }
     }
   }
@@ -206,34 +206,20 @@ const scoresCloserToKillableSnakes = (grid, data) => {
 };
 
 
-// see if a particular move will bring you farther from wall
+// score moves based on distance from wall
 const scoresFartherFromWall = (grid, data) => {
-  let scores = [0, 0, 0, 0];
+  let wallDistanceScores = [0, 0, 0, 0];
   try {
-    let centerDistances = [0, 0, 0, 0];
-    let largestDistance = 0;
-    let largestDistanceMove = 0;
-    let uniqueLargestDistanceMove = false;
-    for (let m = 0; m < 4; m++) {
-      const currentDistance = distanceToCenter(m, s.location(data), grid, data);
-      log.debug(`Distance from wall for move ${k.DIRECTION[m]} is ${currentDistance}`);
-      if (centerDistances[m] < currentDistance) {
-        centerDistances[m] = currentDistance;
-        if (largestDistance === currentDistance) uniqueLargestDistanceMove = false;
-        else if (largestDistance < currentDistance) {
-          largestDistance = currentDistance;
-          largestDistanceMove = m;
-          uniqueLargestDistanceMove = true;
-        }
+    for (let direction = 0; direction < 4; direction++) {
+      const currentDistance = distanceFromWall(applyMoveToPos(direction, s.location(data)), grid);
+      log.debug(`Distance from wall for move ${k.DIRECTION[direction]} is ${currentDistance}`);
+      if (wallDistanceScores[direction] < currentDistance) {
+        wallDistanceScores[direction] = (currentDistance * p.WALL_DISTANCE);
       }
-    }
-    if (uniqueLargestDistanceMove){
-      log.debug(`Add ${p.WALL_DISTANCE} to move ${k.DIRECTION[largestDistanceMove]} for farther from wall`);
-      scores[largestDistanceMove] += p.WALL_DISTANCE;
     }
   }
   catch (e) { log.error(`ex in msearch.scoresFartherFromWall: ${e}`, data.turn); }
-  return scores;
+  return wallDistanceScores;
 };
 
 
@@ -645,7 +631,7 @@ const distanceFromWall = (pos, grid) => {
     let xRight = (grid[0].length - 1) - pos.x;
     let xDistance = Math.min(xLeft, xRight);
     let yDistance = Math.min(yUp, yDown);
-    return Math.max(xDistance, yDistance);
+    return Math.min(xDistance, yDistance);
   }
   catch (e) { log.error(`ex in search.distanceFromWall: ${e}`) };
   return 0;
