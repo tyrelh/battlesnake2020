@@ -6,20 +6,23 @@ module.exports = {
   CONSOLE_LOG: true,
 
   // basic game params
-  INITIAL_FEEDING: 5,  // started @  5   +++++++-
-  SURVIVAL_MIN: 47,     // started @ 50   --+++++ 47
+  INITIAL_FEEDING: 5, // started @  5   +++++++-
+  SURVIVAL_MIN: 47, // started @ 50   --+++++ 47
   LONG_GAME_ENDURANCE: 80, // started @ 80
   INITIAL_TIME_KILL: 0, // started @ 70   ---------------
   WALL_NEAR_BASE_MOVE_MULTIPLIER: 12, // started @ 1.6 +++++++++++++
-  WALL_NEAR_FILL_MULTIPLIER: 0.05,     // started @ 0.4 ---
-  KILL_ZONE_BASE_MOVE_MULTIPLIER: 3.5,  // started @ 3 +
-  FEEDING_URGENCY_MULTIPLIER: 0.32,   // started @ 0.4 --
+  WALL_NEAR_FILL_MULTIPLIER: 0.05, // started @ 0.4 ---
+  KILL_ZONE_BASE_MOVE_MULTIPLIER: 3.5, // started @ 3 +
+  FEEDING_URGENCY_MULTIPLIER: 0.32, // started @ 0.4 --
+  SAFE_AMOUNT_OF_SNAKES: 4, // started @ 4
+  STAY_SAFE_MULTIPLIER: 4.0, // started @ 4.0
+  FLOOD_MULTIPLIER: 0.5,
+  ENEMY_DISTANCE: 2.5,   // started @ 0.99 +-+++-++
+  WALL_DISTANCE: 3,    // started @ 2    +++-
 
   // scores for moves
   ASTAR_SUCCESS: 9.3,    // started @ 10   -++
   SUGGEST_MOVE: 0.2,
-  ENEMY_DISTANCE: 2.0,   // started @ 0.99 +-+++-+
-  WALL_DISTANCE: 3.0,    // started @ 2    ++
   BASE_KILL_ZONE: 2,   // started @ 2.1  --+
   BASE_FOOD: 0.8,        // started @ 0.8  -
   BASE_TAIL: 8.2,        // started @  0.4 +++
@@ -33,4 +36,4 @@ module.exports = {
   BASE_PREVIOUS: 0.09,   // started @  2   -
   FORGET_ABOUT_IT: -100,
   COIL: 5               // started @ 10   +
-}
+};

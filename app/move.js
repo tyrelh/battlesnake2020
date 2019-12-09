@@ -10,7 +10,7 @@ const u = require("./utils");
 
 
 // target closest reachable food
-const eat = (grid, data) => {
+const eat = (staySafe, grid, data) => {
   const myHead = s.location(data);
   const health = data.you.health;
   let urgencyScore = (110 - health);
@@ -28,7 +28,7 @@ const eat = (grid, data) => {
     target = t.closestFood(grid, myHead);
     if (target === null) {
       log.status("No food was found on board.");
-      return buildMove([0, 0, 0, 0], grid, data);
+      return buildMove([0, 0, 0, 0], staySafe, grid, data);
     }
     movePos = astar.search(myHead, target, grid, k.SNAKE_BODY);
 
@@ -47,16 +47,16 @@ const eat = (grid, data) => {
       move = u.calcDirection(myHead, movePos);
       log.status(`Move in eat: {move: ${k.DIRECTION[move]}, score: ${urgencyScore.toFixed(2)}}`);
       let scores = u.applyMoveToScores(move, urgencyScore);
-      return buildMove(scores, grid, data);
+      return buildMove(scores, staySafe, grid, data);
     }
   }
   catch (e) { log.error(`ex in move.eat.buildmove: ${e}`, data.turn); }
-  return buildMove([0, 0, 0, 0], grid, data);
+  return buildMove([0, 0, 0, 0], staySafe, grid, data);
 };
  
 
 // track closest KILL_ZONE
-const hunt = (grid, data) => {
+const hunt = (staySafe, grid, data) => {
   let score = 0;
   let move = null;
   log.status("HUNTING");
@@ -73,11 +73,11 @@ const hunt = (grid, data) => {
   else if (move === null) log.debug(`Move in hunt was NULL.`);
 
   let scores = u.applyMoveToScores(move, score);
-  return buildMove(scores, grid, data);
+  return buildMove(scores, staySafe, grid, data);
 };
 
 
-const lateHunt = (grid, data) => {
+const lateHunt = (staySafe, grid, data) => {
   let score = 0;
   let move = null;
   log.status("HUNTING, LATE GAME");
@@ -92,21 +92,21 @@ const lateHunt = (grid, data) => {
   else if (move === null) log.debug(`Move in lateHunt was NULL.`);
 
   let scores = u.applyMoveToScores(move, score);
-  return buildMove(scores, grid, data);
+  return buildMove(scores, staySafe, grid, data);
 };
 
 
 // track own tail
-const killTime = (grid, data) => {
+const killTime = (staySafe, grid, data) => {
   log.status("KILLING TIME");
   // rely on default move in buildMove
-  return buildMove([0, 0, 0, 0], grid, data);
+  return buildMove([0, 0, 0, 0], staySafe, grid, data);
 };
 
 
 // build up move scores and return best move
-const buildMove = (scores = [0, 0, 0, 0], grid, data) => {
-  log.status(`Behaviour scores:\n${u.scoresToString(scores)}`);
+const buildMove = (scores = [0, 0, 0, 0], staySafe, grid, data) => {
+  log.status(`Behaviour scores:\n ${u.scoresToString(scores)}`);
   const myHead = s.location(data);
   let baseScores = baseMoveScores(grid, myHead);
   log.status(`Base scores:\n ${u.scoresToString(baseScores)}`);
@@ -134,6 +134,9 @@ const buildMove = (scores = [0, 0, 0, 0], grid, data) => {
 
   // see if a particular move will bring you farther from dangerous snake
   let fartherFromDangerousSnakesScores = search.scoresFartherFromDangerousSnake(grid, data);
+  if (staySafe) {
+    fartherFromDangerousSnakesScores = fartherFromDangerousSnakesScores.map((x) => x * p.STAY_SAFE_MULTIPLIER);
+  }
   log.status(`Farther from danger snakes scores:\n ${u.scoresToString(fartherFromDangerousSnakesScores)}`);
   scores = u.combineScores(scores, fartherFromDangerousSnakesScores);
 
@@ -144,6 +147,9 @@ const buildMove = (scores = [0, 0, 0, 0], grid, data) => {
 
   // see if a particular move will bring you farther from wall
   let fartherFromWallsScores = search.scoresFartherFromWall(grid, data);
+  if (staySafe) {
+    fartherFromWallsScores = fartherFromWallsScores.map((x) => x * p.STAY_SAFE_MULTIPLIER);
+  }
   log.status(`Farther from walls scores:\n ${u.scoresToString(fartherFromWallsScores)}`);
   scores = u.combineScores(scores, fartherFromWallsScores);
 

@@ -21,6 +21,7 @@ const move = (req, res) => {
   const data = req.body;
   const health = data.you.health;
   const turn = data.turn;
+  const numSnakes = data.board.snakes.length;
 
   log.status(`\n\n####################################### MOVE ${data.turn}`);
 
@@ -32,36 +33,40 @@ const move = (req, res) => {
   catch (e) { log.error(`ex in main.buildGrid: ${e}`, turn); }
   
   let move = null;
-  log.status(`biggest snake ? ${s.biggestSnake(data)}`);
+  log.status(`Biggest snake ? ${s.biggestSnake(data)}`);
 
   const minHealth = p.SURVIVAL_MIN - Math.floor(data.turn / p.LONG_GAME_ENDURANCE);
+  const staySafe = numSnakes > p.SAFE_AMOUNT_OF_SNAKES;
+  if (staySafe) log.status(`Keep Safe! ${numSnakes} still alive`);
 
   // if you are hungry or small you gotta eat
   if (health < minHealth || turn < p.INITIAL_FEEDING) {
-    try { move = m.eat(grid, data); }
+    try { move = m.eat(staySafe, grid, data); }
     catch (e) { log.error(`ex in main.survivalMin: ${e}`, turn); }
   }
 
   // start early game by killing some time, to let dumb snakes die
   else if (turn < p.INITIAL_TIME_KILL) {
-    try { move = m.killTime(grid, data); }
+    try { move = m.killTime(staySafe, grid, data); }
     catch (e) { log.error(`ex in main.initialKillTime: ${e}`, turn)}
   }
 
+  // data.board.snakes.length > 4
+
   else if (!s.biggestSnake(data)) {
-    try { move = m.eat(grid, data); }
+    try { move = m.eat(staySafe, grid, data); }
     catch (e) { log.error(`ex in main.notBiggest: ${e}`, turn); }
   }
 
   // if you are the biggest you can go on the hunt
   else if (s.biggestSnake(data)) {
-    try { move = m.hunt(grid, data); }
+    try { move = m.hunt(staySafe, grid, data); }
     catch (e) { log.error(`ex in main.biggest: ${e}`, turn)}
   }
 
   // backup plan?
   if (move === null) {
-    try { move = m.eat(grid, data); }
+    try { move = m.eat(staySafe, grid, data); }
     catch (e) { log.error(`ex in main.backupPlan: ${e}`, turn); }
   }
 
@@ -103,7 +108,7 @@ const start = (req, res) => {
   const purple = "#9557E0";
 
   return res.json({
-    color: purple,
+    color: pink,
     headType: "beluga",
     tailType: "bolt"
   });
@@ -116,7 +121,7 @@ const end = (req, res) => {
   const numberOfMoves = moveTimes.length;
   const totalTime = moveTimes.reduce((acc, c) => acc + c, 0);
   const averageTime = totalTime / numberOfMoves;
-  log.status(`Total time computing was ${totalTime}ms.`);
+  log.status(`Total time computing was ${totalTime}ms for ${numberOfMoves} moves.`);
   log.status(`Average move time was ${averageTime.toFixed(1)}ms.`);
   // write logs for this game to file
   log.writeLogs(req.body);

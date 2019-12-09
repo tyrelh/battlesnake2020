@@ -165,6 +165,7 @@ const completeFloodSearch = (grid, data) => {
       }
       scores[m] += fill(m, gridCopy, data, [k.KILL_ZONE, k.DANGER, k.WARNING, k.FUTURE_2]);
     }
+    scores = scores.map((x) => x * p.FLOOD_MULTIPLIER);
   }
   catch (e) { log.error(`ex in search.completeFloodSearch: ${e}`, data.turn); }
   return scores;
