@@ -85,16 +85,16 @@ const move = (req, res) => {
 
 // called once at beginning of game
 const start = (req, res) => {
-  // ensure previous game logs are cleared
-  log.initLogs();
-  log.status(`####################################### STARTING GAME ${req.body.game.id}`);
-  log.status(`My snake id is ${req.body.you.id}`);
-  slowest = 0;
-  slowestMove = 0;
-  moveTimes = [];
-
-  log.status("Snakes playing this game are:");
   try {
+    // ensure previous game logs are cleared
+    log.initLogs();
+    log.status(`####################################### STARTING GAME ${req.body.game.id}`);
+    log.status(`My snake id is ${req.body.you.id}`);
+    slowest = 0;
+    slowestMove = 0;
+    moveTimes = [];
+
+    log.status("Snakes playing this game are:");
     req.body.board.snakes.forEach(({ id, name, health, body}) => {
       log.status(name);
     });
@@ -108,7 +108,7 @@ const start = (req, res) => {
   const purple = "#9557E0";
 
   return res.json({
-    color: pink,
+    color: purple,
     headType: "beluga",
     tailType: "bolt"
   });

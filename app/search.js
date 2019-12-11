@@ -644,7 +644,7 @@ const distanceToEnemy = (direction, grid, data, type = k.ENEMY_HEAD) => {
     const myHead = s.location(data);
     if (validMove(direction, myHead, grid)) {
       const closestEnemyHead = t.closestTarget(grid, applyMoveToPos(direction, myHead), type);
-      // if (p.DEBUG && closestEnemyHead != null) log.debug(`Closest enemy for move ${k.DIRECTION[direction]} is ${pairToString(closestEnemyHead)}`);
+      if (closestEnemyHead != null) log.debug(`Closest enemy for move ${k.DIRECTION[direction]} is ${u.pairToString(closestEnemyHead)}`);
       if (closestEnemyHead === null) return 0;
       return g.getDistance(closestEnemyHead, applyMoveToPos(direction, myHead));
     }
