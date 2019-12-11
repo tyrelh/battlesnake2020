@@ -9,7 +9,7 @@ let exLog = "############################# EXCEPTIONS\n";
 let errorHappened = false;
 
 
-const initGameLogs = () => {
+const initLogs = () => {
   log = "";
   exLog = "############################# EXCEPTIONS\n";
   errorHappened = false;
@@ -61,44 +61,32 @@ const writeLogs = (data) => {
 
 // debug levels
 const error = (message, turn = null) => {
-  try {
-    errorHappened = true;
-    log += `ERROR: ${message}\n`;
-    if (p.CONSOLE_LOG) console.log(`ERROR: ${message}`);
-    exLog += `EX ON TURN ${turn != null ? turn : "none"}: ${message}\n`;
-    return message;
-  }
-  catch (e) { error(`ex in log.error: ${e}`); }
-  return "";
+  errorHappened = true;
+  log += `ERROR: ${message}\n`;
+  if (p.CONSOLE_LOG) console.log(`ERROR: ${message}`);
+  exLog += `EX ON TURN ${turn != null ? turn : "none"}: ${message}\n`;
+  return message;
 };
 
 const status = message => {
-  try {
-    if (p.STATUS) {
-      log += `${message}\n`;
-      if (p.CONSOLE_LOG) console.log(`${message}`);
-    }
-    return message;
+  if (p.STATUS) {
+    log += `${message}\n`;
+    if (p.CONSOLE_LOG) console.log(`${message}`);
   }
-  catch (e) { error(`ex in log.status: ${e}`); }
-  return "";
+  return message;
 };
 
 const debug = message => {
-  try {
-    if (p.DEBUG) {
-      log += `DEBUG: ${message}\n`;
-      if (p.CONSOLE_LOG) console.log(`DEBUG: ${message}`);
-    }
-    return message;
+  if (p.DEBUG) {
+    log += `DEBUG: ${message}\n`;
+    if (p.CONSOLE_LOG) console.log(`DEBUG: ${message}`);
   }
-  catch (e) { error(`ex in log.debug: ${e}`); }
-  return "";
+  return message;
 };
 
 
 module.exports = {
-  initGameLogs: initGameLogs,
+  initLogs: initLogs,
   writeLogs: writeLogs,
   error: error,
   status: status,

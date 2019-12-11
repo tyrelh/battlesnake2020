@@ -86,7 +86,7 @@ const move = (req, res) => {
 // called once at beginning of game
 const start = (req, res) => {
   // ensure previous game logs are cleared
-  log.initGameLogs();
+  log.initLogs();
   log.status(`####################################### STARTING GAME ${req.body.game.id}`);
   log.status(`My snake id is ${req.body.you.id}`);
   slowest = 0;
