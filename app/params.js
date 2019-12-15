@@ -7,29 +7,29 @@ module.exports = {
 
   // basic game params
   INITIAL_FEEDING: 5, // started @ 5 +++++++-
-  SURVIVAL_MIN: 47, // started @ 50 --+++++ 47
+  SURVIVAL_MIN: 45, // started @ 50 --+++++-
   LONG_GAME_ENDURANCE: 80, // started @ 80
   INITIAL_TIME_KILL: 0, // started @ 70 ---------------
-  WALL_NEAR_BASE_MOVE_MULTIPLIER: 13, // started @ 1.6 ++++++++++++++
+  WALL_NEAR_BASE_MOVE_MULTIPLIER: 11, // started @ 1.6 ++++++++++++++-
   WALL_NEAR_FILL_MULTIPLIER: 0.05, // started @ 0.4 ---
   KILL_ZONE_BASE_MOVE_MULTIPLIER: 3.5, // started @ 3 +
-  FEEDING_URGENCY_MULTIPLIER: 0.32, // started @ 0.4 --
+  FEEDING_URGENCY_MULTIPLIER: 0.25, // started @ 0.4 ----
   SAFE_AMOUNT_OF_SNAKES: 4, // started @ 4
-  STAY_SAFE_MULTIPLIER: 2.0, // started @ 4.0 -
+  STAY_SAFE_MULTIPLIER: 2.1, // started @ 4.0 -+
   FLOOD_MULTIPLIER: 0.3, // started @ 0.5 --
-  ENEMY_DISTANCE: 2.9, // started @ 0.99 +-+++-++++
+  ENEMY_DISTANCE: 2.9, // started @ 0.99 +-+++-++++-+
   WALL_DISTANCE: 3.5, // started @ 2 +++-++
 
   // scores for moves
-  ASTAR_SUCCESS: 12, // started @ 10 -+++
+  ASTAR_SUCCESS: 13, // started @ 10 -++++
   BASE_KILL_ZONE: 5, // started @ 2.1 --++
   BASE_FOOD: 0.8, // started @ 0.8 -
-  BASE_TAIL: 8.2, // started @ 0.4 +++
+  BASE_TAIL: 9.2, // started @ 0.4 +++
   BASE_SPACE: 0.36, // started @ 0.2 -+++--+
   BASE_WALL_NEAR: -1.1, // started @ -0.1 ------
   BASE_WARNING: -2.6, // started @ 0.2 -+-
   BASE_SMALL_DANGER: -11.5, // started @ -5 -+-
-  BASE_DANGER: -12.0, // started @ 0.1 -----
+  BASE_DANGER: -12.5, // started @ 0.1 -----+
   BASE_ENEMY_HEAD: -11, // started @ -2 -
   BASE_PREVIOUS: 0.09, // started @ 2 -
   FORGET_ABOUT_IT: -100,
