@@ -268,16 +268,17 @@ const nearPerimeter = (pos, grid) => {
 // make tail segments spaces as if the snake moved ahead given number of turns
 const moveTails = (moves, grid, data) => {
   try {
-    let you = data.you
+    let you = data.you;
     let gridCopy = copyGrid(grid);
     data.board.snakes.forEach(({ id, name, health, body }) => {
       for (let tailOffset = 1; tailOffset <= moves; tailOffset++) {
-        let tailY = body[body.length - tailOffset].y;
-        let tailX = body[body.length - tailOffset].x;
-        gridCopy[tailY][tailX] = keys.SPACE;
+        let tail = body[body.length - tailOffset];
+        let tailNext = body[body.length - tailOffset - 1];
+        gridCopy[tail.y][tail.x] = keys.SPACE;
+        gridCopy[tailNext.y][tailNext.x] = keys.TAIL;
       }
 
-      if (id == you.id) return;
+      if (id === you.id) return;
 
       // check next move positions for killzone or danger
       const imBigger = you.body.length > body.length;
@@ -289,7 +290,7 @@ const moveTails = (moves, grid, data) => {
         {x: 0, y: 1},  // down
         {x: -1, y: 0}, // left
         {x: 1, y: 0},  // right
-      ]
+      ];
       for (let offset of offsets) {
         pos.x = head.x + offset.x;
         pos.y = head.y + offset.y;
