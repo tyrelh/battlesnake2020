@@ -13,7 +13,7 @@ const u = require("./utils");
 const eat = (staySafe, grid, data) => {
   const myHead = s.location(data);
   const health = data.you.health;
-  let urgencyScore = (110 - health);
+  let urgencyScore = (100 - health);
   let target = null;
   let move = null;
   let movePos = null;
