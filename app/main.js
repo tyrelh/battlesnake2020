@@ -78,6 +78,7 @@ const move = (req, res) => {
     slowestMove = data.turn;
   }
   moveTimes.push(timeTaken);
+  log.status(`${health} health remaining.`);
   log.status(`Move ${data.turn} took ${timeTaken}ms.`);
   return res.json({ move: move ? keys.DIRECTION[move] : keys.DIRECTION[keys.UP] });
 };
@@ -108,7 +109,7 @@ const start = (req, res) => {
   const purple = "#9557E0";
 
   return res.json({
-    color: purple,
+    color: blue,
     headType: "beluga",
     tailType: "bolt"
   });
