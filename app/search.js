@@ -210,16 +210,21 @@ const scoresCloserToKillableSnakes = (grid, data) => {
 // score moves based on distance from wall
 const scoresFartherFromWall = (grid, data) => {
   let wallDistanceScores = [0, 0, 0, 0];
+  let minDistance = 9999;
   try {
     for (let direction = 0; direction < 4; direction++) {
       const currentDistance = distanceFromWall(applyMoveToPos(direction, s.location(data)), grid);
       log.debug(`Distance from wall for move ${k.DIRECTION[direction]} is ${currentDistance}`);
       if (wallDistanceScores[direction] < currentDistance) {
         wallDistanceScores[direction] = (currentDistance * p.WALL_DISTANCE);
+        if (wallDistanceScores[direction] < minDistance) {
+          minDistance = wallDistanceScores[direction]
+        }
       }
     }
+    wallDistanceScores = wallDistanceScores.map((x) => x - minDistance);
   }
-  catch (e) { log.error(`ex in msearch.scoresFartherFromWall: ${e}`, data.turn); }
+  catch (e) { log.error(`ex in search.scoresFartherFromWall: ${e}`, data.turn); }
   return wallDistanceScores;
 };
 
@@ -632,7 +637,7 @@ const distanceFromWall = (pos, grid) => {
     let xRight = (grid[0].length - 1) - pos.x;
     let xDistance = Math.min(xLeft, xRight);
     let yDistance = Math.min(yUp, yDown);
-    return Math.min(xDistance, yDistance);
+    return (xDistance + yDistance);
   }
   catch (e) { log.error(`ex in search.distanceFromWall: ${e}`) };
   return 0;

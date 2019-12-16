@@ -30,8 +30,8 @@ module.exports = {
   BASE_SPACE: 0.36, // started @ 0.2 -+++--+
   BASE_WALL_NEAR: -1.1, // started @ -0.1 ------
   BASE_WARNING: -2.6, // started @ 0.2 -+-
-  BASE_SMALL_DANGER: -11.5, // started @ -5 -+-
-  BASE_DANGER: -12.5, // started @ 0.1 -----+
+  BASE_SMALL_DANGER: -11.0, // started @ -5 -+--
+  BASE_DANGER: -13.0, // started @ 0.1 -----++
   BASE_ENEMY_HEAD: -11, // started @ -2 -
   BASE_PREVIOUS: 0.09, // started @ 2 -
   FORGET_ABOUT_IT: -100,
