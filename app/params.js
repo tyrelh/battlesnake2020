@@ -5,6 +5,8 @@ module.exports = {
   DEBUG_MAPS: false,
   CONSOLE_LOG: true,
 
+  NAME: /zerocool/,
+
   // basic game params
   INITIAL_FEEDING: 5, // started @ 5 +++++++-
   SURVIVAL_MIN: 45, // started @ 50 --+++++-
@@ -13,7 +15,7 @@ module.exports = {
   WALL_NEAR_BASE_MOVE_MULTIPLIER: 11, // started @ 1.6 ++++++++++++++-
   WALL_NEAR_FILL_MULTIPLIER: 0.05, // started @ 0.4 ---
   KILL_ZONE_BASE_MOVE_MULTIPLIER: 3.5, // started @ 3 +
-  FEEDING_URGENCY_MULTIPLIER: 0.25, // started @ 0.4 ----
+  FEEDING_URGENCY_MULTIPLIER: 0.20, // started @ 0.4 -----
   SAFE_AMOUNT_OF_SNAKES: 4, // started @ 4
   STAY_SAFE_MULTIPLIER: 2.1, // started @ 4.0 -+
   FLOOD_MULTIPLIER: 0.3, // started @ 0.5 --

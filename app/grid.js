@@ -1,25 +1,26 @@
-const keys = require("./keys");
+const k = require("./keys");
 const log = require("./logger");
 const p = require("./params");
-
 
 
 const buildGrid = data => {
   const board = data.board;
   const self = data.you;
+  const myLength = self.body.length;
+  const numberOfSnakes = board.snakes.length;
 
   // initailize grid to SPACEs
-  let grid = initGrid(board.width, board.height, keys.SPACE);
+  let grid = initGrid(board.width, board.height, k.SPACE);
 
   try {
     // mark edges WALL_NEAR
     for (let y = 0; y < board.height; y++) {
-      grid[y][0] = keys.WALL_NEAR;
-      grid[y][board.width - 1] = keys.WALL_NEAR;
+      grid[y][0] = k.WALL_NEAR;
+      grid[y][board.width - 1] = k.WALL_NEAR;
     }
     for (let x = 0; x < board.width; x++) {
-      grid[0][x] = keys.WALL_NEAR;
-      grid[board.height - 1][x] = keys.WALL_NEAR;
+      grid[0][x] = k.WALL_NEAR;
+      grid[board.height - 1][x] = k.WALL_NEAR;
     }
   }
   catch (e) { log.error(`ex in edges marking grid.buildGrid: ${e}`, data.turn); }
@@ -27,7 +28,7 @@ const buildGrid = data => {
   // fill FOOD locations
   try {
     board.food.forEach(({ x, y }) => {
-      grid[y][x] = keys.FOOD;
+      grid[y][x] = k.FOOD;
     });
   }
   catch (e) { log.error(`ex in food marking grid.buildGrid: ${e}`, data.turn); }
@@ -37,27 +38,29 @@ const buildGrid = data => {
     board.snakes.forEach(({ id, name, health, body }) => {
       // fill SNAKE_BODY locations
       body.forEach(({ x, y }) => {
-        if (id === self.id) grid[y][x] = keys.YOUR_BODY;
-        else grid[y][x] = keys.SNAKE_BODY;
+        if (id === self.id) grid[y][x] = k.YOUR_BODY;
+        else grid[y][x] = k.SNAKE_BODY;
       });
 
       // fill ENEMY_HEAD locations
       const head = body[0];
-      const dangerSnake = body.length >= self.body.length
+      const snakeSharesMyName = !!(name.toLowerCase().match(p.NAME)) && numberOfSnakes >= 2;
+      const dangerSnake = body.length >= myLength;
+
       
       if (id != self.id) {
-        if (dangerSnake) {
-          grid[head.y][head.x] = keys.ENEMY_HEAD;
+        if (dangerSnake || snakeSharesMyName) {
+          grid[head.y][head.x] = k.ENEMY_HEAD;
         }
         else {
-          grid[head.y][head.x] = keys.SMALL_HEAD;
+          grid[head.y][head.x] = k.SMALL_HEAD;
         }
       }
 
       // check if tail can be marked TAIL or remain SNAKE_BODY
       if (data.turn > 1 && health != 100) {
         const tail = body[body.length - 1];
-        grid[tail.y][tail.x] = keys.TAIL;
+        grid[tail.y][tail.x] = k.TAIL;
       }
 
       // // check if tail can be T AIL or SNAKE_BODY
@@ -89,15 +92,15 @@ const buildGrid = data => {
     // fill DANGER or KILL_ZONE locations around each snake head
     board.snakes.forEach(({ id, name, health, body }) => {
       if (id == self.id) return;
-      // const imBigger = self.body.length > body.length;
       let pos = { x: 0, y: 0 };
       const head = body[0];
-      // const headZone = imBigger ? keys.KILL_ZONE : keys.DANGER;
-      let headZone = keys.DANGER;
-      if (self.body.length === body.length) {
-        headZone = keys.SMALL_DANGER;
-      } else if (self.body.length > body.length) {
-        headZone = keys.KILL_ZONE;
+      const snakeSharesMyName = !!(name.toLowerCase().match(p.NAME)) && numberOfSnakes >= 2;
+      let headZone = k.DANGER;
+      if (myLength > body.length && !snakeSharesMyName) {
+        headZone = k.KILL_ZONE;
+      }
+      else if (myLength === body.length && !snakeSharesMyName) {
+        headZone = k.SMALL_DANGER;
       }
 
       // check up, down, left, right
@@ -106,11 +109,11 @@ const buildGrid = data => {
         {x: 0, y: 1},  // down
         {x: -1, y: 0}, // left
         {x: 1, y: 0},  // right
-      ]
+      ];
       for (let offset of offsets) {
         pos.x = head.x + offset.x;
         pos.y = head.y + offset.y;
-        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] < keys.DANGER) {
+        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] < k.DANGER) {
           grid[pos.y][pos.x] = headZone;
         }
       }
@@ -129,8 +132,8 @@ const buildGrid = data => {
       for (let offset of future2Offsets) {
         pos.x = head.x + offset.x;
         pos.y = head.y + offset.y;
-        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] <= keys.WALL_NEAR && grid[pos.y][pos.x] != keys.FOOD) {
-          grid[pos.y][pos.x] = keys.FUTURE_2;
+        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] <= k.WALL_NEAR && grid[pos.y][pos.x] != k.FOOD) {
+          grid[pos.y][pos.x] = k.FUTURE_2;
         }
       }
     });
@@ -142,12 +145,10 @@ const buildGrid = data => {
 };
 
 
-
 // manhattan distance
 const getDistance = (a, b) => {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 };
-
 
 
 // print grid to logs
@@ -160,12 +161,11 @@ const printGrid = grid => {
   for (let i = 0; i < grid.length; i++) {
     let row = `${i % 10} `;
     for (let j = 0; j < grid[0].length; j++) {
-      row += ` ${keys.MAP[grid[i][j]]}`;
+      row += ` ${k.MAP[grid[i][j]]}`;
     }
     log.status(row);
   }
 };
-
 
 
 // create a grid filled with a given value
@@ -182,8 +182,7 @@ const initGrid = (width, height, fillValue) => {
   }
   catch (e) { log.error(`ex in grid.initGrid: ${e}`, data.turn); }
   return grid;
-}
-
+};
 
 
 // return a deep copy of game grid
@@ -197,13 +196,11 @@ const copyGrid = (grid) => {
     }
   }
   return gridCopy;
-}
-
+};
 
 
 // test if cells are the same
-const sameCell = (a, b) => a.x === b.x && a.y === b.y;
-
+// const sameCell = (a, b) => a.x === b.x && a.y === b.y;
 
 
 // check if space is out of bounds
@@ -218,7 +215,6 @@ const outOfBounds = (pos, grid) => {
     return true
   }
 };
-
 
 
 // pos is on the outer bounds of the board
@@ -239,8 +235,7 @@ const onPerimeter = (pos, grid) => {
   }
   catch (e) { log.error(`ex in self.onPerimiter: ${e}`); }
   return false;
-}
-
+};
 
 
 // pos is near the outer bounds of the board
@@ -261,8 +256,7 @@ const nearPerimeter = (pos, grid) => {
   }
   catch (e) { log.error(`ex in self.onPerimiter: ${e}`); }
   return false;
-}
-
+};
 
 
 // make tail segments spaces as if the snake moved ahead given number of turns
@@ -274,8 +268,8 @@ const moveTails = (moves, grid, data) => {
       for (let tailOffset = 1; tailOffset <= moves; tailOffset++) {
         let tail = body[body.length - tailOffset];
         let tailNext = body[body.length - tailOffset - 1];
-        gridCopy[tail.y][tail.x] = keys.SPACE;
-        gridCopy[tailNext.y][tailNext.x] = keys.TAIL;
+        gridCopy[tail.y][tail.x] = k.SPACE;
+        gridCopy[tailNext.y][tailNext.x] = k.TAIL;
       }
 
       if (id === you.id) return;
@@ -284,7 +278,7 @@ const moveTails = (moves, grid, data) => {
       const imBigger = you.body.length > body.length;
       let pos = { x: 0, y: 0 };
       const head = body[0];
-      const headZone = imBigger ? keys.KILL_ZONE : keys.DANGER;
+      const headZone = imBigger ? k.KILL_ZONE : k.DANGER;
       let offsets = [
         {x: 0, y: -1}, // up
         {x: 0, y: 1},  // down
@@ -294,7 +288,7 @@ const moveTails = (moves, grid, data) => {
       for (let offset of offsets) {
         pos.x = head.x + offset.x;
         pos.y = head.y + offset.y;
-        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] < keys.DANGER) {
+        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] < k.DANGER) {
           grid[pos.y][pos.x] = headZone;
         }
       }
@@ -313,8 +307,8 @@ const moveTails = (moves, grid, data) => {
       for (let offset of future2Offsets) {
         pos.x = head.x + offset.x;
         pos.y = head.y + offset.y;
-        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] <= keys.WALL_NEAR && grid[pos.y][pos.x] != keys.FOOD) {
-          grid[pos.y][pos.x] = keys.FUTURE_2;
+        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] <= k.WALL_NEAR && grid[pos.y][pos.x] != k.FOOD) {
+          grid[pos.y][pos.x] = k.FUTURE_2;
         }
       }
     });
@@ -322,8 +316,7 @@ const moveTails = (moves, grid, data) => {
   }
   catch (e) { log.error(`ex in grid.moveTails: ${e}`, data.turn); }
   return grid;
-}
-
+};
 
 
 module.exports = {
