@@ -268,8 +268,14 @@ const moveTails = (moves, grid, data) => {
       for (let tailOffset = 1; tailOffset <= moves; tailOffset++) {
         let tail = body[body.length - tailOffset];
         let tailNext = body[body.length - tailOffset - 1];
-        gridCopy[tail.y][tail.x] = k.SPACE;
-        gridCopy[tailNext.y][tailNext.x] = k.TAIL;
+        if (grid[tail.y][tail.x] > k.DANGER) {
+          gridCopy[tail.y][tail.x] = k.SPACE;
+        }
+        else {
+          gridCopy[tail.y][tail.x] = grid[tail.y][tail.x];
+        }
+
+        if (moves <= 1) gridCopy[tailNext.y][tailNext.x] = k.TAIL;
       }
 
       if (id === you.id) return;
@@ -289,7 +295,7 @@ const moveTails = (moves, grid, data) => {
         pos.x = head.x + offset.x;
         pos.y = head.y + offset.y;
         if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] < k.DANGER) {
-          grid[pos.y][pos.x] = headZone;
+          gridCopy[pos.y][pos.x] = headZone;
         }
       }
 
@@ -308,7 +314,7 @@ const moveTails = (moves, grid, data) => {
         pos.x = head.x + offset.x;
         pos.y = head.y + offset.y;
         if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] <= k.WALL_NEAR && grid[pos.y][pos.x] != k.FOOD) {
-          grid[pos.y][pos.x] = k.FUTURE_2;
+          gridCopy[pos.y][pos.x] = k.FUTURE_2;
         }
       }
     });

@@ -23,6 +23,7 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 
 ## Changelog
 * v3.2:
+    * If 1 enemy remains will not try to be bigger, will hunt its FUTURE_2 positions.
     * Will hunt if there are any snakes smaller. Wont always try to be the biggest snake if there are multiple enemies remaining.
     * Fix bug in edgeFill where DANGER zones were being marked KILL zones.
 * v3.1:
