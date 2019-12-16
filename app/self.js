@@ -27,12 +27,28 @@ const biggestSnake = (data) => {
     const myLength = data.you.body.length;
     for (let i = 0; i < data.board.snakes.length; i++) {
       let snake = data.board.snakes[i];
-      if (snake.id === me) continue;
+      if (snake.id == me) continue;
       if (snake.body.length >= myLength) return false;
     }
     return true;
   }
-  catch (e) { log.error(`!!! ex in self.biggestSnake: ${e}`, data.turn); }
+  catch (e) { log.error(`ex in self.biggestSnake: ${e}`, data.turn); }
+  return false;
+};
+
+
+// check if there is a smaller (killable) snake
+const existsSmallerSnake = (data) => {
+  try {
+    const myId = data.you.id;
+    const myLength = data.you.body.length;
+    for (let i = 0; i < data.board.snakes.length; i++) {
+      let snake = data.board.snakes[i];
+      if (snake.id == myId) continue;
+      if (snake.body.length < myLength) return true;
+    }
+  }
+  catch (e) { log.error(`ex in self.existsSmallerSnake: ${e}`, data.turn); }
   return false;
 };
 
@@ -40,5 +56,6 @@ const biggestSnake = (data) => {
 module.exports = {
   location: location,
   tailLocation: tailLocation,
-  biggestSnake: biggestSnake
+  biggestSnake: biggestSnake,
+  existsSmallerSnake
 };

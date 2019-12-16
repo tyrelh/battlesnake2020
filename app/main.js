@@ -33,8 +33,10 @@ const move = (req, res) => {
   catch (e) { log.error(`ex in main.buildGrid: ${e}`, turn); }
   
   let move = null;
-  log.status(`Biggest snake ? ${s.biggestSnake(data)}`);
-
+  const iAmBiggestSnake = s.biggestSnake(data);
+  const existsSmallerSnake = s.existsSmallerSnake(data);
+  log.status(`Biggest snake ? ${iAmBiggestSnake}`);
+  log.status(`Smaller snake ? ${existsSmallerSnake}`);
   const minHealth = p.SURVIVAL_MIN - Math.floor(data.turn / p.LONG_GAME_ENDURANCE);
   const staySafe = numSnakes > p.SAFE_AMOUNT_OF_SNAKES;
   if (staySafe) log.status(`Keep Safe! ${numSnakes} still alive`);
@@ -52,14 +54,14 @@ const move = (req, res) => {
   }
 
   // data.board.snakes.length > 4
-
-  else if (!s.biggestSnake(data)) {
+  // if there are no smaller snakes than you, eat
+  else if (!existsSmallerSnake) {
     try { move = m.eat(staySafe, grid, data); }
     catch (e) { log.error(`ex in main.notBiggest: ${e}`, turn); }
   }
 
-  // if you are the biggest you can go on the hunt
-  else if (s.biggestSnake(data)) {
+  // if there are smaller snakes than you, hunt
+  else if (iAmBiggestSnake || existsSmallerSnake) {
     try { move = m.hunt(staySafe, grid, data); }
     catch (e) { log.error(`ex in main.biggest: ${e}`, turn)}
   }
@@ -109,7 +111,7 @@ const start = (req, res) => {
   const purple = "#9557E0";
 
   return res.json({
-    color: blue,
+    color: purple,
     headType: "beluga",
     tailType: "bolt"
   });
