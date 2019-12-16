@@ -8,19 +8,19 @@ module.exports = {
   NAME: /zerocool/,
 
   // basic game params
-  INITIAL_FEEDING: 5, // started @ 5 +++++++-
-  SURVIVAL_MIN: 45, // started @ 50 --+++++-
+  INITIAL_FEEDING: 0, // started @ 5 +++++++-
+  SURVIVAL_MIN: 43, // started @ 50 --+++++---
   LONG_GAME_ENDURANCE: 80, // started @ 80
   INITIAL_TIME_KILL: 0, // started @ 70 ---------------
   WALL_NEAR_BASE_MOVE_MULTIPLIER: 11, // started @ 1.6 ++++++++++++++-
   WALL_NEAR_FILL_MULTIPLIER: 0.05, // started @ 0.4 ---
   KILL_ZONE_BASE_MOVE_MULTIPLIER: 3.5, // started @ 3 +
-  FEEDING_URGENCY_MULTIPLIER: 0.20, // started @ 0.4 -----
+  FEEDING_URGENCY_MULTIPLIER: 0.19, // started @ 0.4 ------
   SAFE_AMOUNT_OF_SNAKES: 4, // started @ 4
   STAY_SAFE_MULTIPLIER: 2.1, // started @ 4.0 -+
   FLOOD_MULTIPLIER: 0.3, // started @ 0.5 --
   ENEMY_DISTANCE: 2.9, // started @ 0.99 +-+++-++++-+
-  WALL_DISTANCE: 3.5, // started @ 2 +++-++
+  WALL_DISTANCE: 3.0, // started @ 2 +++-++-
 
   // scores for moves
   ASTAR_SUCCESS: 13, // started @ 10 -++++
