@@ -24,6 +24,7 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 ## Changelog
 * v3.2:
     * Will hunt if there are any snakes smaller. Wont always try to be the biggest snake if there are multiple enemies remaining.
+    * Fix bug in edgeFill where DANGER zones were being marked KILL zones.
 * v3.1:
     * Will treat a snake with the same name (another copy/version of me) as a danger snake to avoid killing self.
     * Properly marks new tail locations when advancing snake positions.
