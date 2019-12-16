@@ -66,11 +66,11 @@ const hunt = (staySafe, grid, data) => {
     if (move != null) {
       score = p.HUNT;
     }
+
+    if (move != null) log.status(`Move in hunt {move: ${k.DIRECTION[move]}, score: ${score.toFixed(2)}}`);
+    else if (move === null) log.debug(`Move in hunt was NULL.`);
   }
   catch (e) { log.error(`ex in move.hunt: ${e}`, data.turn); }
-
-  if (move != null) log.status(`Move in hunt {move: ${k.DIRECTION[move]}, score: ${score.toFixed(2)}}`);
-  else if (move === null) log.debug(`Move in hunt was NULL.`);
 
   let scores = u.applyMoveToScores(move, score);
   return buildMove(scores, staySafe, grid, data);
@@ -87,11 +87,11 @@ const lateHunt = (staySafe, grid, data) => {
     if (move != null) {
       score = p.HUNT_LATE;
     }
+
+    if (move != null) log.debug(`In lateHunt calulated score ${score.toFixed(2)} for move ${k.DIRECTION[move]}`);
+    else if (move === null) log.debug(`Move in lateHunt was NULL.`);
   }
   catch (e) { log.error(`ex in move.lateHunt: ${e}`, data.turn); }
-
-  if (move != null) log.debug(`In lateHunt calulated score ${score.toFixed(2)} for move ${k.DIRECTION[move]}`);
-  else if (move === null) log.debug(`Move in lateHunt was NULL.`);
 
   let scores = u.applyMoveToScores(move, score);
   return buildMove(scores, staySafe, grid, data);
