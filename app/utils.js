@@ -17,7 +17,7 @@ const pairToString = pair => {
 // return scores array in a human readable string
 const scoresToString = scores => {
   try {
-    return `{up: ${scores[0].toFixed(2)}, down: ${scores[1].toFixed(2)}, left: ${scores[2].toFixed(2)}, right: ${scores[3].toFixed(2)}}`
+    return `{up: ${scores[k.UP].toFixed(1)}, down: ${scores[k.DOWN].toFixed(1)}, left: ${scores[k.LEFT].toFixed(1)}, right: ${scores[k.RIGHT].toFixed(1)}}`
   }
   catch (e) { log.error(`ex in move.scoresToString: ${e}`); }
 };
