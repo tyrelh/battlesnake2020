@@ -23,6 +23,9 @@ const move = (req, res) => {
   const turn = data.turn;
   const numSnakes = data.board.snakes.length;
 
+  try { log.saveJSON(data); }
+  catch (e) { log.error(`ex in main.log.saveJSON: ${e}`, turn); }
+
   log.status(`\n\n####################################### MOVE ${data.turn}`);
 
   let grid = [];
