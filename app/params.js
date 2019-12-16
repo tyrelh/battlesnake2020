@@ -21,6 +21,7 @@ module.exports = {
   FLOOD_MULTIPLIER: 0.3, // started @ 0.5 --
   ENEMY_DISTANCE: 2.9, // started @ 0.99 +-+++-++++-+
   WALL_DISTANCE: 3.0, // started @ 2 +++-++-
+  KILL_DISTANCE: 1.5, // started @ 1.5
 
   // scores for moves
   ASTAR_SUCCESS: 13, // started @ 10 -++++
