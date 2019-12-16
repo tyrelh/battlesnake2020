@@ -242,8 +242,6 @@ const preprocessGrid = (grid, data) => {
           if (p.DEBUG) log.debug(`Enemy at ${pairToString(enemy)} is on perimeter`);
           let result = edgeFillFromEnemyToYou(enemy, gridCopy, grid, data);
           gridCopy = result.grid;
-          let move = null;
-          
         }
       }
       return gridCopy;
@@ -259,7 +257,7 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
     const yourHead = s.location(data);
     const enemyMoves = getEnemyMoveLocations(enemy, grid);
     for (let enemyMove of enemyMoves) {
-      if (p.DEBUG) log.debug (`Doing enemy edge fill for move @ ${pairToString(enemyMove)}`);
+      log.debug (`Doing enemy edge fill for move @ ${pairToString(enemyMove)}`);
 
       // begin fill search
 
@@ -315,7 +313,7 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
         nextMove = removeFromOpen();
         edgeSpaces.push(nextMove);
         addToClosed(nextMove);
-        if (p.DEBUG) log.debug(`Next move in enemy fill search is ${pairToString(nextMove)}`);
+        log.debug(`Next move in enemy fill search is ${pairToString(nextMove)}`);
 
         // check up
         const nextUp = {x: nextMove.x, y: nextMove.y - 1};
@@ -384,7 +382,9 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
       if (foundMe) {
         if (p.STATUS) log.status(`Adding ${edgeSpaces.length} killzones for enemy near ${pairToString(enemy)}`);
         for (let space of edgeSpaces) {
-          gridCopy[space.y][space.x] = k.KILL_ZONE;
+          if (grid[space.y][space.x] < k.SMALL_DANGER) {
+            gridCopy[space.y][space.x] = k.KILL_ZONE;
+          }
         }
       }
 

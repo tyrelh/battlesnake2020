@@ -251,9 +251,9 @@ const baseScoreForBoardPosition = (x, y, grid) => {
       case k.FOOD:
         return p.BASE_FOOD;
       case k.KILL_ZONE:
-        return p.BASE_KILL_ZONE * p.KILL_ZONE_BASE_MOVE_MULTIPLIER;
+        return (p.BASE_KILL_ZONE * p.KILL_ZONE_BASE_MOVE_MULTIPLIER);
       case k.WALL_NEAR:
-        return p.BASE_WALL_NEAR * p.WALL_NEAR_BASE_MOVE_MULTIPLIER;
+        return (p.BASE_WALL_NEAR * p.WALL_NEAR_BASE_MOVE_MULTIPLIER);
       case k.WARNING:
         return p.BASE_WARNING;
       case k.SMALL_DANGER:
