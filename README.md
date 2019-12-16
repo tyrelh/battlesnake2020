@@ -22,6 +22,8 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * [My 2018 Python Entry](https://github.com/tyrelh/battlesnake2018)
 
 ## Changelog
+* v3.2:
+    * Will hunt if there are any snakes smaller. Wont always try to be the biggest snake if there are multiple enemies remaining.
 * v3.1:
     * Will treat a snake with the same name (another copy/version of me) as a danger snake to avoid killing self.
     * Properly marks new tail locations when advancing snake positions.
@@ -29,10 +31,10 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * v3.0:    
     * Refactored A* search to be more modular.
     * Refactored non-behaviour searches to be more modular.
-* **v2:**
+* v2:
   * [2019 entry written in JavaScript/Node](https://github.com/tyrelh/battlesnake2019), ported from my 2018 entry.
   
-* **v1:**
+* v1:
   * [2018 entry written in Python](https://github.com/tyrelh/battlesnake2018).
 
 ## Notes from 2019
