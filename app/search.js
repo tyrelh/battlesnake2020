@@ -139,7 +139,7 @@ const fill = (direction, grid, data, constraints = []) => {
     score = Math.floor(score / 2);
   }
 
-  if (p.DEBUG) log.debug(`Score in fill: ${score} for move ${k.DIRECTION[direction]}. Area: ${area}`);
+  log.debug(`Score in fill for move ${k.DIRECTION[direction]}: ${score.toFixed(1)}. Area: ${area}`);
   return score;
 };
 
@@ -150,9 +150,9 @@ const completeFloodSearch = (grid, data) => {
   try {
     log.status("Performing flood fill searches");
     for (let m = 0; m < 4; m++) {
-      let gridCopy = g.copyGrid(grid);
+      // let gridCopy = g.copyGrid(grid);
       scores[m] += fill(m, grid, data);
-      gridCopy = g.moveTails(1, grid, data);
+      let gridCopy = g.moveTails(1, grid, data);
       if (p.DEBUG_MAPS) {
         log.debug("Map for fill search 1 move in advance");
         g.printGrid(gridCopy);
@@ -198,7 +198,7 @@ const scoresCloserToKillableSnakes = (grid, data) => {
       log.debug(`Distance to closest killable snake for move ${k.DIRECTION[direction]} is ${currentDistance}`);
       if (currentDistance === 0) continue;
       if (enemyDistanceScores[direction] < currentDistance) {
-        enemyDistanceScores[direction] = -(currentDistance * p.ENEMY_DISTANCE);
+        enemyDistanceScores[direction] = -(currentDistance * p.KILL_DISTANCE);
       }
     }
   }
@@ -244,6 +244,7 @@ const preprocessGrid = (grid, data) => {
           gridCopy = result.grid;
         }
       }
+      if (p.DEBUG_MAPS) g.printGrid(gridCopy);
       return gridCopy;
     }
   }
@@ -449,6 +450,7 @@ const distanceToCenter = (direction, startPos, grid, data) => {
 
 const closeAccessableFuture2FarFromWall = (grid, data) => {
   try {
+    // log.debug("calculating closeAccessableFuture2FarFromWall");
     const myHead = s.location(data);
     let target = null;
     let movePos = null;
@@ -460,10 +462,12 @@ const closeAccessableFuture2FarFromWall = (grid, data) => {
       if (target === null) {
         target = t.closestTarget(gridCopy, myHead, k.ENEMY_HEAD);
       }
+      // log.debug(`closeAccessableFuture2FarFromWall target: ${target}`);
       if (target === null) {
         return null;
       }
       let future2s = getFuture2InOrderOfDistanceFromWall(grid, target);
+      log.debug(`future2s: ${future2s}`);
       if (future2s != null) {
         for (let future2 of future2s) {
             movePos = astar.search(myHead, future2, grid, k.SNAKE_BODY);
@@ -515,6 +519,8 @@ const closeAccessableKillZoneFarFromWall = (grid, data) => {
 
 
 const getFuture2InOrderOfDistanceFromWall = (grid, target) => {
+  if (target == null) return null;
+  log.debug(`getFuture2InOrderOfDistanceFromWall target: ${u.pairToString(target)}`);
   try {
     let spots = [];
     let spot = {};
@@ -531,7 +537,8 @@ const getFuture2InOrderOfDistanceFromWall = (grid, target) => {
     ];
     for (let offset of possibleFuture2Offsets) {
       spot = { x: target.x + offset.x, y: target.y + offset.y };
-      if (!outOfBounds(spot, grid) && grid[spot.y][spot.y] === k.FUTURE_2) {
+      // log.debug(`getFuture2InOrderOfDistanceFromWall spot: ${u.pairToString(spot)}`);
+      if (!outOfBounds(spot, grid) && grid[spot.y][spot.x] === k.FUTURE_2) {
         distance = distanceFromWall(spot, grid);
         spots.push({ pos: spot, distance: distance });
       }
@@ -541,7 +548,7 @@ const getFuture2InOrderOfDistanceFromWall = (grid, target) => {
       (a, b) => (a.distance < b.distance) ? 1 : ((b.distance < a.distance) ? -1 : 0)
     );
 
-    let future2sSorted = []
+    let future2sSorted = [];
     for (spot of spots) {
       future2sSorted.push(spot.pos);
     }

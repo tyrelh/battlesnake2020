@@ -50,7 +50,13 @@ const move = (req, res) => {
   // start early game by killing some time, to let dumb snakes die
   else if (turn < p.INITIAL_TIME_KILL) {
     try { move = m.killTime(staySafe, grid, data); }
-    catch (e) { log.error(`ex in main.initialKillTime: ${e}`, turn)}
+    catch (e) { log.error(`ex in main.initialKillTime: ${e}`, turn); }
+  }
+
+  // if there is only one other snake, don't try to be bigger than it, just hunt it
+  else if (numSnakes <= 2) {
+    try { move = m.lateHunt(staySafe, grid, data); }
+    catch (e) { log.error(`ex in main.lateHunt: ${e}`, turn); }
   }
 
   // data.board.snakes.length > 4
@@ -63,11 +69,11 @@ const move = (req, res) => {
   // if there are smaller snakes than you, hunt
   else if (iAmBiggestSnake || existsSmallerSnake) {
     try { move = m.hunt(staySafe, grid, data); }
-    catch (e) { log.error(`ex in main.biggest: ${e}`, turn)}
+    catch (e) { log.error(`ex in main.biggest: ${e}`, turn); }
   }
 
   // backup plan?
-  if (move === null) {
+  if (move == null) {
     try { move = m.eat(staySafe, grid, data); }
     catch (e) { log.error(`ex in main.backupPlan: ${e}`, turn); }
   }

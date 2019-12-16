@@ -64,7 +64,7 @@ const hunt = (staySafe, grid, data) => {
   try {
     move = search.closeAccessableKillZoneFarFromWall(grid, data);
     if (move != null) {
-      score = p.ASTAR_SUCCESS;
+      score = p.HUNT;
     }
   }
   catch (e) { log.error(`ex in move.hunt: ${e}`, data.turn); }
@@ -84,11 +84,13 @@ const lateHunt = (staySafe, grid, data) => {
 
   try {
     move = search.closeAccessableFuture2FarFromWall(grid, data);
-    if (move != null) score = p.ASTAR_SUCCESS;
+    if (move != null) {
+      score = p.HUNT_LATE;
+    }
   }
   catch (e) { log.error(`ex in move.lateHunt: ${e}`, data.turn); }
 
-  if (move != null) log.debug(`In lateHunt calulated score ${score} for move ${k.DIRECTION[move]}`)
+  if (move != null) log.debug(`In lateHunt calulated score ${score.toFixed(2)} for move ${k.DIRECTION[move]}`);
   else if (move === null) log.debug(`Move in lateHunt was NULL.`);
 
   let scores = u.applyMoveToScores(move, score);
