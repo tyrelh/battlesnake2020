@@ -22,9 +22,10 @@ module.exports = {
   SAFE_AMOUNT_OF_SNAKES: 4, // started @ 4
   STAY_SAFE_MULTIPLIER: 2.1, // started @ 4.0 -+
   FLOOD_MULTIPLIER: 0.3, // started @ 0.5 --
-  ENEMY_DISTANCE: 2.9, // started @ 0.99 +-+++-++++-+
+  ENEMY_DISTANCE: 0.4, // started @ 0.99 +-+++-++++-+
+  KILL_DISTANCE: 0.3, // started @ 1.5
   WALL_DISTANCE: 3.0, // started @ 2 +++-++-
-  KILL_DISTANCE: 1.5, // started @ 1.5
+
 
   // scores for moves
   ASTAR_SUCCESS: 13, // started @ 10 -++++
