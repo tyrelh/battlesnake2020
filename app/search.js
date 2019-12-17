@@ -213,7 +213,7 @@ const scoresFartherFromWall = (grid, data) => {
   let minDistance = 9999;
   try {
     for (let direction = 0; direction < 4; direction++) {
-      const currentDistance = distanceFromWall(applyMoveToPos(direction, s.location(data)), grid);
+      const currentDistance = distanceFromWall(u.applyMoveToPos(direction, s.location(data)), grid);
       log.debug(`Distance from wall for move ${k.DIRECTION[direction]} is ${currentDistance}`);
       if (wallDistanceScores[direction] < currentDistance) {
         wallDistanceScores[direction] = (currentDistance * p.WALL_DISTANCE);
@@ -405,8 +405,29 @@ const edgeFillFromEnemyToYou = (enemy, gridCopy, grid, data) => {
 };
 
 
+const testForConstrainedMove = (grid, data) => {
+  let scores = [0, 0, 0, 0];
+  try {
+    const myHead = s.location(data);
+    for (let m = 0; m < 4; m++) {
+      let move = u.applyMoveToPos(m, myHead);
+      if (!g.outOfBounds(move, grid) && grid[move.y][move.x] <= k.DANGER) {
+        for (let dir = 0; dir < 4; dir++) {
+          let check = u.applyMoveToPos(dir, move);
+          if (!g.outOfBounds(check, grid) && grid[check.y][check.x] <= k.WARNING) {
+            scores[m] += p.CONSTRAINED_MOVE_MULTIPLIER
+          }
+        }
+      }
+    }
+  }
+  catch (e) { log.error(`ex in search.testForConstrainedMove: ${e}`, data.turn); }
+  return scores;
+};
+
+
 // get a list of all enemy heads
-const getEnemyLocations = data => {
+const getEnemyLocations = (data) => {
   try {
     const you = data.you;
     let locations = [];
@@ -426,7 +447,7 @@ const getEnemyMoveLocations = (pos, grid) => {
     let positions = [];
     for (let m = 0; m < 4; m++) {
       if (validMove(m, pos, grid)) {
-        positions.push(applyMoveToPos(m, pos));
+        positions.push(u.applyMoveToPos(m, pos));
       }
     }
     return positions;
@@ -440,7 +461,7 @@ const getEnemyMoveLocations = (pos, grid) => {
 const distanceToCenter = (direction, startPos, grid, data) => {
   try {
     if (validMove(direction, startPos, grid)) {
-      return distanceFromWall(applyMoveToPos(direction, startPos), grid);
+      return distanceFromWall(u.applyMoveToPos(direction, startPos), grid);
     }
   }
   catch (e) { log.error(`ex in search.distanceToCenter: ${e}`, data.turn); }
@@ -526,14 +547,10 @@ const getFuture2InOrderOfDistanceFromWall = (grid, target) => {
     let spot = {};
     let distance = 0;
     const possibleFuture2Offsets = [
-      { x: 0, y: -2 },
-      { x: 1, y: -1 },
-      { x: 2, y: 0 },
-      { x: 1, y: 1 },
-      { x: 0, y: 2 },
-      { x: -1, y: 1 },
-      { x: -2, y: 0 },
-      { x: -1, y: -1 },
+      { x: 0, y: -2 }, { x: 1, y: -1 },
+      { x: 2, y: 0 }, { x: 1, y: 1 },
+      { x: 0, y: 2 }, { x: -1, y: 1 },
+      { x: -2, y: 0 }, { x: -1, y: -1 },
     ];
     for (let offset of possibleFuture2Offsets) {
       spot = { x: target.x + offset.x, y: target.y + offset.y };
@@ -655,10 +672,10 @@ const distanceToEnemy = (direction, grid, data, type = k.ENEMY_HEAD) => {
   try {
     const myHead = s.location(data);
     if (validMove(direction, myHead, grid)) {
-      const closestEnemyHead = t.closestTarget(grid, applyMoveToPos(direction, myHead), type);
+      const closestEnemyHead = t.closestTarget(grid, u.applyMoveToPos(direction, myHead), type);
       if (closestEnemyHead != null) log.debug(`Closest enemy for move ${k.DIRECTION[direction]} is ${u.pairToString(closestEnemyHead)}`);
       if (closestEnemyHead === null) return 0;
-      return g.getDistance(closestEnemyHead, applyMoveToPos(direction, myHead));
+      return g.getDistance(closestEnemyHead, u.applyMoveToPos(direction, myHead));
     }
   }
   catch (e) { log.error(`ex in search.distanceToEnemy: ${e}`, data.turn); }
@@ -695,7 +712,7 @@ const outOfBounds = ({ x, y }, grid) => {
 // check if move is not fatal
 const validMove = (direction, pos, grid) => {
   try {
-    const newPos = applyMoveToPos(direction, pos);
+    const newPos = u.applyMoveToPos(direction, pos);
     if (outOfBounds(newPos, grid)) return false;
     return grid[newPos.y][newPos.x] <= k.DANGER;
   }
@@ -703,21 +720,6 @@ const validMove = (direction, pos, grid) => {
     log.error(`ex in search.validMove: ${e}\n{direction: ${direction}, pos: ${pairToString(pos)}, grid: ${grid}}`);
     return false;
   }
-};
-
-
-const applyMoveToPos = (move, pos) => {
-  switch (move) {
-    case k.UP:
-      return {x: pos.x, y: pos.y - 1};
-    case k.DOWN:
-      return {x: pos.x, y: pos.y + 1};
-    case k.LEFT:
-      return {x: pos.x - 1, y: pos.y};
-    case k.RIGHT:
-      return {x: pos.x + 1, y: pos.y};
-  }
-  return {x: 0, y: 0};
 };
 
 
@@ -729,9 +731,9 @@ module.exports = {
   scoresCloserToKillableSnakes: scoresCloserToKillableSnakes,
   scoresFartherFromWall: scoresFartherFromWall,
   distanceToEnemy: distanceToEnemy,
-  applyMoveToPos: applyMoveToPos,
   closeAccessableKillZoneFarFromWall: closeAccessableKillZoneFarFromWall,
   distanceToCenter: distanceToCenter,
   closeAccessableFuture2FarFromWall: closeAccessableFuture2FarFromWall,
-  preprocessGrid: preprocessGrid
+  preprocessGrid: preprocessGrid,
+  testForConstrainedMove
 };

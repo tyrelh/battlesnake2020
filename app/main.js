@@ -57,7 +57,7 @@ const move = (req, res) => {
   }
 
   // if there is only one other snake, don't try to be bigger than it, just hunt it
-  else if (numSnakes <= 2) {
+  else if (numSnakes <= p.FINAL_SNAKES) {
     try { move = m.lateHunt(staySafe, grid, data); }
     catch (e) { log.error(`ex in main.lateHunt: ${e}`, turn); }
   }
