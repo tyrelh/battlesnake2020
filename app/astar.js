@@ -40,12 +40,15 @@ const search = (start, destination, grid, avoidThreshold) => {
       log.status("Found a path!");
       let tempCell = lowestCell;
       log.debug(`Astar start pos: ${u.pairToString(start)}`);
-      while (
-        searchScores[tempCell.y][tempCell.x].previous.x != start.x ||
-        searchScores[tempCell.y][tempCell.x].previous.y != start.y
-      ) {
-        tempCell = searchScores[tempCell.y][tempCell.x].previous;
+      if (!u.sameCell(tempCell, start)) {
+        while (
+          searchScores[tempCell.y][tempCell.x].previous.x != start.x ||
+          searchScores[tempCell.y][tempCell.x].previous.y != start.y
+          ) {
+          tempCell = searchScores[tempCell.y][tempCell.x].previous;
+        }
       }
+
       log.debug(`Astar next move: ${u.pairToString(tempCell)}`);
       return tempCell;
     }
