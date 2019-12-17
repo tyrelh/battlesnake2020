@@ -75,12 +75,13 @@ const getDistance = (a, b) => {
 // check if there is any move in a scores array
 const moveInScores = (scores) => {
   try {
-    for (move in scores) {
-      if (move > 0) return true
+    for (let move of scores) {
+      // log.status(`score: ${move}`);
+      if (move > 0) { return true; }
     }
   }
   catch (e) { log.error(`ex in utils.moveInScores: ${e}`); }
-  return false
+  return false;
 };
 
 
@@ -125,6 +126,21 @@ const highestScoreMove = (scores) => {
 };
 
 
+// apply a given direction to a position
+const applyMoveToPos = (move, pos) => {
+  switch (move) {
+    case k.UP:
+      return { x: pos.x, y: pos.y - 1 };
+    case k.DOWN:
+      return { x: pos.x, y: pos.y + 1 };
+    case k.LEFT:
+      return { x: pos.x - 1, y: pos.y };
+    case k.RIGHT:
+      return { x: pos.x + 1, y: pos.y };
+  }
+};
+
+
 module.exports = {
   pairToString: pairToString,
   scoresToString: scoresToString,
@@ -135,5 +151,6 @@ module.exports = {
   moveInScores: moveInScores,
   applyMoveToScores: applyMoveToScores,
   combineScores: combineScores,
-  highestScoreMove: highestScoreMove
+  highestScoreMove: highestScoreMove,
+  applyMoveToPos
 };

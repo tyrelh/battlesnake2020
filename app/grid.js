@@ -28,7 +28,12 @@ const buildGrid = data => {
   // fill FOOD locations
   try {
     board.food.forEach(({ x, y }) => {
+      // if (self.health > p.DONT_EAT_HEALTH) {
+      //   grid[y][x] = k.WARNING;
+      // }
+      // else {
       grid[y][x] = k.FOOD;
+      // }
     });
   }
   catch (e) { log.error(`ex in food marking grid.buildGrid: ${e}`, data.turn); }
@@ -204,12 +209,9 @@ const copyGrid = (grid) => {
 
 
 // check if space is out of bounds
-const outOfBounds = (pos, grid) => {
-  const x = pos.x;
-  const y = pos.y;
+const outOfBounds = ({ x, y }, grid) => {
   try {
-    if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) return true
-      else return false
+    return (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length);
   } catch (e) {
     log.error(`ex in search.outOfBounds: ${e}`);
     return true
@@ -333,5 +335,6 @@ module.exports = {
   copyGrid: copyGrid,
   onPerimeter: onPerimeter,
   nearPerimeter: nearPerimeter,
-  moveTails
+  moveTails,
+  outOfBounds
 };

@@ -5,23 +5,28 @@ const s = require("./self");
 const u = require("./utils");
 
 
+// get food directly from data, not from grid
+const distanceToFoodInFoodList = (start, data) => {
+  try {
+    const foodList = data.board.food;
+    let closestFoodPos = null;
+    let closestFoodDistance = 9999;
+    for (let food of foodList) {
+      let currentDistance = u.getDistance(start, food);
+      if (currentDistance < closestFoodDistance) {
+        closestFoodPos = food;
+        closestFoodDistance = currentDistance;
+      }
+    }
+    return (closestFoodDistance === 9999 ? 0 : closestFoodDistance);
+  }
+  catch (e) { log.error(`ex in target.emergencyClosestFood`); }
+  return 0;
+};
+
+
+// get closest food in grid
 const closestFood = (start, grid, data) => {
-  // try {
-  //   const foodList = data.board.food;
-  //   let gridCopy = g.copyGrid(grid);
-  //   let closestFoodPos = null;
-  //   let closestFoodDistance = 9999;
-  //   foodList.forEach((foodPos) => {
-  //     let currentDistance = u.getDistance(start, foodPos);
-  //     if (currentDistance < closestFoodDistance) {
-  //       closestFoodPos = foodPos;
-  //       closestFoodDistance = currentDistance;
-  //     }
-  //   });
-  //   return closestFoodPos;
-  // }
-  // catch (e) { log.error(`ex in target.closestFood: ${e}`, data.turn); }
-  // return null;
   return closestTarget(grid, start, keys.FOOD);
 };
 
@@ -64,5 +69,6 @@ module.exports = {
   closestFood: closestFood,
   closestKillableEnemy: closestKillableEnemy,
   closestEnemyHead: closestEnemyHead,
-  closestTarget: closestTarget
+  closestTarget: closestTarget,
+  distanceToFoodInFoodList
 };
