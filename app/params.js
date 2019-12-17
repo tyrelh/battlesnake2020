@@ -2,8 +2,8 @@ module.exports = {
   // logging
   DEBUG: true,
   STATUS: true,
-  DEBUG_MAPS: true,
-  CONSOLE_LOG: true,
+  DEBUG_MAPS: false,
+  CONSOLE_LOG: false,
 
   NAME: /zerocool/,
 
