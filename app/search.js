@@ -174,36 +174,53 @@ const completeFloodSearch = (grid, data) => {
 
 // score moves based on distance from closest danger snake
 const scoresFartherFromDangerousSnake = (grid, data) => {
+  const myHead = s.location(data);
+  const myLength = s.length(data);
   let enemyDistanceScores = [0, 0, 0, 0];
   try {
     for (let direction = 0; direction < 4; direction++) {
-      const currentDistance = distanceToEnemy(direction, grid, data, k.ENEMY_HEAD);
-      log.debug(`Distance to closest dangerous snake for move ${k.DIRECTION[direction]} is ${currentDistance}`);
-      if (enemyDistanceScores[direction] < currentDistance) {
-        enemyDistanceScores[direction] = (currentDistance * p.ENEMY_DISTANCE);
+      const move = u.applyMoveToPos(direction, myHead);
+      if (!g.outOfBounds(move, grid) && grid[move.y][move.x] < k.SNAKE_BODY) {
+        for (let snake of data.board.snakes) {
+          if (myLength <= snake.body.length) {
+            const enemyHead = snake.body[0];
+            let distance = u.getDistance(move, enemyHead);
+            if (distance) {
+              enemyDistanceScores[direction] += (distance * p.ENEMY_DISTANCE);
+            }
+          }
+        }
       }
     }
   }
   catch (e) { log.error(`ex in search.fartherFromDangerousSnake: ${e}`, data.turn); }
-  return enemyDistanceScores;
+  return u.normalizeScores(enemyDistanceScores);
 };
 
 
 // score moves based on distance to closest kill_zone
 const scoresCloserToKillableSnakes = (grid, data) => {
+  const myHead = s.location(data);
+  const myLength = s.length(data);
   let enemyDistanceScores = [0, 0, 0, 0];
   try {
     for (let direction = 0; direction < 4; direction++) {
-      const currentDistance = distanceToEnemy(direction, grid, data, k.KILL_ZONE);
-      log.debug(`Distance to closest killable snake for move ${k.DIRECTION[direction]} is ${currentDistance}`);
-      if (currentDistance === 0) continue;
-      if (enemyDistanceScores[direction] < currentDistance) {
-        enemyDistanceScores[direction] = -(currentDistance * p.KILL_DISTANCE);
+      const move = u.applyMoveToPos(direction, myHead);
+      if (!g.outOfBounds(move, grid) && grid[move.y][move.x] < k.SNAKE_BODY) {
+        for (let snake of data.board.snakes) {
+          if (myLength > snake.body.length) {
+            const enemyHead = snake.body[0];
+            let distance = u.getDistance(move, enemyHead);
+            if (distance) {
+              enemyDistanceScores[direction] -= (distance * p.ENEMY_DISTANCE);
+            }
+          }
+        }
       }
     }
   }
   catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`, data.turn); }
-  return enemyDistanceScores;
+  return u.normalizeScores(enemyDistanceScores);
 };
 
 

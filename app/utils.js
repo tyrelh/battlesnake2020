@@ -141,6 +141,29 @@ const applyMoveToPos = (move, pos) => {
 };
 
 
+// subtract the value closest to 0 from all score values, so the lowest score becomes 0
+const normalizeScores = (scores) => {
+  try {
+    let minAbsScore = 9999;
+    let minScore = 0;
+    for (let i = 0; i < 4; i++) {
+      let absScore = Math.abs(scores[i]);
+      if (absScore < minAbsScore) {
+        minAbsScore = absScore;
+        minScore = scores[i];
+      }
+    }
+    if (minAbsScore < 9999 && minAbsScore > 0) {
+      for (let i = 0; i < 4; i++) {
+        scores[i] -= minScore;
+      }
+    }
+  }
+  catch (e) { log.error(`ex in utils.normalizeScores: ${e}`); }
+  return scores;
+};
+
+
 module.exports = {
   pairToString: pairToString,
   scoresToString: scoresToString,
@@ -152,5 +175,6 @@ module.exports = {
   applyMoveToScores: applyMoveToScores,
   combineScores: combineScores,
   highestScoreMove: highestScoreMove,
-  applyMoveToPos
+  applyMoveToPos,
+  normalizeScores
 };
