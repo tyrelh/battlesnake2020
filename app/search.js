@@ -487,12 +487,10 @@ const distanceToCenter = (direction, startPos, grid, data) => {
 
 
 const closeAccessableFuture2FarFromWall = (grid, data) => {
+  let scores = [0, 0, 0, 0];
   try {
-    // log.debug("calculating closeAccessableFuture2FarFromWall");
     const myHead = s.location(data);
     let target = null;
-    let movePos = null;
-    let move = null;
     let foundMove = false;
     let gridCopy = g.copyGrid(grid);
     while (!foundMove) {
@@ -500,19 +498,46 @@ const closeAccessableFuture2FarFromWall = (grid, data) => {
       if (target === null) {
         target = t.closestTarget(gridCopy, myHead, k.ENEMY_HEAD);
       }
-      // log.debug(`closeAccessableFuture2FarFromWall target: ${target}`);
       if (target === null) {
         return null;
       }
       let future2s = getFuture2InOrderOfDistanceFromWall(grid, target);
-      log.debug(`future2s: ${future2s}`);
       if (future2s != null) {
         for (let future2 of future2s) {
-            movePos = astar.search(myHead, future2, grid, k.SNAKE_BODY);
-            if (movePos) move = u.calcDirection(myHead, movePos);
-          // move = astar(grid, data, future2, keys.FUTURE_2);
-          if (move != null) {
-            return move;
+          // movePos = astar.search(myHead, future2, grid, k.SNAKE_BODY, true);
+          // // log.debug(`movePos: ${u.pairToString(movePos)}`);
+          // if (movePos) {
+          //   move = u.calcDirection(myHead, movePos, data);
+          //   // log.debug(`move: ${k.DIRECTION[move]}`);
+          // }
+          // if (move != null) {
+          //   return move;
+          // }
+          // let distances = [0, 0, 0, 0];
+          for (let m = 0; m < 4; m++) {
+            let startPos = u.applyMoveToPos(m, myHead);
+            if (!g.outOfBounds(startPos, grid) && grid[startPos.y][startPos.x] < k.SNAKE_BODY) {
+              let movePos = null;
+              let distance = 0;
+              let move = null;
+              let result = astar.search(startPos, future2, grid, k.SNAKE_BODY, true);
+              if (result) {
+                movePos = result.pos;
+                distance = result.distance;
+                // log.debug(`distance: ${distance}`);
+                if (movePos) {
+                  move = u.calcDirection(myHead, movePos, data);
+                }
+                if (move != null) {
+                  // scores = u.applyMoveToScores(move, p.HUNT_LATE, scores);
+                  log.debug(`distance: ${distance}`);
+                  scores[move] += (p.HUNT_LATE / distance);
+                }
+              }
+            }
+          }
+          if (u.moveInScores(scores)) {
+            return scores;
           }
         }
       }
@@ -520,7 +545,7 @@ const closeAccessableFuture2FarFromWall = (grid, data) => {
     }
   }
   catch (e) { log.error(`ex in search.closeAccessableFuture2FarFromWall: ${e}`, data.turn); }
-  return null;
+  return scores;
 };
 
 
@@ -540,9 +565,9 @@ const closeAccessableKillZoneFarFromWall = (grid, data) => {
       let killZones = getKillZonesInOrderOfDistanceFromWall(grid, target);
       if (killZones != null) {
         for (let killZone of killZones) {
-          // move = astar(grid, data, killZone, keys.KILL_ZONE);
-          movePos = astar.search(myHead, killZone, grid, k.SNAKE_BODY);
-          if (movePos) move = u.calcDirection(myHead, movePos);
+          let result = astar.search(myHead, killZone, grid, k.SNAKE_BODY);
+          movePos = result.pos;
+          if (movePos) move = u.calcDirection(myHead, movePos, data);
           if (move != null) {
             return move;
           }

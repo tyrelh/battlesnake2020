@@ -13,7 +13,7 @@ const u = require("./utils");
 const eat = (staySafe, grid, data) => {
   const myHead = s.location(data);
   const health = data.you.health;
-  let urgencyScore = (100 - health);
+  let urgencyScore = (101 - health);
   let target = null;
   let move = null;
   let movePos = null;
@@ -44,25 +44,23 @@ const eat = (staySafe, grid, data) => {
       log.status("No food was found on board.");
       return buildMove([0, 0, 0, 0], staySafe, grid, data);
     }
-    movePos = astar.search(myHead, target, grid, k.SNAKE_BODY);
+    let result = astar.search(myHead, target, grid, k.SNAKE_BODY);
+    movePos = result.pos;
 
     while (movePos === null && target != null) {
       gridCopy[target.y][target.x] = k.DANGER;
       target = t.closestFood(myHead, gridCopy, data);
       if (target === null) break;
-      movePos = astar.search(myHead, target, grid, k.SNAKE_BODY);
+      let result = astar.search(myHead, target, grid, k.SNAKE_BODY);
+      movePos = result.pos;
     }
   }
   catch (e) { log.error(`ex in move.eat: ${e}`, data.turn); }
 
-
-
-
-
   try {
     if (movePos != null) {
       if (target != null) log.debug(`Target in eat: ${u.pairToString(target)}`);
-      move = u.calcDirection(myHead, movePos);
+      move = u.calcDirection(myHead, movePos, data);
       log.status(`Move in eat: {move: ${k.DIRECTION[move]}, score: ${urgencyScore.toFixed(2)}}`);
       let scores = u.applyMoveToScores(move, urgencyScore);
       return buildMove(scores, staySafe, grid, data);
@@ -96,22 +94,21 @@ const hunt = (staySafe, grid, data) => {
 
 
 const lateHunt = (staySafe, grid, data) => {
-  let score = 0;
-  let move = null;
+  let scores = [0, 0, 0, 0];
   log.status("HUNTING, LATE GAME");
-
   try {
-    move = search.closeAccessableFuture2FarFromWall(grid, data);
-    if (move != null) {
-      score = p.HUNT_LATE;
-    }
-
-    if (move != null) log.debug(`In lateHunt calulated score ${score.toFixed(2)} for move ${k.DIRECTION[move]}`);
-    else if (move === null) log.debug(`Move in lateHunt was NULL.`);
+    // move = search.closeAccessableFuture2FarFromWall(grid, data);
+    // if (move != null) {
+    //   score = p.HUNT_LATE;
+    // }
+    //
+    // if (move != null) log.debug(`In lateHunt calulated score ${score.toFixed(2)} for move ${k.DIRECTION[move]}`);
+    // else if (move === null) log.debug(`Move in lateHunt was NULL.`);
+    scores = search.closeAccessableFuture2FarFromWall(grid, data);
   }
   catch (e) { log.error(`ex in move.lateHunt: ${e}`, data.turn); }
 
-  let scores = u.applyMoveToScores(move, score);
+  // let scores = u.applyMoveToScores(move, score);
   return buildMove(scores, staySafe, grid, data);
 };
 
@@ -126,21 +123,21 @@ const killTime = (staySafe, grid, data) => {
 
 // build up move scores and return best move
 const buildMove = (scores = [0, 0, 0, 0], staySafe, grid, data) => {
-  log.status(`Behaviour scores:\n ${u.scoresToString(scores)}`);
+  log.status(`Behaviour scores:\n ${u.scoresToString(scores, data)}`);
   const myHead = s.location(data);
   let baseScores = baseMoveScores(grid, myHead);
-  log.status(`Base scores:\n ${u.scoresToString(baseScores)}`);
+  log.status(`Base scores:\n ${u.scoresToString(baseScores, data)}`);
   try {
     // if move is null, try to find fallback move
     if (!u.moveInScores(scores)) {
       const fallbackScores = getFallbackMove(grid, data);
       // if no fallback move, try to coil on self to save space
       if (u.moveInScores(fallbackScores)) {
-        log.status(`Fallback scores:\n ${u.scoresToString(fallbackScores)}`);
+        log.status(`Fallback scores:\n ${u.scoresToString(fallbackScores, data)}`);
         scores = u.combineScores(fallbackScores, scores);
       } else {
         scores = coil(grid, data);
-        log.status(`Coil scores:\n ${u.scoresToString(scores)}`);
+        log.status(`Coil scores:\n ${u.scoresToString(scores, data)}`);
       }
     }
   }
@@ -152,12 +149,12 @@ const buildMove = (scores = [0, 0, 0, 0], staySafe, grid, data) => {
   if (staySafe) {
     tightMoveScores = tightMoveScores.map((x) => x * p.STAY_SAFE_MULTIPLIER);
   }
-  log.status(`Tight move scores:\n ${u.scoresToString(tightMoveScores)}`);
+  log.status(`Tight move scores:\n ${u.scoresToString(tightMoveScores, data)}`);
   scores = u.combineScores(scores, tightMoveScores);
 
   // FLOOD FILLS
   let floodScores = search.completeFloodSearch(grid, data);
-  log.status(`Flood scores:\n ${u.scoresToString(floodScores)}`);
+  log.status(`Flood scores:\n ${u.scoresToString(floodScores, data)}`);
   scores = u.combineScores(scores, floodScores);
 
   // FARTHER FROM DANGER SNAKES
@@ -165,12 +162,12 @@ const buildMove = (scores = [0, 0, 0, 0], staySafe, grid, data) => {
   if (staySafe) {
     fartherFromDangerousSnakesScores = fartherFromDangerousSnakesScores.map((x) => x * p.STAY_SAFE_MULTIPLIER);
   }
-  log.status(`Farther from danger snakes scores:\n ${u.scoresToString(fartherFromDangerousSnakesScores)}`);
+  log.status(`Farther from danger snakes scores:\n ${u.scoresToString(fartherFromDangerousSnakesScores, data)}`);
   scores = u.combineScores(scores, fartherFromDangerousSnakesScores);
 
   // CLOSER TO KILLABLE SNAKES
   let closerToKillableSnakesScores = search.scoresCloserToKillableSnakes(grid, data);
-  log.status(`Closer to killable snakes scores:\n ${u.scoresToString(closerToKillableSnakesScores)}`);
+  log.status(`Closer to killable snakes scores:\n ${u.scoresToString(closerToKillableSnakesScores, data)}`);
   scores = u.combineScores(scores, closerToKillableSnakesScores);
 
   // FARTHER FROM WALL
@@ -178,10 +175,10 @@ const buildMove = (scores = [0, 0, 0, 0], staySafe, grid, data) => {
   if (staySafe) {
     fartherFromWallsScores = fartherFromWallsScores.map((x) => x * p.STAY_SAFE_MULTIPLIER);
   }
-  log.status(`Farther from walls scores:\n ${u.scoresToString(fartherFromWallsScores)}`);
+  log.status(`Farther from walls scores:\n ${u.scoresToString(fartherFromWallsScores, data)}`);
   scores = u.combineScores(scores, fartherFromWallsScores);
 
-  log.status(`Final scores:\n ${u.scoresToString(scores)}`);
+  log.status(`Final scores:\n ${u.scoresToString(scores, data)}`);
   return u.highestScoreMove(scores)
 };
 
@@ -192,8 +189,9 @@ const getFallbackMove = (grid, data) => {
     log.status("Resorting to fallback move");
     // try finding a path to tail first
     let target = s.tailLocation(data);
-    let movePos = astar.search(myHead, target, grid, k.SNAKE_BODY);
-    let move = u.calcDirection(myHead, movePos);
+    let result = astar.search(myHead, target, grid, k.SNAKE_BODY);
+    let movePos = result.pos;
+    let move = u.calcDirection(myHead, movePos, data);
     let score = 0;
     // if no path to own tail, try searching for food
     const gridCopy = g.copyGrid(grid);
@@ -201,8 +199,11 @@ const getFallbackMove = (grid, data) => {
       target = t.closestFood(myHead, gridCopy, data);
       if (target != null) {
         gridCopy[target.y][target.x] = k.WARNING;
-        movePos = astar.search(myHead, target, grid, k.SNAKE_BODY);
-        move = u.calcDirection(myHead, movePos);
+        let result = astar.search(myHead, target, grid, k.SNAKE_BODY);
+        if (result) {
+          movePos = result.pos;
+          move = u.calcDirection(myHead, movePos, data);
+        }
       }
       // if no more food to search for just quit
       else break;
