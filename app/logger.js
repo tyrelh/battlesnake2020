@@ -93,8 +93,9 @@ const saveJSON = (data) => {
 // debug levels
 const error = (message, turn = null) => {
   errorHappened = true;
-  log += `ERROR: ${message}\n`;
-  if (p.CONSOLE_LOG) console.log(`ERROR: ${message}`);
+  let msg = `!! ERROR: ${message}`;
+  log += `${msg}\n`;
+  if (p.CONSOLE_LOG) console.log(msg);
   exLog += `EX ON TURN ${turn != null ? turn : "none"}: ${message}\n`;
   return message;
 };
