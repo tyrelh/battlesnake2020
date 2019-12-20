@@ -15,11 +15,11 @@ const pairToString = pair => {
 
 
 // return scores array in a human readable string
-const scoresToString = scores => {
+const scoresToString = (scores, data = { turn: "none" }) => {
   try {
     return `{up: ${scores[k.UP].toFixed(1)}, down: ${scores[k.DOWN].toFixed(1)}, left: ${scores[k.LEFT].toFixed(1)}, right: ${scores[k.RIGHT].toFixed(1)}}`
   }
-  catch (e) { log.error(`ex in move.scoresToString: ${e}`); }
+  catch (e) { log.error(`ex in move.scoresToString: ${e}`, data.turn); }
 };
 
 
@@ -49,7 +49,7 @@ const arrayIncludesPair = (arr, pair) => {
 // calculate direction from a to b
 // could be inaccurate if a and b are far apart
 // TODO tyrelh rethink how this works if there are two directions that are the same distance
-const calcDirection = (a, b) => {
+const calcDirection = (a, b, data) => {
   try {
     const xDelta = a.x - b.x;
     const yDelta = a.y - b.y;
@@ -57,12 +57,9 @@ const calcDirection = (a, b) => {
     else if (xDelta > 0) return k.LEFT;
     else if (yDelta < 0) return k.DOWN;
     else if (yDelta > 0) return k.UP;
-    return null;
   }
-  catch (e) {
-    log.error(`ex in utils.calcDirection: ${e}`);
-    return null;
-  }
+  catch (e) { log.error(`ex in utils.calcDirection: ${e}`, data.turn); }
+  return null;
 };
 
 
@@ -76,8 +73,7 @@ const getDistance = (a, b) => {
 const moveInScores = (scores) => {
   try {
     for (let move of scores) {
-      // log.status(`score: ${move}`);
-      if (move > 0) { return true; }
+      if (move !== 0) { return true; }
     }
   }
   catch (e) { log.error(`ex in utils.moveInScores: ${e}`); }

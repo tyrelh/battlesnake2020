@@ -1,9 +1,10 @@
-const p = require("./params");
+// const p = require("./params");
 const u = require("./utils");
 const log = require("./logger");
 
-
-const search = (start, destination, grid, avoidThreshold) => {
+// finds the shortest path between start and destination
+// returns { distance, pos }
+const search = (start, destination, grid, avoidThreshold, returnStart = false) => {
   if (start === null || destination === null) {
     log.status("Start or destination is null in astar. Must call with start and destination coords.");
     return null;
@@ -37,20 +38,22 @@ const search = (start, destination, grid, avoidThreshold) => {
 
     // check if found destination
     if (u.sameCell(lowestCell, destination)) {
-      log.status("Found a path!");
-      let tempCell = lowestCell;
-      log.debug(`Astar start pos: ${u.pairToString(start)}`);
-      if (!u.sameCell(tempCell, start)) {
-        while (
-          searchScores[tempCell.y][tempCell.x].previous.x != start.x ||
-          searchScores[tempCell.y][tempCell.x].previous.y != start.y
-          ) {
-          tempCell = searchScores[tempCell.y][tempCell.x].previous;
-        }
-      }
+      log.status("Found a path (lowestCell");
+      // let tempCell = lowestCell;
+      // log.debug(`Astar start pos: ${u.pairToString(start)}`);
+      // if (!u.sameCell(tempCell, start)) {
+      //   while (
+      //     searchScores[tempCell.y][tempCell.x].previous.x != start.x ||
+      //     searchScores[tempCell.y][tempCell.x].previous.y != start.y
+      //     ) {
+      //     tempCell = searchScores[tempCell.y][tempCell.x].previous;
+      //   }
+      // }
+      //
+      // log.debug(`Astar next move: ${u.pairToString(tempCell)}`);
+      // return tempCell;
 
-      log.debug(`Astar next move: ${u.pairToString(tempCell)}`);
-      return tempCell;
+      return walkback(searchScores, start, lowestCell, returnStart);
     }
 
     // if not found destination, keep search
@@ -75,13 +78,15 @@ const search = (start, destination, grid, avoidThreshold) => {
         neighborCell.previous = current;
         
         // trace path back to origin to find optimal next move
-        let nextPos = neighbor;
-        log.debug(`Astar start pos: ${u.pairToString(start)}`);
-        while (!u.sameCell(searchScores[nextPos.y][nextPos.x].previous, start)) {
-          nextPos = searchScores[nextPos.y][nextPos.x].previous;
-        }
-        log.debug(`Astar next move (neighbor): ${u.pairToString(nextPos)}`);
-        return (nextPos);
+        // let nextPos = neighbor;
+        // log.debug(`Astar start pos: ${u.pairToString(start)}`);
+        // while (!u.sameCell(searchScores[nextPos.y][nextPos.x].previous, start)) {
+        //   nextPos = searchScores[nextPos.y][nextPos.x].previous;
+        // }
+        // log.debug(`Astar next move (neighbor): ${u.pairToString(nextPos)}`);
+        // return (nextPos);
+
+        return walkback(searchScores, start, neighbor, returnStart);
       }
 
       // else keep searching
@@ -116,11 +121,26 @@ const search = (start, destination, grid, avoidThreshold) => {
   // if reached this point and open set is empty, no path
   log.status("ASTAR: COULD NOT FIND PATH!");
   return null;
-}
+};
+
+
+// trace path back to origin to find optimal next move
+const walkback = (astarScoreGrid, start, destination, returnStart = false) => {
+  let nextPos = destination;
+  let distance = 0;
+  log.debug(`Astar start pos: ${u.pairToString(start)}`);
+  while (!u.sameCell(astarScoreGrid[nextPos.y][nextPos.x].previous, start)) {
+    nextPos = astarScoreGrid[nextPos.y][nextPos.x].previous;
+    distance += 1;
+  }
+  log.debug(`Astar next move: ${u.pairToString(nextPos)}`);
+  let pos = returnStart ? astarScoreGrid[nextPos.y][nextPos.x].previous : nextPos;
+  return { distance: distance + 1, pos: pos };
+};
 
 
 // construct a parallel search grid to store a* scores
-const buildAstarScoreGrid = grid => {
+const buildAstarScoreGrid = (grid) => {
   let astarScoreGrid = new Array(grid.length);
   for (let i = 0; i < grid.length; i++) {
     astarScoreGrid[i] = new Array(grid[0].length);
@@ -156,9 +176,9 @@ class AstarScoreCell {
       this.neighbors.push({ x: this.x, y: this.y - 1 });
     }
   }
-}
+};
 
 
 module.exports = {
   search: search
-}
+};
