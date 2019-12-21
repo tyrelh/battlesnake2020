@@ -78,22 +78,12 @@ const eat = (staySafe, grid, data) => {
 
 // track closest KILL_ZONE
 const hunt = (staySafe, grid, data) => {
-  let score = 0;
-  let move = null;
+  let scores = [0, 0, 0, 0];
   log.status("HUNTING");
-
   try {
-    move = search.closeAccessableKillZoneFarFromWall(grid, data);
-    if (move != null) {
-      score = p.HUNT;
-    }
-
-    if (move != null) log.status(`Move in hunt {move: ${k.DIRECTION[move]}, score: ${score.toFixed(2)}}`);
-    else if (move === null) log.debug(`Move in hunt was NULL.`);
+    scores = search.closeAccessableKillZoneFarFromWall(grid, data);
   }
   catch (e) { log.error(`ex in move.hunt: ${e}`, data.turn); }
-
-  let scores = u.applyMoveToScores(move, score);
   return buildMove(scores, staySafe, grid, data);
 };
 
@@ -105,7 +95,6 @@ const lateHunt = (staySafe, grid, data) => {
     scores = search.closeAccessableFuture2FarFromWall(grid, data);
   }
   catch (e) { log.error(`ex in move.lateHunt: ${e}`, data.turn); }
-  // let scores = u.applyMoveToScores(move, score);
   return buildMove(scores, staySafe, grid, data);
 };
 

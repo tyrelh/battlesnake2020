@@ -492,6 +492,7 @@ const closeAccessableFuture2FarFromWall = (grid, data) => {
     const myHead = s.location(data);
     let target = null;
     let gridCopy = g.copyGrid(grid);
+    // loop through all possible targets
     while (true) {
       target = t.closestTarget(gridCopy, myHead, k.SMALL_HEAD);
       if (target === null) {
@@ -502,10 +503,12 @@ const closeAccessableFuture2FarFromWall = (grid, data) => {
       }
       let future2s = getFuture2InOrderOfDistanceFromWall(grid, target);
       if (future2s != null) {
+        // loop through each future2 from a given target snake
         for (let future2 of future2s) {
+          // loop through all of my possible moves
           for (let m = 0; m < 4; m++) {
             let startPos = u.applyMoveToPos(m, myHead);
-            if (!g.outOfBounds(startPos, grid) && grid[startPos.y][startPos.x] < k.SNAKE_BODY) {
+            if (!g.outOfBounds(startPos, grid) && grid[startPos.y][startPos.x] < k.DANGER) {
               let movePos = null;
               let distance = 1;
               let move = null;
@@ -518,12 +521,11 @@ const closeAccessableFuture2FarFromWall = (grid, data) => {
                 }
                 if (move != null) {
                   log.debug(`Distance: ${distance}`);
-                  scores[move] += (p.HUNT_LATE / (distance / 2));
+                  scores[move] += (p.HUNT_LATE / distance);
                 }
               }
             }
           }
-          if (u.moveInScores(scores)) { return scores; }
         }
       }
       gridCopy[target.y][target.x] = k.SNAKE_BODY;
@@ -535,26 +537,41 @@ const closeAccessableFuture2FarFromWall = (grid, data) => {
 
 
 const closeAccessableKillZoneFarFromWall = (grid, data) => {
+  let scores = [0, 0, 0, 0];
   try {
     const myHead = s.location(data);
     let target = null;
-    let movePos = null;
-    let move = null;
-    let foundMove = false;
     let gridCopy = g.copyGrid(grid);
-    while (!foundMove) {
+    // loop through all possible targets
+    while (true) {
       target = t.closestTarget(gridCopy, myHead, k.SMALL_HEAD);
       if (target === null) {
-        return null;
+        return scores;
       }
       let killZones = getKillZonesInOrderOfDistanceFromWall(grid, target);
       if (killZones != null) {
+        // loop through each killzone from a given target snake
         for (let killZone of killZones) {
-          let result = astar.search(myHead, killZone, grid, k.SNAKE_BODY);
-          movePos = result.pos;
-          if (movePos) move = u.calcDirection(myHead, movePos, data);
-          if (move != null) {
-            return move;
+          // loop through all of my possible moves
+          for (let m = 0; m < 4; m++) {
+            let startPos = u.applyMoveToPos(m, myHead);
+            if (!g.outOfBounds(startPos, grid) && grid[startPos.y][startPos.x] < k.SNAKE_BODY) {
+              let movePos = null;
+              let distance = 1;
+              let move = null;
+              let result = astar.search(startPos, killZone, grid, k.SNAKE_BODY, true);
+              if (result) {
+                movePos = result.pos;
+                distance = result.distance;
+                if (movePos) {
+                  move = u.calcDirection(myHead, movePos, data);
+                }
+                if (move != null) {
+                  log.debug(`Distance: ${distance}`);
+                  scores[move] += (p.HUNT / distance);
+                }
+              }
+            }
           }
         }
       }
@@ -562,7 +579,7 @@ const closeAccessableKillZoneFarFromWall = (grid, data) => {
     }
   }
   catch (e) { log.error(`ex in search.closeAccessableKillZoneFarFromWall: ${e}`, data.turn); }
-  return null;
+  return scores;
 };
 
 

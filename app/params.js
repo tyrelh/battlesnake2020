@@ -10,7 +10,7 @@ module.exports = {
   // basic game params
   INITIAL_FEEDING: 0, // started @ 5 +++++++-
   DONT_EAT_HEALTH: 70, // started @ 75 -
-  SURVIVAL_MIN: 39, // started @ 50 --+++++-----
+  SURVIVAL_MIN: 35, // started @ 50 --+++++------
   LONG_GAME_ENDURANCE: 80, // started @ 80
   INITIAL_TIME_KILL: 0, // started @ 70 ---------------
   FINAL_SNAKES: 3, // started @ 2 +
@@ -24,13 +24,13 @@ module.exports = {
   FLOOD_MULTIPLIER: 0.3, // started @ 0.5 --
   ENEMY_DISTANCE: 0.4, // started @ 0.99 +-+++-++++-+
   KILL_DISTANCE: 0.3, // started @ 1.5
-  WALL_DISTANCE: 3.0, // started @ 2 +++-++-
+  WALL_DISTANCE: 2.5, // started @ 2 +++-++--
 
 
   // scores for moves
   ASTAR_SUCCESS: 13, // started @ 10 -++++
   HUNT: 12.5, // started @ 12.5
-  HUNT_LATE: 14, // started @ 14
+  HUNT_LATE: 12, // started @ 14 -
   BASE_KILL_ZONE: 5, // started @ 2.1 --++
   BASE_FOOD: 0.4, // started @ 0.8 -
   BASE_TAIL: 9.2, // started @ 0.4 +++
