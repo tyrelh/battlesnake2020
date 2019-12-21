@@ -15,8 +15,6 @@ const eat = (staySafe, grid, data) => {
   const health = data.you.health;
   let urgencyScore = (101 - health);
   let target = null;
-  let move = null;
-  let movePos = null;
   const gridCopy = g.copyGrid(grid);
 
   if (data.turn > p.INITIAL_FEEDING) {
@@ -38,6 +36,8 @@ const eat = (staySafe, grid, data) => {
     catch (e) { log.error(`ex in move.eat.emergency: ${e}`, data.turn); }
   }
 
+  let move = null;
+  let movePos = null;
   try {
     target = t.closestFood(myHead, gridCopy, data);
     if (target === null) {
@@ -45,14 +45,19 @@ const eat = (staySafe, grid, data) => {
       return buildMove([0, 0, 0, 0], staySafe, grid, data);
     }
     let result = astar.search(myHead, target, grid, k.SNAKE_BODY);
-    movePos = result.pos;
+    if (result) {
+      movePos = result.pos;
+    }
+
 
     while (movePos === null && target != null) {
       gridCopy[target.y][target.x] = k.DANGER;
       target = t.closestFood(myHead, gridCopy, data);
       if (target === null) break;
       let result = astar.search(myHead, target, grid, k.SNAKE_BODY);
-      movePos = result.pos;
+      if (result) {
+        movePos = result.pos;
+      }
     }
   }
   catch (e) { log.error(`ex in move.eat: ${e}`, data.turn); }
