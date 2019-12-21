@@ -113,7 +113,7 @@ const start = (req, res) => {
   }
   catch (e) { log.error(`ex in main.start.snakenames: ${e}`); }
 
-  const blue = "#3b94e3";
+  const blue = "#3b9fef";
   const pink = "#cc4ff1";
   const green = "#2be384";
   const green2 = "#02B07C";
