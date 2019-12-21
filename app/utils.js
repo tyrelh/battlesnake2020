@@ -19,7 +19,7 @@ const scoresToString = (scores, data = { turn: "none" }) => {
   try {
     return `{up: ${scores[k.UP].toFixed(1)}, down: ${scores[k.DOWN].toFixed(1)}, left: ${scores[k.LEFT].toFixed(1)}, right: ${scores[k.RIGHT].toFixed(1)}}`
   }
-  catch (e) { log.error(`ex in move.scoresToString: ${e}`, data.turn); }
+  catch (e) { log.error(`ex in util.scoresToString: ${e}`, data.turn); }
 };
 
 

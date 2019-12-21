@@ -97,17 +97,9 @@ const lateHunt = (staySafe, grid, data) => {
   let scores = [0, 0, 0, 0];
   log.status("HUNTING, LATE GAME");
   try {
-    // move = search.closeAccessableFuture2FarFromWall(grid, data);
-    // if (move != null) {
-    //   score = p.HUNT_LATE;
-    // }
-    //
-    // if (move != null) log.debug(`In lateHunt calulated score ${score.toFixed(2)} for move ${k.DIRECTION[move]}`);
-    // else if (move === null) log.debug(`Move in lateHunt was NULL.`);
     scores = search.closeAccessableFuture2FarFromWall(grid, data);
   }
   catch (e) { log.error(`ex in move.lateHunt: ${e}`, data.turn); }
-
   // let scores = u.applyMoveToScores(move, score);
   return buildMove(scores, staySafe, grid, data);
 };
@@ -190,9 +182,11 @@ const getFallbackMove = (grid, data) => {
     // try finding a path to tail first
     let target = s.tailLocation(data);
     let result = astar.search(myHead, target, grid, k.SNAKE_BODY);
-    let movePos = result.pos;
-    let move = u.calcDirection(myHead, movePos, data);
-    let score = 0;
+    let movePos = null, move = null, score = 0;
+    if (result) {
+      movePos = result.pos;
+      move = u.calcDirection(myHead, movePos, data);
+    }
     // if no path to own tail, try searching for food
     const gridCopy = g.copyGrid(grid);
     while (move === null) {
