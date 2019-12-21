@@ -491,54 +491,39 @@ const closeAccessableFuture2FarFromWall = (grid, data) => {
   try {
     const myHead = s.location(data);
     let target = null;
-    let foundMove = false;
     let gridCopy = g.copyGrid(grid);
-    while (!foundMove) {
+    while (true) {
       target = t.closestTarget(gridCopy, myHead, k.SMALL_HEAD);
       if (target === null) {
         target = t.closestTarget(gridCopy, myHead, k.ENEMY_HEAD);
       }
       if (target === null) {
-        return null;
+        return scores;
       }
       let future2s = getFuture2InOrderOfDistanceFromWall(grid, target);
       if (future2s != null) {
         for (let future2 of future2s) {
-          // movePos = astar.search(myHead, future2, grid, k.SNAKE_BODY, true);
-          // // log.debug(`movePos: ${u.pairToString(movePos)}`);
-          // if (movePos) {
-          //   move = u.calcDirection(myHead, movePos, data);
-          //   // log.debug(`move: ${k.DIRECTION[move]}`);
-          // }
-          // if (move != null) {
-          //   return move;
-          // }
-          // let distances = [0, 0, 0, 0];
           for (let m = 0; m < 4; m++) {
             let startPos = u.applyMoveToPos(m, myHead);
             if (!g.outOfBounds(startPos, grid) && grid[startPos.y][startPos.x] < k.SNAKE_BODY) {
               let movePos = null;
-              let distance = 0;
+              let distance = 1;
               let move = null;
               let result = astar.search(startPos, future2, grid, k.SNAKE_BODY, true);
               if (result) {
                 movePos = result.pos;
                 distance = result.distance;
-                // log.debug(`distance: ${distance}`);
                 if (movePos) {
                   move = u.calcDirection(myHead, movePos, data);
                 }
                 if (move != null) {
-                  // scores = u.applyMoveToScores(move, p.HUNT_LATE, scores);
-                  log.debug(`distance: ${distance}`);
+                  log.debug(`Distance: ${distance}`);
                   scores[move] += (p.HUNT_LATE / distance);
                 }
               }
             }
           }
-          if (u.moveInScores(scores)) {
-            return scores;
-          }
+          if (u.moveInScores(scores)) { return scores; }
         }
       }
       gridCopy[target.y][target.x] = k.SNAKE_BODY;
