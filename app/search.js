@@ -518,7 +518,7 @@ const closeAccessableFuture2FarFromWall = (grid, data) => {
                 }
                 if (move != null) {
                   log.debug(`Distance: ${distance}`);
-                  scores[move] += (p.HUNT_LATE / distance);
+                  scores[move] += (p.HUNT_LATE / (distance / 2));
                 }
               }
             }
