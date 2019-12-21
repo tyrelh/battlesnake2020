@@ -38,7 +38,7 @@ const search = (start, destination, grid, avoidThreshold, returnStart = false) =
 
     // check if found destination
     if (u.sameCell(lowestCell, destination)) {
-      log.status("Found a path (lowestCell");
+      log.status("Found a path (lowestCell)");
       // let tempCell = lowestCell;
       // log.debug(`Astar start pos: ${u.pairToString(start)}`);
       // if (!u.sameCell(tempCell, start)) {
@@ -127,15 +127,21 @@ const search = (start, destination, grid, avoidThreshold, returnStart = false) =
 // trace path back to origin to find optimal next move
 const walkback = (astarScoreGrid, start, destination, returnStart = false) => {
   let nextPos = destination;
-  let distance = 0;
+  let distance = 1;
   log.debug(`Astar start pos: ${u.pairToString(start)}`);
+
+  if (u.sameCell(start, destination)) {
+    log.debug(`Astar start same as destination: ${u.pairToString(destination)}`);
+    return { distance: distance, pos: start };
+  }
+
   while (!u.sameCell(astarScoreGrid[nextPos.y][nextPos.x].previous, start)) {
     nextPos = astarScoreGrid[nextPos.y][nextPos.x].previous;
     distance += 1;
   }
   log.debug(`Astar next move: ${u.pairToString(nextPos)}`);
   let pos = returnStart ? astarScoreGrid[nextPos.y][nextPos.x].previous : nextPos;
-  return { distance: distance + 1, pos: pos };
+  return { distance: distance, pos: pos };
 };
 
 
