@@ -109,21 +109,25 @@ const killTime = (staySafe, grid, data) => {
 
 // build up move scores and return best move
 const buildMove = (scores = [0, 0, 0, 0], staySafe, grid, data) => {
+  let behaviourScores = [scores[0], scores[1], scores[2], scores[3]];
   log.status(`Behaviour scores:\n ${u.scoresToString(scores, data)}`);
   const myHead = s.location(data);
   let baseScores = baseMoveScores(grid, myHead);
   log.status(`Base scores:\n ${u.scoresToString(baseScores, data)}`);
+  let fallbackScores;
+  let coilScores;
   try {
     // if move is null, try to find fallback move
     if (!u.moveInScores(scores)) {
-      const fallbackScores = getFallbackMove(grid, data);
+      fallbackScores = getFallbackMove(grid, data);
       // if no fallback move, try to coil on self to save space
       if (u.moveInScores(fallbackScores)) {
         log.status(`Fallback scores:\n ${u.scoresToString(fallbackScores, data)}`);
         scores = u.combineScores(fallbackScores, scores);
       } else {
-        scores = coil(grid, data);
-        log.status(`Coil scores:\n ${u.scoresToString(scores, data)}`);
+        coilScores = coil(grid, data);
+        log.status(`Coil scores:\n ${u.scoresToString(coilScores, data)}`);
+        scores = coilScores;
       }
     }
   }
@@ -164,7 +168,19 @@ const buildMove = (scores = [0, 0, 0, 0], staySafe, grid, data) => {
   log.status(`Farther from walls scores:\n ${u.scoresToString(fartherFromWallsScores, data)}`);
   scores = u.combineScores(scores, fartherFromWallsScores);
 
-  log.status(`Final scores:\n ${u.scoresToString(scores, data)}`);
+  // log all scores together for readability in logs
+  log.status(`\nBehaviour scores:\n ${u.scoresToString(behaviourScores, data)}`);
+  log.status(`Base scores:\n ${u.scoresToString(baseScores, data)}`);
+  if (fallbackScores) { log.status(`Fallback scores:\n ${u.scoresToString(fallbackScores, data)}`); }
+  if (coilScores) { log.status(`Coil scores:\n ${u.scoresToString(coilScores, data)}`); }
+  log.status(`Tight move scores:\n ${u.scoresToString(tightMoveScores, data)}`);
+  log.status(`Flood scores:\n ${u.scoresToString(floodScores, data)}`);
+  log.status(`Farther from danger snakes scores:\n ${u.scoresToString(fartherFromDangerousSnakesScores, data)}`);
+  log.status(`Closer to killable snakes scores:\n ${u.scoresToString(closerToKillableSnakesScores, data)}`);
+  log.status(`Farther from walls scores:\n ${u.scoresToString(fartherFromWallsScores, data)}`);
+  log.status(`\nFinal scores:\n ${u.scoresToString(scores, data)}`);
+  log.status(`\nFinal move: ${k.DIRECTION[u.highestScoreMove(scores)]}\n`);
+
   return u.highestScoreMove(scores)
 };
 
