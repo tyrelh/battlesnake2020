@@ -91,7 +91,7 @@ const move = (req, res) => {
   moveTimes.push(timeTaken);
   log.status(`${health} health remaining.`);
   log.status(`Turn ${data.turn} took ${timeTaken}ms.\n`);
-  return res.json({ move: move ? keys.DIRECTION[move] : keys.DIRECTION[keys.UP] });
+  return { move: move ? keys.DIRECTION[move] : keys.DIRECTION[keys.UP] };
 };
 
 
@@ -113,11 +113,11 @@ const start = (req, res) => {
   }
   catch (e) { log.error(`ex in main.start.snakenames: ${e}`); }
 
-  return res.json({
+  return {
     color: p.COLOR,
     headType: p.HEAD_DESIGN,
     tailType: p.TAIL_DESIGN
-  });
+  };
 };
 
 
@@ -134,7 +134,7 @@ const end = (req, res) => {
   slowest = 0;
   slowestMove = 0;
   moveTimes = [];
-  return res.json({});
+  return {};
 };
 
 
