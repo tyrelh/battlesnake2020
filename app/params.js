@@ -1,3 +1,12 @@
+const blue = "#3b9fef";
+const pink = "#cc4ff1";
+const green = "#2be384";
+const green2 = "#02B07C";
+const purple = "#9557E0";
+
+const belugaHead = "beluga";
+const boltTail = "bolt";
+
 module.exports = {
   // logging
   DEBUG: true,
@@ -5,6 +14,9 @@ module.exports = {
   DEBUG_MAPS: false,
   CONSOLE_LOG: false,
 
+  HEAD_DESIGN: belugaHead,
+  TAIL_DESIGN: boltTail,
+  COLOR: purple,
   NAME: /zerocool/,
 
   // basic game params

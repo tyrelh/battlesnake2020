@@ -107,22 +107,16 @@ const start = (req, res) => {
     moveTimes = [];
 
     log.status("Snakes playing this game are:");
-    req.body.board.snakes.forEach(({ id, name, health, body}) => {
+    req.body.board.snakes.forEach(({ id, name, health, body }) => {
       log.status(name);
     });
   }
   catch (e) { log.error(`ex in main.start.snakenames: ${e}`); }
 
-  const blue = "#3b9fef";
-  const pink = "#cc4ff1";
-  const green = "#2be384";
-  const green2 = "#02B07C";
-  const purple = "#9557E0";
-
   return res.json({
-    color: purple,
-    headType: "beluga",
-    tailType: "bolt"
+    color: p.COLOR,
+    headType: p.HEAD_DESIGN,
+    tailType: p.TAIL_DESIGN
   });
 };
 
