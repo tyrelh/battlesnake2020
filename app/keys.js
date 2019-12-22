@@ -31,12 +31,8 @@ module.exports = {
   MAP: ["!", " ", "T", "o", ".", "*", "w", "x", "X", "s", "Y", "S", "E", "@"],
 
   // directions
-  DIRECTION: [
-    "up",
-    "down",
-    "left",
-    "right"
-  ],
+  DIRECTION: ["up", "down", "left", "right"],
+  DIRECTION_ICON: ["⬆️", "⬇️", "⬅️", "➡️"],
   UP: 0,
   DOWN: 1,
   LEFT: 2,
