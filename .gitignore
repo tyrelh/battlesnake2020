@@ -51,3 +51,4 @@ other
 !.elasticbeanstalk/*.global.yml
 
 deployment
+logs/index.html
