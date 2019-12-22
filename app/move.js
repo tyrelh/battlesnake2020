@@ -140,6 +140,7 @@ const buildMove = (scores = [0, 0, 0, 0], staySafe, behaviour = null, grid, data
   log.status(`Farther from walls scores:\n ${u.scoresToString(fartherFromWallsScores, data)}`);
   scores = u.combineScores(scores, fartherFromWallsScores);
 
+  scores = u.normalizeScores(scores);
   // log all scores together for readability in logs
   log.status(`\nBehaviour scores:\n ${u.scoresToString(behaviourScores, data)}`);
   log.status(`Base scores:\n ${u.scoresToString(baseScores, data)}`);
