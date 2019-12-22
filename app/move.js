@@ -186,7 +186,7 @@ const getFallbackMove = (grid, data) => {
       else break;
     }
     if (move != null) {
-      score = p.ASTAR_SUCCESS / 5;
+      score = p.FALLBACK;
       log.debug(`getFallbackMove target: ${u.pairToString(target)}`);
       log.debug(`getFallbackMove move: ${k.DIRECTION[move]}`);
       log.debug(`getFallbackMove score: ${score}`);

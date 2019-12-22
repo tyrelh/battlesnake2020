@@ -11,8 +11,8 @@ module.exports = {
   // logging
   DEBUG: true,
   STATUS: true,
-  DEBUG_MAPS: false,
-  CONSOLE_LOG: false,
+  DEBUG_MAPS: true,
+  CONSOLE_LOG: true,
 
   HEAD_DESIGN: belugaHead,
   TAIL_DESIGN: boltTail,
@@ -27,21 +27,19 @@ module.exports = {
   INITIAL_TIME_KILL: 0, // started @ 70 ---------------
   FINAL_SNAKES: 3, // started @ 2 +
   CONSTRAINED_MOVE_MULTIPLIER: 1.1, // started @ 1.1
-  WALL_NEAR_BASE_MOVE_MULTIPLIER: 11, // started @ 1.6 ++++++++++++++-
-  WALL_NEAR_FILL_MULTIPLIER: 0.05, // started @ 0.4 ---
   KILL_ZONE_BASE_MOVE_MULTIPLIER: 3.5, // started @ 3 +
   FEEDING_URGENCY_MULTIPLIER: 0.15, // started @ 0.4 -------
   SAFE_AMOUNT_OF_SNAKES: 4, // started @ 4
   STAY_SAFE_MULTIPLIER: 2.1, // started @ 4.0 -+
   FLOOD_MULTIPLIER: 0.3, // started @ 0.5 --
-  ENEMY_DISTANCE: 0.8, // started @ 0.99 +-+++-++++-++++
+  ENEMY_DISTANCE: 0.9, // started @ 0.99 +-+++-++++-+++++
   KILL_DISTANCE: 0.3, // started @ 1.5
-  WALL_DISTANCE: 2.5, // started @ 2 +++-++--
+  WALL_DISTANCE: 2.3, // started @ 2 +++-++---
   FOOD_DISTANCE: 1.0, // started @ 1
 
 
   // scores for moves
-  ASTAR_SUCCESS: 13, // started @ 10 -++++
+  FALLBACK: 5, // started @ 10 -++++
   HUNT: 12.5, // started @ 12.5
   HUNT_LATE: 12, // started @ 14 -
   BASE_KILL_ZONE: 5, // started @ 2.1 --++
@@ -49,6 +47,8 @@ module.exports = {
   BASE_TAIL: 9.2, // started @ 0.4 +++
   BASE_SPACE: 0.36, // started @ 0.2 -+++--+
   BASE_WALL_NEAR: -1.1, // started @ -0.1 ------
+  WALL_NEAR_BASE_MOVE_MULTIPLIER: 7.5, // started @ 1.6 ++++++++++++++--
+  WALL_NEAR_FILL_MULTIPLIER: 0.05, // started @ 0.4 ---
   BASE_WARNING: -2.6, // started @ 0.2 -+-
   BASE_SMALL_DANGER: -11.0, // started @ -5 -+--
   BASE_DANGER: -13.0, // started @ 0.1 -----++
