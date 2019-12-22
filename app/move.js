@@ -184,7 +184,7 @@ const buildMove = (scores = [0, 0, 0, 0], staySafe, grid, data) => {
   log.status(`Closer to killable snakes scores:\n ${u.scoresToString(closerToKillableSnakesScores, data)}`);
   log.status(`Farther from walls scores:\n ${u.scoresToString(fartherFromWallsScores, data)}`);
   log.status(`\nFinal scores:\n ${u.scoresToString(scores, data)}`);
-  log.status(`\nFinal move: ${k.DIRECTION[u.highestScoreMove(scores)]}\n`);
+  log.status(`\nFinal move: ${k.DIRECTION_ICON[u.highestScoreMove(scores)]}\n`);
 
   return u.highestScoreMove(scores)
 };
