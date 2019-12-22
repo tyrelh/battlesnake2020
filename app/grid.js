@@ -1,6 +1,7 @@
 const k = require("./keys");
 const log = require("./logger");
 const p = require("./params");
+const u = require("./utils");
 
 
 const buildGrid = data => {
@@ -262,22 +263,23 @@ const nearPerimeter = (pos, grid) => {
 
 
 // make tail segments spaces as if the snake moved ahead given number of turns
-const moveTails = (moves, grid, data) => {
+const moveSnakes = (moves, grid, data) => {
   try {
     let you = data.you;
     let gridCopy = copyGrid(grid);
     data.board.snakes.forEach(({ id, name, health, body }) => {
+      log.debug(`head: ${u.pairToString(body[0])}, tail: ${u.pairToString(body[body.length - 1])}`);
       for (let tailOffset = 1; tailOffset <= moves; tailOffset++) {
         let tail = body[body.length - tailOffset];
         let tailNext = body[body.length - tailOffset - 1];
-        if (grid[tail.y][tail.x] > k.DANGER) {
+        if (grid[tail.y][tail.x] >= k.TAIL) {
           gridCopy[tail.y][tail.x] = k.SPACE;
         }
         else {
           gridCopy[tail.y][tail.x] = grid[tail.y][tail.x];
         }
 
-        if (moves <= 1) gridCopy[tailNext.y][tailNext.x] = k.TAIL;
+        if (moves >= 1) gridCopy[tailNext.y][tailNext.x] = k.TAIL;
       }
 
       if (id === you.id) return;
@@ -286,7 +288,7 @@ const moveTails = (moves, grid, data) => {
       const imBigger = you.body.length > body.length;
       let pos = { x: 0, y: 0 };
       const head = body[0];
-      const headZone = imBigger ? k.KILL_ZONE : k.DANGER;
+      const headZone = imBigger ? k.SMALL_HEAD : k.ENEMY_HEAD;
       let offsets = [
         {x: 0, y: -1}, // up
         {x: 0, y: 1},  // down
@@ -296,7 +298,7 @@ const moveTails = (moves, grid, data) => {
       for (let offset of offsets) {
         pos.x = head.x + offset.x;
         pos.y = head.y + offset.y;
-        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] < k.DANGER) {
+        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] <= k.DANGER) {
           gridCopy[pos.y][pos.x] = headZone;
         }
       }
@@ -315,7 +317,7 @@ const moveTails = (moves, grid, data) => {
       for (let offset of future2Offsets) {
         pos.x = head.x + offset.x;
         pos.y = head.y + offset.y;
-        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] <= k.WALL_NEAR && grid[pos.y][pos.x] != k.FOOD) {
+        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] <= k.WALL_NEAR && grid[pos.y][pos.x] !== k.FOOD) {
           gridCopy[pos.y][pos.x] = k.FUTURE_2;
         }
       }
@@ -328,13 +330,13 @@ const moveTails = (moves, grid, data) => {
 
 
 module.exports = {
-  getDistance: getDistance,
-  buildGrid: buildGrid,
-  printGrid: printGrid,
-  initGrid: initGrid,
-  copyGrid: copyGrid,
-  onPerimeter: onPerimeter,
-  nearPerimeter: nearPerimeter,
-  moveTails,
+  getDistance,
+  buildGrid,
+  printGrid,
+  initGrid,
+  copyGrid,
+  onPerimeter,
+  nearPerimeter,
+  moveSnakes,
   outOfBounds
 };
