@@ -22,6 +22,8 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * [My 2018 Python Entry](https://github.com/tyrelh/battlesnake2018)
 
 ## Changelog
+* v3.3:
+    * Hunting will now search all possible hunting paths and sum scores for moves.
 * v3.2:
     * Danger snake distance and killable snake distance calculations now measure all snakes, not just closest one.
     * If 1 enemy remains will not try to be bigger, will hunt its FUTURE_2 positions.
