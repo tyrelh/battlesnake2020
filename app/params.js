@@ -22,7 +22,7 @@ module.exports = {
   // basic game params
   INITIAL_FEEDING: 0, // started @ 5 +++++++-
   DONT_EAT_HEALTH: 70, // started @ 75 -
-  SURVIVAL_MIN: 35, // started @ 50 --+++++------
+  SURVIVAL_MIN: 32, // started @ 50 --+++++-------
   LONG_GAME_ENDURANCE: 80, // started @ 80
   INITIAL_TIME_KILL: 0, // started @ 70 ---------------
   FINAL_SNAKES: 3, // started @ 2 +
