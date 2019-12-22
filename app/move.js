@@ -11,68 +11,30 @@ const u = require("./utils");
 
 // target closest reachable food
 const eat = (staySafe, grid, data) => {
+  let scores = [0, 0, 0, 0];
   const myHead = s.location(data);
-  const health = data.you.health;
-  let urgencyScore = (101 - health);
-  let target = null;
-  const gridCopy = g.copyGrid(grid);
+  const myHealth = data.you.health;
 
-  if (data.turn > p.INITIAL_FEEDING) {
-    urgencyScore = Math.round(urgencyScore * p.FEEDING_URGENCY_MULTIPLIER);
-  }
-  log.status(`EATING w/ urgency ${urgencyScore}`);
-
+  let urgencyScore = Math.round((101 - myHealth) * p.FEEDING_URGENCY_MULTIPLIER);
   const distanceToClosestFood = t.distanceToFoodInFoodList(myHead, data);
-  let emergency = (distanceToClosestFood >= health || health < (p.SURVIVAL_MIN - 5));
+  let emergency = (distanceToClosestFood >= myHealth || myHealth < (p.SURVIVAL_MIN - 5));
+  log.status(`EATING w/ urgency ${urgencyScore} ${emergency ? ", EMERGENCY!" : ""}`);
 
-  // if emergency, replace food locations on grid
+  // if emergency look for closest foods in data list
   if (emergency) {
     try {
-      let foodList = data.board.food;
-      for (let food of foodList) {
-        gridCopy[food.y][food.x] = k.FOOD;
-      }
+      scores = search.foodScoresFromData(urgencyScore, grid, data);
     }
     catch (e) { log.error(`ex in move.eat.emergency: ${e}`, data.turn); }
   }
-
-  let move = null;
-  let movePos = null;
-  try {
-    target = t.closestFood(myHead, gridCopy, data);
-    if (target === null) {
-      log.status("No food was found on board.");
-      return buildMove([0, 0, 0, 0], staySafe, grid, data);
+  // if not emergency use foods marked in grid
+  else {
+    try {
+      scores = search.foodScoresFromGrid(urgencyScore, grid, data);
     }
-    let result = astar.search(myHead, target, grid, k.SNAKE_BODY);
-    if (result) {
-      movePos = result.pos;
-    }
-
-
-    while (movePos === null && target != null) {
-      gridCopy[target.y][target.x] = k.DANGER;
-      target = t.closestFood(myHead, gridCopy, data);
-      if (target === null) break;
-      let result = astar.search(myHead, target, grid, k.SNAKE_BODY);
-      if (result) {
-        movePos = result.pos;
-      }
-    }
+    catch (e) { log.error(`ex in move.eat.non-emergency: ${e}`, data.turn); }
   }
-  catch (e) { log.error(`ex in move.eat: ${e}`, data.turn); }
-
-  try {
-    if (movePos != null) {
-      if (target != null) log.debug(`Target in eat: ${u.pairToString(target)}`);
-      move = u.calcDirection(myHead, movePos, data);
-      log.status(`Move in eat: {move: ${k.DIRECTION[move]}, score: ${urgencyScore.toFixed(2)}}`);
-      let scores = u.applyMoveToScores(move, urgencyScore);
-      return buildMove(scores, staySafe, grid, data);
-    }
-  }
-  catch (e) { log.error(`ex in move.eat.buildmove: ${e}`, data.turn); }
-  return buildMove([0, 0, 0, 0], staySafe, grid, data);
+  return buildMove(scores, staySafe, grid, data);
 };
  
 
@@ -330,9 +292,9 @@ const validMove = (direction, pos, grid) => {
 
 
 module.exports = {
-  eat: eat,
-  killTime: killTime,
-  hunt: hunt,
-  lateHunt: lateHunt,
-  validMove: validMove
+  eat,
+  killTime,
+  hunt,
+  lateHunt,
+  validMove
 };
