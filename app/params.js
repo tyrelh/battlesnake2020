@@ -34,7 +34,7 @@ module.exports = {
   SAFE_AMOUNT_OF_SNAKES: 4, // started @ 4
   STAY_SAFE_MULTIPLIER: 2.1, // started @ 4.0 -+
   FLOOD_MULTIPLIER: 0.3, // started @ 0.5 --
-  ENEMY_DISTANCE: 0.4, // started @ 0.99 +-+++-++++-+
+  ENEMY_DISTANCE: 0.8, // started @ 0.99 +-+++-++++-++++
   KILL_DISTANCE: 0.3, // started @ 1.5
   WALL_DISTANCE: 2.5, // started @ 2 +++-++--
   FOOD_DISTANCE: 10.0, // started @ 10
@@ -54,6 +54,6 @@ module.exports = {
   BASE_DANGER: -13.0, // started @ 0.1 -----++
   BASE_ENEMY_HEAD: -11, // started @ -2 -
   BASE_PREVIOUS: 0.09, // started @ 2 -
-  FORGET_ABOUT_IT: -100,
+  FORGET_ABOUT_IT: -200, // started @ 100 -
   COIL: 5 // started @ 10 +
 };
