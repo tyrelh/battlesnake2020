@@ -147,23 +147,26 @@ const fill = (direction, grid, data, constraints = []) => {
 // get flood fill scores for each move
 const completeFloodSearch = (grid, data) => {
   let scores = [0, 0, 0, 0];
+  let myHead = s.location(data);
   try {
     log.status("Performing flood fill searches");
     for (let m = 0; m < 4; m++) {
-      // let gridCopy = g.copyGrid(grid);
-      scores[m] += fill(m, grid, data);
-      let gridCopy = g.moveTails(1, grid, data);
-      if (p.DEBUG_MAPS) {
-        log.debug("Map for fill search 1 move in advance");
-        g.printGrid(gridCopy);
+      let move = u.applyMoveToPos(m, myHead);
+      if (!g.outOfBounds(myHead, grid) && grid[move.y][move.x] < k.SNAKE_BODY) {
+        scores[m] += fill(m, grid, data);
+        let gridCopy = g.moveSnakes(1, grid, data);
+        if (p.DEBUG_MAPS) {
+          log.debug("Map for fill search 1 move in advance");
+          g.printGrid(gridCopy);
+        }
+        scores[m] += fill(m, gridCopy, data, [k.KILL_ZONE, k.DANGER, k.WARNING, k.SMALL_DANGER]);
+        gridCopy = g.moveSnakes(2, grid, data);
+        if (p.DEBUG_MAPS) {
+          log.debug("Map for fill search 2 moves in advance");
+          g.printGrid(gridCopy);
+        }
+        scores[m] += fill(m, gridCopy, data, [k.KILL_ZONE, k.DANGER, k.WARNING, k.SMALL_DANGER, k.FUTURE_2]);
       }
-      scores[m] += fill(m, gridCopy, data, [k.KILL_ZONE, k.DANGER, k.WARNING]);
-      gridCopy = g.moveTails(2, grid, data);
-      if (p.DEBUG_MAPS) {
-        log.debug("Map for fill search 2 moves in advance");
-        g.printGrid(gridCopy);
-      }
-      scores[m] += fill(m, gridCopy, data, [k.KILL_ZONE, k.DANGER, k.WARNING, k.FUTURE_2]);
     }
     scores = scores.map((x) => x * p.FLOOD_MULTIPLIER);
   }
