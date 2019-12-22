@@ -54,7 +54,12 @@ const lateHunt = (staySafe, grid, data) => {
   let scores = [0, 0, 0, 0];
   log.status("HUNTING, LATE GAME");
   try {
-    scores = search.closeAccessableFuture2FarFromWall(grid, data);
+    if (s.existsSmallerSnake(data)) {
+      scores = search.closeAccessableKillZoneFarFromWall(grid, data);
+    }
+    else {
+      scores = search.closeAccessableFuture2FarFromWall(grid, data);
+    }
   }
   catch (e) { log.error(`ex in move.lateHunt: ${e}`, data.turn); }
   return buildMove(scores, staySafe, grid, data);
