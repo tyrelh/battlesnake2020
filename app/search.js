@@ -152,7 +152,7 @@ const completeFloodSearch = (grid, data) => {
     log.status("Performing flood fill searches");
     for (let m = 0; m < 4; m++) {
       let move = u.applyMoveToPos(m, myHead);
-      if (!g.outOfBounds(myHead, grid) && grid[move.y][move.x] < k.SNAKE_BODY) {
+      if (!g.outOfBounds(move, grid) && grid[move.y][move.x] < k.SNAKE_BODY) {
         scores[m] += fill(m, grid, data);
         let gridCopy = g.moveSnakes(1, grid, data);
         if (p.DEBUG_MAPS) {
