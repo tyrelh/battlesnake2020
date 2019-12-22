@@ -90,7 +90,7 @@ const move = (req, res) => {
   }
   moveTimes.push(timeTaken);
   log.status(`${health} health remaining.`);
-  log.status(`Move ${data.turn} took ${timeTaken}ms.`);
+  log.status(`Turn ${data.turn} took ${timeTaken}ms.\n`);
   return res.json({ move: move ? keys.DIRECTION[move] : keys.DIRECTION[keys.UP] });
 };
 
