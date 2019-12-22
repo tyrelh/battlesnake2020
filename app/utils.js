@@ -17,7 +17,7 @@ const pairToString = pair => {
 // return scores array in a human readable string
 const scoresToString = scores => {
   try {
-    return `{up: ${scores[0].toFixed(2)}, down: ${scores[1].toFixed(2)}, left: ${scores[2].toFixed(2)}, right: ${scores[3].toFixed(2)}}`
+    return `{up: ${scores[k.UP].toFixed(1)}, down: ${scores[k.DOWN].toFixed(1)}, left: ${scores[k.LEFT].toFixed(1)}, right: ${scores[k.RIGHT].toFixed(1)}}`
   }
   catch (e) { log.error(`ex in move.scoresToString: ${e}`); }
 };
@@ -75,12 +75,13 @@ const getDistance = (a, b) => {
 // check if there is any move in a scores array
 const moveInScores = (scores) => {
   try {
-    for (move in scores) {
-      if (move > 0) return true
+    for (let move of scores) {
+      // log.status(`score: ${move}`);
+      if (move > 0) { return true; }
     }
   }
   catch (e) { log.error(`ex in utils.moveInScores: ${e}`); }
-  return false
+  return false;
 };
 
 
@@ -99,8 +100,9 @@ const applyMoveToScores = (move, score, scores = [0, 0, 0, 0]) => {
 const combineScores = (scoresA, scoresB) => {
   let scores = [0, 0, 0, 0];
   try {
-    for (let i = 0; i < scoresA.length; i++) {
+    for (let i = 0; i < 4; i++) {
       scores[i] = scoresA[i] + scoresB[i];
+      if (isNaN(scores[i])) scores[i] = 0;
     }
     return scores;
   }
@@ -124,6 +126,44 @@ const highestScoreMove = (scores) => {
 };
 
 
+// apply a given direction to a position
+const applyMoveToPos = (move, pos) => {
+  switch (move) {
+    case k.UP:
+      return { x: pos.x, y: pos.y - 1 };
+    case k.DOWN:
+      return { x: pos.x, y: pos.y + 1 };
+    case k.LEFT:
+      return { x: pos.x - 1, y: pos.y };
+    case k.RIGHT:
+      return { x: pos.x + 1, y: pos.y };
+  }
+};
+
+
+// subtract the value closest to 0 from all score values, so the lowest score becomes 0
+const normalizeScores = (scores) => {
+  try {
+    let minAbsScore = 9999;
+    let minScore = 0;
+    for (let i = 0; i < 4; i++) {
+      let absScore = Math.abs(scores[i]);
+      if (absScore < minAbsScore) {
+        minAbsScore = absScore;
+        minScore = scores[i];
+      }
+    }
+    if (minAbsScore < 9999 && minAbsScore > 0) {
+      for (let i = 0; i < 4; i++) {
+        scores[i] -= minScore;
+      }
+    }
+  }
+  catch (e) { log.error(`ex in utils.normalizeScores: ${e}`); }
+  return scores;
+};
+
+
 module.exports = {
   pairToString: pairToString,
   scoresToString: scoresToString,
@@ -134,5 +174,7 @@ module.exports = {
   moveInScores: moveInScores,
   applyMoveToScores: applyMoveToScores,
   combineScores: combineScores,
-  highestScoreMove: highestScoreMove
+  highestScoreMove: highestScoreMove,
+  applyMoveToPos,
+  normalizeScores
 };

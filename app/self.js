@@ -3,9 +3,17 @@ const log = require("./logger");
 
 // get your head location
 const location = (data) => {
-  try { return { x: data.you.body[0].x, y: data.you.body[0].y }; }
-  catch (e) { log.error(`ex in self.location: ${e}`, data.turn); }
-  return { x: 0, y: 0 };
+  return { x: data.you.body[0].x, y: data.you.body[0].y };
+};
+
+
+const health = (data) => {
+  return data.you.health;
+};
+
+
+const length = (data) => {
+  return data.you.body.length;
 };
 
 
@@ -57,5 +65,7 @@ module.exports = {
   location: location,
   tailLocation: tailLocation,
   biggestSnake: biggestSnake,
-  existsSmallerSnake
+  existsSmallerSnake,
+  health,
+  length
 };

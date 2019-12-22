@@ -23,7 +23,21 @@ const eat = (staySafe, grid, data) => {
     urgencyScore = Math.round(urgencyScore * p.FEEDING_URGENCY_MULTIPLIER);
   }
   log.status(`EATING w/ urgency ${urgencyScore}`);
-  
+
+  const distanceToClosestFood = t.distanceToFoodInFoodList(myHead, data);
+  let emergency = (distanceToClosestFood >= health || health < (p.SURVIVAL_MIN - 5));
+
+  // if emergency, replace food locations on grid
+  if (emergency) {
+    try {
+      let foodList = data.board.food;
+      for (let food of foodList) {
+        gridCopy[food.y][food.x] = k.FOOD;
+      }
+    }
+    catch (e) { log.error(`ex in move.eat.emergency: ${e}`, data.turn); }
+  }
+
   try {
     target = t.closestFood(myHead, gridCopy, data);
     if (target === null) {
@@ -40,6 +54,10 @@ const eat = (staySafe, grid, data) => {
     }
   }
   catch (e) { log.error(`ex in move.eat: ${e}`, data.turn); }
+
+
+
+
 
   try {
     if (movePos != null) {
@@ -64,13 +82,13 @@ const hunt = (staySafe, grid, data) => {
   try {
     move = search.closeAccessableKillZoneFarFromWall(grid, data);
     if (move != null) {
-      score = p.ASTAR_SUCCESS;
+      score = p.HUNT;
     }
+
+    if (move != null) log.status(`Move in hunt {move: ${k.DIRECTION[move]}, score: ${score.toFixed(2)}}`);
+    else if (move === null) log.debug(`Move in hunt was NULL.`);
   }
   catch (e) { log.error(`ex in move.hunt: ${e}`, data.turn); }
-
-  if (move != null) log.status(`Move in hunt {move: ${k.DIRECTION[move]}, score: ${score.toFixed(2)}}`);
-  else if (move === null) log.debug(`Move in hunt was NULL.`);
 
   let scores = u.applyMoveToScores(move, score);
   return buildMove(scores, staySafe, grid, data);
@@ -84,12 +102,14 @@ const lateHunt = (staySafe, grid, data) => {
 
   try {
     move = search.closeAccessableFuture2FarFromWall(grid, data);
-    if (move != null) score = p.ASTAR_SUCCESS;
+    if (move != null) {
+      score = p.HUNT_LATE;
+    }
+
+    if (move != null) log.debug(`In lateHunt calulated score ${score.toFixed(2)} for move ${k.DIRECTION[move]}`);
+    else if (move === null) log.debug(`Move in lateHunt was NULL.`);
   }
   catch (e) { log.error(`ex in move.lateHunt: ${e}`, data.turn); }
-
-  if (move != null) log.debug(`In lateHunt calulated score ${score} for move ${k.DIRECTION[move]}`)
-  else if (move === null) log.debug(`Move in lateHunt was NULL.`);
 
   let scores = u.applyMoveToScores(move, score);
   return buildMove(scores, staySafe, grid, data);
@@ -127,12 +147,20 @@ const buildMove = (scores = [0, 0, 0, 0], staySafe, grid, data) => {
   catch (e) { log.error(`ex in move.buildMove.fallback: ${e}`, data.turn); }
   scores = u.combineScores(baseScores, scores);
 
-  // get flood fill scores for each move
+  // TIGHT MOVE
+  let tightMoveScores = search.testForConstrainedMove(grid, data);
+  if (staySafe) {
+    tightMoveScores = tightMoveScores.map((x) => x * p.STAY_SAFE_MULTIPLIER);
+  }
+  log.status(`Tight move scores:\n ${u.scoresToString(tightMoveScores)}`);
+  scores = u.combineScores(scores, tightMoveScores);
+
+  // FLOOD FILLS
   let floodScores = search.completeFloodSearch(grid, data);
   log.status(`Flood scores:\n ${u.scoresToString(floodScores)}`);
   scores = u.combineScores(scores, floodScores);
 
-  // see if a particular move will bring you farther from dangerous snake
+  // FARTHER FROM DANGER SNAKES
   let fartherFromDangerousSnakesScores = search.scoresFartherFromDangerousSnake(grid, data);
   if (staySafe) {
     fartherFromDangerousSnakesScores = fartherFromDangerousSnakesScores.map((x) => x * p.STAY_SAFE_MULTIPLIER);
@@ -140,12 +168,12 @@ const buildMove = (scores = [0, 0, 0, 0], staySafe, grid, data) => {
   log.status(`Farther from danger snakes scores:\n ${u.scoresToString(fartherFromDangerousSnakesScores)}`);
   scores = u.combineScores(scores, fartherFromDangerousSnakesScores);
 
-  // see if a particular move will bring you closer to a killable snake
+  // CLOSER TO KILLABLE SNAKES
   let closerToKillableSnakesScores = search.scoresCloserToKillableSnakes(grid, data);
   log.status(`Closer to killable snakes scores:\n ${u.scoresToString(closerToKillableSnakesScores)}`);
   scores = u.combineScores(scores, closerToKillableSnakesScores);
 
-  // see if a particular move will bring you farther from wall
+  // FARTHER FROM WALL
   let fartherFromWallsScores = search.scoresFartherFromWall(grid, data);
   if (staySafe) {
     fartherFromWallsScores = fartherFromWallsScores.map((x) => x * p.STAY_SAFE_MULTIPLIER);
@@ -201,7 +229,7 @@ const coil = (grid, data) => {
     let largestDistance = 0;
 
     for (let m = 0; m < 4; m++) {
-      const nextMove = search.applyMoveToPos(m, s.location(data));
+      const nextMove = u.applyMoveToPos(m, s.location(data));
       if (search.outOfBounds(nextMove, grid)) continue;
       if (grid[nextMove.y][nextMove.x] >= k.SNAKE_BODY) continue;
       const currentDistance = g.getDistance(tailLocation, nextMove);
