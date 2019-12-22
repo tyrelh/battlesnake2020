@@ -3,14 +3,17 @@ let consoleRed = '\x1b[31m%s\x1b[0m';
 let consoleGreen = '\x1b[32m%s\x1b[0m';
 const p = require("../app/params");
 const app = require("../app/main");
+
 const floodTests = require("./floodTests");
-let testNumber = 0;
-let testsFailed = 0;
+const dangerTests = require("./dangerTests");
+const trappedTests = require("./trappedTests");
+
+let testNumber, testsFailed, testList;
 
 
-const tests = () => {
-  testNumber = 0;
-  for (let test of floodTests.tests) {
+const tests = async () => {
+  for (let test of testList) {
+    await sleep(200);
     // given
     testNumber++;
     let request = { "body": test.json };
@@ -26,19 +29,31 @@ const tests = () => {
 
 
 const setup = (loggingEnabled) => {
+  // set logging
   p.CONSOLE_LOG = !!loggingEnabled;
+  p.DEBUG_MAPS = !!loggingEnabled;
+  p.DEBUG = !!loggingEnabled;
+  p.STATUS = !!loggingEnabled;
   main.p = p;
+  // set suite fields
+  testNumber = 0;
+  testsFailed = 0;
+  // merge all tests into one list
+  testList = floodTests.tests.concat(dangerTests.tests).concat(trappedTests.tests);
 };
 
 
 const assert = (a, operation, b) => {
   let result;
+  let failure;
   switch(operation) {
     case "==":
       result = (a === b);
+      failure = "!=";
       break;
     case "!=":
       result = (a !== b);
+      failure = "==";
       break
   }
   if (result) {
@@ -46,16 +61,9 @@ const assert = (a, operation, b) => {
   }
   else {
     testsFailed++;
-    console.error(consoleRed, `Test ${testNumber} FAILED!\n ${a} ${operation} ${b}`);
+    console.error(consoleRed, `Test ${testNumber} FAILED!\n   ${a} ${failure} ${b}`);
   }
 };
-
-
-function sleep(ms){
-  return new Promise(resolve=>{
-    setTimeout(resolve,ms)
-  })
-}
 
 
 const main = async () => {
@@ -72,7 +80,7 @@ const main = async () => {
   } else {
     setup();
   }
-  tests();
+  await tests();
   if (testsFailed) {
     console.log(consoleRed, `\n${testsFailed} TEST(S) FAILED!\n`)
   } else {
@@ -83,6 +91,13 @@ const main = async () => {
 
 if (require.main === module) {
   main();
+}
+
+
+function sleep(ms){
+  return new Promise(resolve=>{
+    setTimeout(resolve,ms)
+  })
 }
 
 
