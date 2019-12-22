@@ -37,6 +37,7 @@ module.exports = {
   ENEMY_DISTANCE: 0.4, // started @ 0.99 +-+++-++++-+
   KILL_DISTANCE: 0.3, // started @ 1.5
   WALL_DISTANCE: 2.5, // started @ 2 +++-++--
+  FOOD_DISTANCE: 10.0, // started @ 10
 
 
   // scores for moves

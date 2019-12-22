@@ -486,6 +486,94 @@ const distanceToCenter = (direction, startPos, grid, data) => {
 };
 
 
+// get distance scores for foods directly from data
+const foodScoresFromData = (urgency = 1, grid, data) => {
+  let scores = [0, 0, 0, 0];
+  try {
+    let foodList = data.board.food;
+    let myHead = s.location(data);
+    // loop over every food on board
+    for (let foodIndex = 0; foodIndex < foodList.length; foodIndex++) {
+      let food = foodList[foodIndex];
+      // loop over every move
+      for (let m = 0; m < 4; m++) {
+        let startPos = u.applyMoveToPos(m, myHead);
+        // if move is valid search path to food
+        if (!g.outOfBounds(startPos, grid) && grid[startPos.y][startPos.x] < k.SNAKE_BODY) {
+          let movePos = null;
+          let distance = 1;
+          let move = null;
+          let result = astar.search(startPos, food, grid, k.SNAKE_BODY, true);
+          // if path was found
+          if (result) {
+            movePos = result.pos;
+            distance = result.distance;
+            if (movePos) {
+              move = u.calcDirection(myHead, movePos, data);
+            }
+            if (move != null) {
+              log.debug(`Distance: ${distance}`);
+              if (grid[startPos.y][startPos.x] >= k.SMALL_DANGER) {
+                scores[move] += (urgency * ((p.FOOD_DISTANCE / distance) / 10));
+              }
+              else {
+                scores[move] += (urgency * (p.FOOD_DISTANCE / distance));
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  catch (e) { log.error(`ex in search.emergencyFoodScoresFromData`, data.turn); }
+  return scores;
+};
+
+
+// get distance scores for foods from grid
+const foodScoresFromGrid = (urgency = 1, grid, data) => {
+  let scores = [0, 0, 0, 0];
+  try {
+    const myHead = s.location(data);
+    let gridCopy = g.copyGrid(grid);
+    let food = null;
+    while (true) {
+      // get next closest food from grid
+      food = t.closestFood(myHead, gridCopy, data);
+      if (food == null) {
+        break;
+      }
+      for (let m = 0; m < 4; m++) {
+        let startPos = u.applyMoveToPos(m, myHead);
+        if (!g.outOfBounds(startPos, grid) && grid[startPos.y][startPos.x] < k.SMALL_DANGER) {
+          let movePos = null;
+          let distance = 1;
+          let move = null;
+          let result = astar.search(startPos, food, grid, k.SNAKE_BODY, true);
+          if (result) {
+            movePos = result.pos;
+            distance = result.distance;
+            if (movePos) {
+              move = u.calcDirection(myHead, movePos, data);
+            }
+            if (move != null) {
+              log.debug(`Distance: ${distance}`);
+              scores[move] += (urgency * (p.FOOD_DISTANCE / distance));
+            }
+          }
+        }
+      }
+      gridCopy[food.y][food.x] = k.WARNING;
+    }
+  }
+  catch (e) { log.error(`ex in search.foodScoresFromGrid`, data.turn); }
+  if (!u.moveInScores(scores)) {
+    scores = foodScoresFromData(urgency, grid, data);
+  }
+  return scores;
+};
+
+
 const closeAccessableFuture2FarFromWall = (grid, data) => {
   let scores = [0, 0, 0, 0];
   try {
@@ -508,7 +596,7 @@ const closeAccessableFuture2FarFromWall = (grid, data) => {
           // loop through all of my possible moves
           for (let m = 0; m < 4; m++) {
             let startPos = u.applyMoveToPos(m, myHead);
-            if (!g.outOfBounds(startPos, grid) && grid[startPos.y][startPos.x] < k.DANGER) {
+            if (!g.outOfBounds(startPos, grid) && grid[startPos.y][startPos.x] < k.SMALL_DANGER) {
               let movePos = null;
               let distance = 1;
               let move = null;
@@ -555,11 +643,13 @@ const closeAccessableKillZoneFarFromWall = (grid, data) => {
           // loop through all of my possible moves
           for (let m = 0; m < 4; m++) {
             let startPos = u.applyMoveToPos(m, myHead);
+            // if move is valid
             if (!g.outOfBounds(startPos, grid) && grid[startPos.y][startPos.x] < k.SNAKE_BODY) {
               let movePos = null;
               let distance = 1;
               let move = null;
               let result = astar.search(startPos, killZone, grid, k.SNAKE_BODY, true);
+              // if path is found
               if (result) {
                 movePos = result.pos;
                 distance = result.distance;
@@ -568,7 +658,15 @@ const closeAccessableKillZoneFarFromWall = (grid, data) => {
                 }
                 if (move != null) {
                   log.debug(`Distance: ${distance}`);
-                  scores[move] += (p.HUNT / distance);
+                  let score = 0;
+                  if (grid[startPos.y][startPos.x] >= k.SMALL_DANGER) {
+                    score = ((p.HUNT / distance) / 10);
+                  }
+                  else {
+                    score = (p.HUNT / distance);
+                  }
+                  log.debug(`Score: ${score}`);
+                  scores[move] += score;
                 }
               }
             }
@@ -667,35 +765,6 @@ const getKillZonesInOrderOfDistanceFromWall = (grid, target) => {
 };
 
 
-// const getScoresForDistanceFromBigSnakes = (grid) => {
-//   try {
-//     let enemyDistances = [0, 0, 0, 0];
-//     let largestDistance = 0;
-//     let largestDistanceMove = 0;
-//     let uniqueLargestDistanceMove = false;
-//     for (let m = 0; m < 4; m++) {
-//       const currentDistance = search.distanceToEnemy(m, grid, data, k.ENEMY_HEAD);
-//       log.debug(`Distance to closest dangerous snake for move ${k.DIRECTION[m]} is ${currentDistance}`);
-//       if (enemyDistances[m] < currentDistance) {
-//         enemyDistances[m] = currentDistance;
-//         if (largestDistance === currentDistance) uniqueLargestDistanceMove = false;
-//         else if (largestDistance < currentDistance) {
-//           largestDistance = currentDistance;
-//           largestDistanceMove = m;
-//           uniqueLargestDistanceMove = true;
-//         }
-//       }
-//     }
-//     if (uniqueLargestDistanceMove){
-//       log.debug(`Add ENEMY_DISTANCE ${p.ENEMY_DISTANCE} to move ${k.DIRECTION[largestDistanceMove]} for farther ENEMY_HEAD`);
-//       scores[largestDistanceMove] += p.ENEMY_DISTANCE;
-//     }
-//   }
-//   catch (e) { log.error(`ex in move.buildMove.closestEnemyHead: ${e}`, data.turn); }
-//   log.status(`Move scores: ${scoresToString(scores)}`);
-// };
-
-
 // calculate the distance a position is from walls
 const distanceFromWall = (pos, grid) => {
   try {
@@ -768,16 +837,18 @@ const validMove = (direction, pos, grid) => {
 
 
 module.exports = {
-  outOfBounds: outOfBounds,
-  fill: fill,
-  completeFloodSearch: completeFloodSearch,
-  scoresFartherFromDangerousSnake: scoresFartherFromDangerousSnake,
-  scoresCloserToKillableSnakes: scoresCloserToKillableSnakes,
-  scoresFartherFromWall: scoresFartherFromWall,
-  distanceToEnemy: distanceToEnemy,
-  closeAccessableKillZoneFarFromWall: closeAccessableKillZoneFarFromWall,
-  distanceToCenter: distanceToCenter,
-  closeAccessableFuture2FarFromWall: closeAccessableFuture2FarFromWall,
-  preprocessGrid: preprocessGrid,
-  testForConstrainedMove
+  outOfBounds,
+  fill,
+  completeFloodSearch,
+  scoresFartherFromDangerousSnake,
+  scoresCloserToKillableSnakes,
+  scoresFartherFromWall,
+  distanceToEnemy,
+  closeAccessableKillZoneFarFromWall,
+  distanceToCenter,
+  closeAccessableFuture2FarFromWall,
+  preprocessGrid,
+  testForConstrainedMove,
+  foodScoresFromData,
+  foodScoresFromGrid
 };
