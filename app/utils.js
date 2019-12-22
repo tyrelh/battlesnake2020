@@ -17,7 +17,12 @@ const pairToString = pair => {
 // return scores array in a human readable string
 const scoresToString = (scores, data = { turn: "none" }) => {
   try {
-    return `{up: ${scores[k.UP].toFixed(1)}, down: ${scores[k.DOWN].toFixed(1)}, left: ${scores[k.LEFT].toFixed(1)}, right: ${scores[k.RIGHT].toFixed(1)}}`
+    let str = "";
+    str += `up: ${scores[k.UP].toFixed(1)}, `;
+    str += `down: ${scores[k.DOWN].toFixed(1)}, `;
+    str += `left: ${scores[k.LEFT].toFixed(1)}, `;
+    str += `right: ${scores[k.RIGHT].toFixed(1)}`;
+    return str
   }
   catch (e) { log.error(`ex in util.scoresToString: ${e}`, data.turn); }
 };
@@ -161,16 +166,16 @@ const normalizeScores = (scores) => {
 
 
 module.exports = {
-  pairToString: pairToString,
-  scoresToString: scoresToString,
-  sameCell: sameCell,
-  calcDirection: calcDirection,
-  arrayIncludesPair: arrayIncludesPair,
-  getDistance: getDistance,
-  moveInScores: moveInScores,
-  applyMoveToScores: applyMoveToScores,
-  combineScores: combineScores,
-  highestScoreMove: highestScoreMove,
+  pairToString,
+  scoresToString,
+  sameCell,
+  calcDirection,
+  arrayIncludesPair,
+  getDistance,
+  moveInScores,
+  applyMoveToScores,
+  combineScores,
+  highestScoreMove,
   applyMoveToPos,
   normalizeScores
 };
