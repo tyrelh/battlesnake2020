@@ -28,7 +28,20 @@ module.exports = {
     "SMALL_HEAD",
     "ENEMY_HEAD"
   ],
+  //     0    1    2    3    4    5    6    7    8    9    10   11   12   13
   MAP: ["!", " ", "T", "o", ".", "*", "w", "x", "X", "s", "Y", "S", "E", "@"],
+
+  // behaviours
+  EATING: 0,
+  KILLING_TIME: 1,
+  HUNTING: 2,
+  LATE_HUNTING: 3,
+  BEHAVIOURS: [
+    "EATING",
+    "KILLING_TIME",
+    "HUNTING",
+    "LATE_HUNTING"
+  ],
 
   // directions
   DIRECTION: ["up", "down", "left", "right"],

@@ -34,7 +34,7 @@ const eat = (staySafe, grid, data) => {
     }
     catch (e) { log.error(`ex in move.eat.non-emergency: ${e}`, data.turn); }
   }
-  return buildMove(scores, staySafe, grid, data);
+  return buildMove(scores, staySafe, k.EATING, grid, data);
 };
  
 
@@ -46,7 +46,7 @@ const hunt = (staySafe, grid, data) => {
     scores = search.closeAccessableKillZoneFarFromWall(grid, data);
   }
   catch (e) { log.error(`ex in move.hunt: ${e}`, data.turn); }
-  return buildMove(scores, staySafe, grid, data);
+  return buildMove(scores, staySafe, k.HUNTING, grid, data);
 };
 
 
@@ -62,7 +62,7 @@ const lateHunt = (staySafe, grid, data) => {
     }
   }
   catch (e) { log.error(`ex in move.lateHunt: ${e}`, data.turn); }
-  return buildMove(scores, staySafe, grid, data);
+  return buildMove(scores, staySafe, k.LATE_HUNTING, grid, data);
 };
 
 
@@ -70,12 +70,12 @@ const lateHunt = (staySafe, grid, data) => {
 const killTime = (staySafe, grid, data) => {
   log.status("KILLING TIME");
   // rely on default move in buildMove
-  return buildMove([0, 0, 0, 0], staySafe, grid, data);
+  return buildMove([0, 0, 0, 0], staySafe, k.KILLING_TIME, grid, data);
 };
 
 
 // build up move scores and return best move
-const buildMove = (scores = [0, 0, 0, 0], staySafe, grid, data) => {
+const buildMove = (scores = [0, 0, 0, 0], staySafe, behaviour = null, grid, data) => {
   let behaviourScores = [scores[0], scores[1], scores[2], scores[3]];
   log.status(`Behaviour scores:\n ${u.scoresToString(scores, data)}`);
   const myHead = s.location(data);
@@ -151,7 +151,7 @@ const buildMove = (scores = [0, 0, 0, 0], staySafe, grid, data) => {
   log.status(`Closer to killable snakes scores:\n ${u.scoresToString(closerToKillableSnakesScores, data)}`);
   log.status(`Farther from walls scores:\n ${u.scoresToString(fartherFromWallsScores, data)}`);
   log.status(`\nFinal scores:\n ${u.scoresToString(scores, data)}`);
-  log.status(`\nFinal move: ${k.DIRECTION_ICON[u.highestScoreMove(scores)]}\n`);
+  log.status(`\nFinal move: ${k.DIRECTION_ICON[u.highestScoreMove(scores)]}${behaviour !== null ? `  was ${k.BEHAVIOURS[behaviour]}` : ""}\n`);
 
   return u.highestScoreMove(scores)
 };
