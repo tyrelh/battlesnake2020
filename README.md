@@ -23,6 +23,8 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 
 ## Changelog
 * v3.3:
+    * Testing framework! Can now test individual move calls in `/tests` by running `./test`.
+    * Eating now sums scores by distance to all foods.
     * Hunting will now search all possible hunting paths and sum scores for moves.
 * v3.2:
     * Danger snake distance and killable snake distance calculations now measure all snakes, not just closest one.
