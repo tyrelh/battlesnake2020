@@ -95,7 +95,7 @@ const error = (message, turn = null) => {
   errorHappened = true;
   let msg = `!! ERROR: ${message}`;
   log += `${msg}\n`;
-  if (p.CONSOLE_LOG) console.log(msg);
+  if (p.CONSOLE_LOG) console.error(msg);
   exLog += `EX ON TURN ${turn != null ? turn : "none"}: ${message}\n`;
   return message;
 };
@@ -118,10 +118,10 @@ const debug = message => {
 
 
 module.exports = {
-  initLogs: initLogs,
-  writeLogs: writeLogs,
-  error: error,
-  status: status,
-  debug: debug,
+  initLogs,
+  writeLogs,
+  error,
+  status,
+  debug,
   saveJSON
 };
