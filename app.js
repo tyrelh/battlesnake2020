@@ -29,17 +29,17 @@ app.post("/ping", (_, res) => {
 
 // Signals start of a new game
 app.post("/start", (req, res) => {
-  return main.start(req, res);
+  return res.json(main.start(req, res));
 });
 
 // Each move request
 app.post("/move", (req, res) => {
-  return main.move(req, res);
+  return res.json(main.move(req, res));
 });
 
 // Signals death or win. End of game for you
 app.post("/end", (req, res) => {
-  return main.end(req, res);
+  return res.json(main.end(req, res));
 });
 
 app.use("*", fallbackHandler);
