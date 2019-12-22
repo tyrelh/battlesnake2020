@@ -112,19 +112,20 @@ const buildMove = (scores = [0, 0, 0, 0], staySafe, grid, data) => {
   let behaviourScores = [scores[0], scores[1], scores[2], scores[3]];
   log.status(`Behaviour scores:\n ${u.scoresToString(scores, data)}`);
   const myHead = s.location(data);
-  let baseScores = baseMoveScores(grid, myHead);
-  log.status(`Base scores:\n ${u.scoresToString(baseScores, data)}`);
+
+  // FALLBACK FOR BEHAVIOUR
   let fallbackScores;
   let coilScores;
   try {
     // if move is null, try to find fallback move
     if (!u.moveInScores(scores)) {
       fallbackScores = getFallbackMove(grid, data);
-      // if no fallback move, try to coil on self to save space
       if (u.moveInScores(fallbackScores)) {
         log.status(`Fallback scores:\n ${u.scoresToString(fallbackScores, data)}`);
         scores = u.combineScores(fallbackScores, scores);
-      } else {
+      }
+      // if no fallback move, try to coil on self to save space
+      else {
         coilScores = coil(grid, data);
         log.status(`Coil scores:\n ${u.scoresToString(coilScores, data)}`);
         scores = coilScores;
@@ -132,6 +133,10 @@ const buildMove = (scores = [0, 0, 0, 0], staySafe, grid, data) => {
     }
   }
   catch (e) { log.error(`ex in move.buildMove.fallback: ${e}`, data.turn); }
+
+  // BASE SCORES
+  let baseScores = baseMoveScores(grid, myHead);
+  log.status(`Base scores:\n ${u.scoresToString(baseScores, data)}`);
   scores = u.combineScores(baseScores, scores);
 
   // TIGHT MOVE
