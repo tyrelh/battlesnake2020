@@ -45,17 +45,7 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * v1:
   * [2018 entry written in Python](https://github.com/tyrelh/battlesnake2018).
 
-## Notes from 2019
-### Things to work on for next year
-* Multi-a* search to target. Do a* starting from each valid move and apply the success score to all the moves that have the shortest a* distance.
-  * Apply a fractional score to moves with longer distance? (moves that still have valid path but not best move, maybe 1/4?)
-* Mark a* target as SPACE/WARNING and search again for next best target. Maybe value those searches same as above but at 1/8 score?
-* Check for possible kill/block opportunities like you are for snakes against the edge of the board but for anywhere on the board.
-* Built logic so that once you hit an _ideal size_ it will switch to an alternate aggressive strategy that will target larger snakes future_2 moves rather than kill_zone. WIP.
-* If move will be limited next turn given a move (ie. you move into a v tight space, but not dead end), devalue that move.
-
-### Takeaways from Battlesnake 2019
-* All food bounty game killed me.
-* If an enemy snake has the same name as you, dont kill it! Its you! There may be 2 or more of your snakes on the board at the same time for the bounty snake games. Still did alright but would be nice to be knowlegable of that.
+## TODO
+* Board control metric. Score moves by area of board you are gaining or enemies are loosing.
 
 _*The header image used in this readme is the property of [Battlesnake](https://www.battlesnake.io/)._
