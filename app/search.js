@@ -18,6 +18,16 @@ const fill = (direction, grid, data, constraints = []) => {
   openGrid = g.initGrid(grid[0].length, grid.length, false);
   let openStack = [];
 
+  // things to track for this move
+  let enemyHeads = 0;
+  let killZones = 0;
+  let tails = 0;
+  let foods = 0;
+  let warnings = 0;
+  let walls = 0;
+  let dangers = 0;
+  let futures = 0;
+
   const inGrid = (pos, grd) => {
     try { return grd[pos.y][pos.x]; }
     catch (e) { log.error(`ex in search.fill.inGrid: ${e}`, data.turn); }
@@ -34,6 +44,15 @@ const fill = (direction, grid, data, constraints = []) => {
           }
           openStack.push(pos);
           openGrid[pos.y][pos.x] = true;
+        }
+        else {
+          switch(inGrid(pos, grid)) {
+            case k.ENEMY_HEAD:
+            case k.SMALL_HEAD:
+              enemyHeads++;
+              break;
+            default:
+          }
         }
       }
     }
@@ -76,22 +95,15 @@ const fill = (direction, grid, data, constraints = []) => {
   addToOpen(givenMovePos);
   addToClosed(current);
 
-  // things to track for this move
-  let enemyHeads = 0;
-  let killZones = 0;
-  let tails = 0;
-  let foods = 0;
-  let warnings = 0;
-  let walls = 0;
-
   // iterate over all possible moves given current move
   while (openStack.length > 0) {
     const nextMove = removeFromOpen();
     addToClosed(nextMove);
     switch(inGrid(nextMove, grid)) {
-      case k.ENEMY_HEAD:
-        enemyHeads++;
-        break;
+      // case k.ENEMY_HEAD:
+      // case k.SMALL_HEAD:
+      //   enemyHeads++;
+      //   break;
       case k.TAIL:
         tails++;
         break;
@@ -106,6 +118,13 @@ const fill = (direction, grid, data, constraints = []) => {
         break;
       case k.WARNING:
         warnings++;
+        break;
+      case k.DANGER:
+      case k.SMALL_DANGER:
+        dangers++;
+        break;
+      case k.FUTURE_2:
+        futures++;
         break;
       default:
     }
@@ -133,12 +152,15 @@ const fill = (direction, grid, data, constraints = []) => {
   score += killZones * p.BASE_KILL_ZONE;
   score += warnings * p.BASE_WARNING;
   score += walls * (p.BASE_WALL_NEAR * p.WALL_NEAR_FILL_MULTIPLIER);
+  score += dangers * p.BASE_DANGER;
+  score += futures * p.BASE_FUTURE_2;
 
   const myLength = you.body.length;
   if (area < myLength && tails < 1) {
     score = Math.floor(score / 2);
   }
 
+  log.debug(`enemy heads score: ${enemyHeads * p.BASE_ENEMY_HEAD}`)
   log.debug(`Score in fill for move ${k.DIRECTION[direction]}: ${score.toFixed(1)}. Area: ${area}`);
   return score;
 };
@@ -189,7 +211,7 @@ const scoresFartherFromDangerousSnake = (grid, data) => {
             const enemyHead = snake.body[0];
             let distance = u.getDistance(move, enemyHead);
             if (distance) {
-              enemyDistanceScores[direction] += (distance * p.ENEMY_DISTANCE);
+              enemyDistanceScores[direction] += Math.pow(distance, p.ENEMY_DISTANCE_EXP);
             }
           }
         }
@@ -215,7 +237,7 @@ const scoresCloserToKillableSnakes = (grid, data) => {
             const enemyHead = snake.body[0];
             let distance = u.getDistance(move, enemyHead);
             if (distance) {
-              enemyDistanceScores[direction] -= (distance * p.ENEMY_DISTANCE);
+              enemyDistanceScores[direction] -= Math.pow(distance, p.KILL_DISTANCE_EXP);
             }
           }
         }
@@ -516,6 +538,7 @@ const foodScoresFromData = (urgency = 1, grid, data) => {
             }
             if (move != null) {
               log.debug(`Distance: ${distance}`);
+              distance = distance / 2;
               if (grid[startPos.y][startPos.x] >= k.SMALL_DANGER) {
                 scores[move] += (urgency * ((p.FOOD_DISTANCE / distance) / 10));
               }
@@ -561,6 +584,7 @@ const foodScoresFromGrid = (urgency = 1, grid, data) => {
             }
             if (move != null) {
               log.debug(`Distance: ${distance}`);
+              distance = distance / 2;
               scores[move] += (urgency * (p.FOOD_DISTANCE / distance));
             }
           }
