@@ -4,8 +4,15 @@ const test1 = {
   "expected": "up"
 };
 
+const test2 = {
+  "json": {"game":{"id":"54e60482-cc50-4627-94be-e91b8b1bb905"},"turn":301,"board":{"height":11,"width":11,"food":[{"x":4,"y":10}],"snakes":[{"id":"8d9ccec6-3214-4c87-831d-b7c24e47ee3f","name":"chicken1","health":76,"body":[{"x":1,"y":4},{"x":1,"y":5},{"x":2,"y":5},{"x":2,"y":4},{"x":2,"y":3},{"x":2,"y":2},{"x":1,"y":2},{"x":1,"y":3}]},{"id":"4e55a67b-a447-4f6d-9b92-bd05f9b0cc2d","name":"zerocool","health":56,"body":[{"x":0,"y":1},{"x":1,"y":1},{"x":2,"y":1},{"x":3,"y":1},{"x":4,"y":1},{"x":4,"y":2},{"x":4,"y":3},{"x":4,"y":4}]},{"id":"978d5428-7f27-4999-a4a2-6fc777eb0d98","name":"zerocool24","health":51,"body":[{"x":5,"y":6},{"x":5,"y":5},{"x":6,"y":5},{"x":7,"y":5},{"x":7,"y":6},{"x":7,"y":7},{"x":6,"y":7},{"x":6,"y":8},{"x":6,"y":9}]}]},"you":{"id":"4e55a67b-a447-4f6d-9b92-bd05f9b0cc2d","name":"zerocool","health":56,"body":[{"x":0,"y":1},{"x":1,"y":1},{"x":2,"y":1},{"x":3,"y":1},{"x":4,"y":1},{"x":4,"y":2},{"x":4,"y":3},{"x":4,"y":4}]}},
+  "name": "Flood test near edge 2",
+  "expected": "up"
+};
+
 module.exports = {
   tests: [
-    test1
+    test1,
+    test2
   ]
 };
