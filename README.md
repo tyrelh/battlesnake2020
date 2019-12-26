@@ -22,6 +22,8 @@ You can also deploy this repo directly to Heroku by clicking this link. You will
 * [My 2018 Python Entry](https://github.com/tyrelh/battlesnake2018)
 
 ## Changelog
+* v3.4:
+    * Distance calculations for closest enemy, kill opportunity, and food use an exponentially decreasing score calculation with distance.
 * v3.3:
     * Testing framework! Can now test individual move calls in `/tests` by running `./test`.
     * Eating now sums scores by distance to all foods.
