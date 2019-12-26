@@ -318,7 +318,7 @@ const moveSnakes = (moves, grid, data) => {
         pos.x = head.x + offset.x;
         pos.y = head.y + offset.y;
         if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] <= k.WALL_NEAR && grid[pos.y][pos.x] !== k.FOOD) {
-          gridCopy[pos.y][pos.x] = k.SMALL_HEAD;
+          gridCopy[pos.y][pos.x] = k.SNAKE_BODY;
         }
       }
     });
