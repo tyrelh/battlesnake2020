@@ -9,12 +9,12 @@ const dangerTests = require("./dangerTests");
 const trappedTests = require("./trappedTests");
 const killTests = require("./killTests");
 
-let testNumber, testsFailed, testList;
+let testNumber, testsFailed, testList, failedTests = [];
 
 
 const tests = async () => {
   for (let test of testList) {
-    await sleep(100);
+    await sleep(80);
     // given
     testNumber++;
     let request = { "body": test.json };
@@ -24,7 +24,22 @@ const tests = async () => {
     // when
     result = app.move(request, response);
     // then
-    assert(result.move, "==", test.expected);
+    if (!assert(result.move, "==", test.expected)) {
+      failedTests.push(test);
+    }
+  }
+
+  for (let test of failedTests) {
+    // given
+    // testNumber++;
+    let request = { "body": test.json };
+    let response = {};
+    let result;
+    console.log(`\nFAILED TEST: ${test.name}`);
+    // when
+    result = app.move(request, response);
+    // then
+    assert(result.move, "==", test.expected)
   }
 };
 
@@ -97,7 +112,7 @@ const main = async () => {
   }
   console.log(`########## BEGINNING TESTS ##########`);
   console.log(`Logging is ${loggingEnabled ? "ENABLED" : "DISABLED"}.`);
-  await sleep(550);
+  await sleep(540);
 
   if (process.argv.length >= 3) {
     setup(loggingEnabled);
