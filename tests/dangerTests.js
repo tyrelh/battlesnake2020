@@ -16,10 +16,17 @@ const test3 = {
   "expected": "right"
 };
 
+const test4 = {
+  "name": "Simple choice, don't get eaten",
+  "expected": ["right", "up"],
+  "json": {"game":{"id":"b0c99c91-c860-462a-a439-28b24de42384"},"turn":62,"board":{"height":11,"width":11,"food":[{"x":1,"y":8},{"x":10,"y":1}],"snakes":[{"id":"0ed917dd-762a-4f07-8794-37b53fbd94e4","name":"zerocool","health":67,"body":[{"x":7,"y":1},{"x":6,"y":1},{"x":5,"y":1},{"x":5,"y":0}]},{"id":"331bcabd-f01c-4714-9890-bde5e9d348fc","name":"chicken1","health":38,"body":[{"x":7,"y":9},{"x":7,"y":8},{"x":8,"y":8}]},{"id":"005d4698-6926-4543-a7d3-8c3056687922","name":"chicken2","health":45,"body":[{"x":7,"y":3},{"x":7,"y":4},{"x":6,"y":4},{"x":6,"y":3},{"x":6,"y":2}]},{"id":"aea6abbf-d8f8-462c-800c-470d04c86903","name":"karena1","health":75,"body":[{"x":3,"y":7},{"x":4,"y":7},{"x":4,"y":8},{"x":4,"y":9},{"x":5,"y":9},{"x":5,"y":10}]},{"id":"b43625dd-2367-42b9-b987-536eb90e058d","name":"2019snake","health":69,"body":[{"x":3,"y":3},{"x":3,"y":2},{"x":4,"y":2},{"x":4,"y":3},{"x":4,"y":4},{"x":4,"y":5},{"x":3,"y":5},{"x":3,"y":4},{"x":2,"y":4}]}]},"you":{"id":"0ed917dd-762a-4f07-8794-37b53fbd94e4","name":"zerocool","health":67,"body":[{"x":7,"y":1},{"x":6,"y":1},{"x":5,"y":1},{"x":5,"y":0}]}}
+};
+
 module.exports = {
   tests: [
     test1,
     test2,
-    test3
+    test3,
+    test4
   ]
 };

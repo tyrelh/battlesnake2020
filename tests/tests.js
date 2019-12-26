@@ -7,13 +7,14 @@ const app = require("../app/main");
 const floodTests = require("./floodTests");
 const dangerTests = require("./dangerTests");
 const trappedTests = require("./trappedTests");
+const killTests = require("./killTests");
 
 let testNumber, testsFailed, testList;
 
 
 const tests = async () => {
   for (let test of testList) {
-    await sleep(200);
+    await sleep(100);
     // given
     testNumber++;
     let request = { "body": test.json };
@@ -39,7 +40,7 @@ const setup = (loggingEnabled) => {
   testNumber = 0;
   testsFailed = 0;
   // merge all tests into one list
-  testList = floodTests.tests.concat(dangerTests.tests).concat(trappedTests.tests);
+  testList = floodTests.tests.concat(dangerTests.tests).concat(trappedTests.tests).concat(killTests.tests);
 };
 
 
@@ -48,13 +49,35 @@ const assert = (a, operation, b) => {
   let failure;
   switch(operation) {
     case "==":
-      result = (a === b);
-      failure = "!=";
-      break;
+      if (b.hasOwnProperty("length")) {
+        if (b.includes(a)) {
+          result = true;
+          break;
+        } else {
+          result = false;
+          failure = "!=";
+          break;
+        }
+      } else {
+        result = (a === b);
+        failure = "!=";
+        break;
+      }
     case "!=":
-      result = (a !== b);
-      failure = "==";
-      break
+      if (b.hasOwnProperty("length")) {
+        if (!b.includes(a)) {
+          result = true;
+          break;
+        } else {
+          result = false;
+          failure = "==";
+          break;
+        }
+      } else {
+        result = (a !== b);
+        failure = "==";
+        break;
+      }
   }
   if (result) {
     console.log(consoleGreen, `Test ${testNumber} passed.`);
@@ -63,6 +86,7 @@ const assert = (a, operation, b) => {
     testsFailed++;
     console.error(consoleRed, `Test ${testNumber} FAILED!\n   ${a} ${failure} ${b}`);
   }
+  return result;
 };
 
 
@@ -73,7 +97,7 @@ const main = async () => {
   }
   console.log(`########## BEGINNING TESTS ##########`);
   console.log(`Logging is ${loggingEnabled ? "ENABLED" : "DISABLED"}.`);
-  await sleep(700);
+  await sleep(550);
 
   if (process.argv.length >= 3) {
     setup(loggingEnabled);
