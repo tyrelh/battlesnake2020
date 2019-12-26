@@ -152,15 +152,16 @@ const fill = (direction, grid, data, constraints = []) => {
   score += killZones * p.BASE_KILL_ZONE;
   score += warnings * p.BASE_WARNING;
   score += walls * (p.BASE_WALL_NEAR * p.WALL_NEAR_FILL_MULTIPLIER);
-  score += dangers * p.BASE_DANGER;
+  score += dangers * (p.BASE_DANGER * p.DANGER_FILL_MULTIPLIER);
   score += futures * p.BASE_FUTURE_2;
 
-  const myLength = you.body.length;
-  if (area < myLength && tails < 1) {
-    score = Math.floor(score / 2);
-  }
+  log.debug(`area: ${area} ${area * p.BASE_SPACE}\ntails: ${tails} ${tails * p.BASE_TAIL}\nfoods: ${foods} ${foods * p.BASE_FOOD}\nenemyHeads: ${enemyHeads} ${enemyHeads * p.BASE_ENEMY_HEAD}\nkillZones: ${killZones} ${killZones * p.BASE_KILL_ZONE}\nwarnings: ${warnings} ${warnings * p.BASE_WARNING}\nwalls: ${walls} ${walls * (p.BASE_WALL_NEAR * p.WALL_NEAR_FILL_MULTIPLIER)}\ndangers: ${dangers} ${dangers * (p.BASE_DANGER * p.DANGER_FILL_MULTIPLIER)}\nfutures: ${futures} ${futures * p.BASE_FUTURE_2}`);
 
-  log.debug(`enemy heads score: ${enemyHeads * p.BASE_ENEMY_HEAD}`)
+  // const myLength = you.body.length;
+  // if (area < myLength && tails < 1) {
+  //   score = Math.floor(score / 2);
+  // }
+
   log.debug(`Score in fill for move ${k.DIRECTION[direction]}: ${score.toFixed(1)}. Area: ${area}`);
   return score;
 };
@@ -182,12 +183,12 @@ const completeFloodSearch = (grid, data) => {
           g.printGrid(gridCopy);
         }
         scores[m] += fill(m, gridCopy, data, [k.KILL_ZONE, k.DANGER, k.WARNING, k.SMALL_DANGER]);
-        gridCopy = g.moveSnakes(2, grid, data);
-        if (p.DEBUG_MAPS) {
-          log.debug("Map for fill search 2 moves in advance");
-          g.printGrid(gridCopy);
-        }
-        scores[m] += fill(m, gridCopy, data, [k.KILL_ZONE, k.DANGER, k.WARNING, k.SMALL_DANGER, k.FUTURE_2]);
+        // gridCopy = g.moveSnakes(2, grid, data);
+        // if (p.DEBUG_MAPS) {
+        //   log.debug("Map for fill search 2 moves in advance");
+        //   g.printGrid(gridCopy);
+        // }
+        // scores[m] += fill(m, gridCopy, data, [k.KILL_ZONE, k.DANGER, k.WARNING, k.SMALL_DANGER, k.FUTURE_2]);
       }
     }
     scores = scores.map((x) => x * p.FLOOD_MULTIPLIER);
@@ -636,7 +637,7 @@ const closeAccessableFuture2FarFromWall = (grid, data) => {
                 }
                 if (move != null) {
                   log.debug(`Distance: ${distance}`);
-                  scores[move] += (p.HUNT_LATE / distance);
+                  scores[move] += Math.pow(distance, p.HUNT_LATE_DISTANCE_EXP);
                 }
               }
             }
@@ -687,10 +688,12 @@ const closeAccessableKillZoneFarFromWall = (grid, data) => {
                   log.debug(`Distance: ${distance}`);
                   let score = 0;
                   if (grid[startPos.y][startPos.x] >= k.SMALL_DANGER) {
-                    score = ((p.HUNT / distance) / 10);
+                    score = (Math.pow(distance, p.HUNT_DISTANCE_EXP) / 10);
+                    // log.debug(`New score: ${Math.pow(distance, p.HUNT_DISTANCE_EXP) / 10}`);
                   }
                   else {
-                    score = (p.HUNT / distance);
+                    score = Math.pow(distance, p.HUNT_DISTANCE_EXP);
+                    // log.debug(`New score: ${Math.pow(distance, p.HUNT_DISTANCE_EXP)}`);
                   }
                   log.debug(`Score: ${score}`);
                   scores[move] += score;

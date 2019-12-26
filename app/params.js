@@ -33,28 +33,31 @@ module.exports = {
   FLOOD_MULTIPLIER: 0.3, // started @ 0.5 --
   ENEMY_DISTANCE_EXP: 0.8, // started @ 0.8
   KILL_DISTANCE_EXP: 0.8, // started @ 0.8
-  WALL_DISTANCE: 2.3, // started @ 2 +++-++---
+  WALL_DISTANCE: 2.2, // started @ 2 +++-++----
   FOOD_DISTANCE: 1.0, // started @ 1
 
 
   // scores for moves
   FALLBACK: 5, // started @ 10 -++++
   HUNT: 12.5, // started @ 12.5
+  HUNT_DISTANCE_EXP: 0.7, // started @ 0.7
   HUNT_LATE: 10, // started @ 14 ---
-  BASE_KILL_ZONE: 5, // started @ 2.1 --++
-  KILL_ZONE_BASE_MOVE_MULTIPLIER: 2.9, // started @ 3 +-
+  HUNT_LATE_DISTANCE_EXP: 0.6, // started @ 0.6
+  BASE_KILL_ZONE: 4.5, // started @ 2.1 --++-
+  KILL_ZONE_BASE_MOVE_MULTIPLIER: 1.3, // started @ 3 +---
   BASE_FOOD: 0.4, // started @ 0.8 -
   BASE_TAIL: 9.2, // started @ 0.4 +++
-  BASE_SPACE: 0.69, // started @ 0.2 -+++--++
-  BASE_WALL_NEAR: -0.5, // started @ -0.1 ------+
-  WALL_NEAR_BASE_MOVE_MULTIPLIER: 7.5, // started @ 1.6 ++++++++++++++--
+  BASE_SPACE: 0.80, // started @ 0.2 -+++--+++
+  BASE_WALL_NEAR: -0.4, // started @ -0.1 ------+
+  WALL_NEAR_BASE_MOVE_MULTIPLIER: 6.5, // started @ 1.6 ++++++++++++++---
   WALL_NEAR_FILL_MULTIPLIER: 0.05, // started @ 0.4 ---
   BASE_WARNING: -2.6, // started @ 0.2 -+-
   BASE_SMALL_DANGER: -11.0, // started @ -5 -+--
   BASE_DANGER: -13.0, // started @ 0.1 -----++
-  BASE_ENEMY_HEAD: -0.5, // started @ -2 --
+  DANGER_FILL_MULTIPLIER: 0.06, // started @ 0.06
+  BASE_ENEMY_HEAD: -5.5, // started @ -2 --+-
   BASE_PREVIOUS: 0.09, // started @ 2 -
-  BASE_FUTURE_2: -1.4, // started @ -0.4
+  BASE_FUTURE_2: -0.7, // started @ 0.4 -+
   FORGET_ABOUT_IT: -200, // started @ 100 -
   COIL: 5 // started @ 10 +
 };
