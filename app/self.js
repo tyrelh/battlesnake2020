@@ -61,11 +61,19 @@ const existsSmallerSnake = (data) => {
 };
 
 
+const id = (data) => {
+  try { return data.you.id; }
+  catch (e) { log.error(`ex in self.id: ${e}`, data.turn); }
+  return "";
+};
+
+
 module.exports = {
-  location: location,
-  tailLocation: tailLocation,
-  biggestSnake: biggestSnake,
+  location,
+  tailLocation,
+  biggestSnake,
   existsSmallerSnake,
   health,
-  length
+  length,
+  id
 };

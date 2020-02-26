@@ -121,7 +121,7 @@ const main = async () => {
   }
   await tests();
   if (testsFailed) {
-    console.log(consoleRed, `\n${testsFailed} TEST(S) FAILED!\n`)
+    console.log(consoleRed, `\n${testsFailed / 2} TEST(S) FAILED!\n`)
   } else {
     console.log(consoleGreen, `\nAll ${testNumber} test(s) passed!`)
   }

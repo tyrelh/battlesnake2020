@@ -10,7 +10,7 @@ const buildGrid = data => {
   const myLength = self.body.length;
   const numberOfSnakes = board.snakes.length;
 
-  // initailize grid to SPACEs
+  // initialize grid to SPACEs
   let grid = initGrid(board.width, board.height, k.SPACE);
 
   try {
@@ -64,7 +64,7 @@ const buildGrid = data => {
       }
 
       // check if tail can be marked TAIL or remain SNAKE_BODY
-      if (data.turn > 1 && health != 100) {
+      if (data.turn > 1 && health !== 100) {
         const tail = body[body.length - 1];
         grid[tail.y][tail.x] = k.TAIL;
       }
@@ -138,7 +138,7 @@ const buildGrid = data => {
       for (let offset of future2Offsets) {
         pos.x = head.x + offset.x;
         pos.y = head.y + offset.y;
-        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] <= k.WALL_NEAR && grid[pos.y][pos.x] != k.FOOD) {
+        if (!outOfBounds(pos, grid) && grid[pos.y][pos.x] <= k.WALL_NEAR && grid[pos.y][pos.x] !== k.FOOD) {
           grid[pos.y][pos.x] = k.FUTURE_2;
         }
       }
@@ -186,7 +186,7 @@ const initGrid = (width, height, fillValue) => {
       }
     }
   }
-  catch (e) { log.error(`ex in grid.initGrid: ${e}`, data.turn); }
+  catch (e) { log.error(`ex in grid.initGrid: ${e}`); }
   return grid;
 };
 
@@ -329,6 +329,17 @@ const moveSnakes = (moves, grid, data) => {
 };
 
 
+const validPos = (pos, grid, data, threshold = k.SNAKE_BODY) => {
+  try {
+    if (pos === null) { return false; }
+    return (!outOfBounds(pos, grid) && grid[pos.y][pos.x] < threshold);
+  }
+  catch (e) { log.error(`ex in grid.validMove: ${e}`, data.turn); }
+  return false;
+};
+
+
+
 module.exports = {
   getDistance,
   buildGrid,
@@ -338,5 +349,6 @@ module.exports = {
   onPerimeter,
   nearPerimeter,
   moveSnakes,
-  outOfBounds
+  outOfBounds,
+  validPos
 };

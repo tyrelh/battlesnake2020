@@ -198,6 +198,49 @@ const completeFloodSearch = (grid, data) => {
 };
 
 
+//  score moves based on distance from tail
+const scoresCloserToTails = (grid, data) => {
+  let tailScores = [0, 0, 0, 0];
+  const myHead = s.location(data);
+  try {
+    const myTail = s.tailLocation(data);
+    for (let m = 0; m < 4; m++) {
+      let movePos = u.applyMoveToPos(m, myHead);
+      // log.debug(`Move: ${k.DIRECTION[m]}`);
+      // log.debug(g.validPos(movePos, grid, data));
+      if (g.validPos(movePos, grid, data)) {
+        let result = astar.search(movePos, myTail, grid, k.SNAKE_BODY, true);
+        if (result) {
+          let moveDirection = u.calcDirection(myHead, result.pos, data);
+          log.debug((`Adding ${Math.pow(result.distance, p.TAIL_DISTANCE_EXP)} to move ${k.DIRECTION[moveDirection]}`))
+          tailScores[moveDirection] += Math.pow(result.distance, p.TAIL_DISTANCE_EXP);
+        }
+      }
+    }
+  }
+  catch (e) { log.error(`ex in search.scoresCloserToTails.me: ${e}`, data.turn); }
+  try {
+    const snakeList = data.board.snakes;
+    for (let snake of snakeList) {
+      if (snake.id == s.id(data)) { continue; }
+      let snakeTail = snake.body[snake.body.length - 1];
+      for (let m = 0; m < 4; m++) {
+        let movePos = u.applyMoveToPos(m, myHead);
+        if (g.validPos(movePos, grid, data)) {
+          let result = astar.search(movePos, snakeTail, grid, k.SNAKE_BODY, true);
+          if (result) {
+            let moveDirection = u.calcDirection(myHead, result.pos, data);
+            tailScores[moveDirection] += (Math.pow(result.distance, p.TAIL_DISTANCE_EXP) / 10);
+          }
+        }
+      }
+    }
+  }
+  catch (e) { log.error(`ex in search.scoresCloserToTails.other: ${e}`, data.turn); }
+  return tailScores;
+};
+
+
 // score moves based on distance from closest danger snake
 const scoresFartherFromDangerousSnake = (grid, data) => {
   const myHead = s.location(data);
@@ -880,5 +923,6 @@ module.exports = {
   preprocessGrid,
   testForConstrainedMove,
   foodScoresFromData,
-  foodScoresFromGrid
+  foodScoresFromGrid,
+  scoresCloserToTails
 };

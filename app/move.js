@@ -7,6 +7,7 @@ const search = require("./search");
 const log = require("./logger");
 const astar = require("./astar");
 const u = require("./utils");
+const graph = require("./graph");
 
 
 // target closest reachable food
@@ -140,6 +141,22 @@ const buildMove = (scores = [0, 0, 0, 0], staySafe, behaviour = null, grid, data
   log.status(`Farther from walls scores:\n ${u.scoresToString(fartherFromWallsScores, data)}`);
   scores = u.combineScores(scores, fartherFromWallsScores);
 
+  // TAIL BIAS
+  // let closerToTailsScores = search.scoresCloserToTails(grid, data);
+  // if (staySafe) {
+  //   closerToTailsScores = closerToTailsScores.map((x) => x * p.STAY_SAFE_MULTIPLIER);
+  // }
+  // log.status(`Closer to tails scores:\n ${u.scoresToString(closerToTailsScores, data)}`);
+  // scores = u.combineScores(scores, closerToTailsScores);
+
+  // try {
+  //   graph.search(grid, data);
+  // }
+  // catch (e) {
+  //   console.error(`ex in graph.search: ${e}`, data.turn);
+  // }
+
+
   scores = u.normalizeScores(scores);
   // log all scores together for readability in logs
   log.status(`\nBehaviour scores:\n ${u.scoresToString(behaviourScores, data)}`);
@@ -151,6 +168,7 @@ const buildMove = (scores = [0, 0, 0, 0], staySafe, behaviour = null, grid, data
   log.status(`Farther from danger snakes scores:\n ${u.scoresToString(fartherFromDangerousSnakesScores, data)}`);
   log.status(`Closer to killable snakes scores:\n ${u.scoresToString(closerToKillableSnakesScores, data)}`);
   log.status(`Farther from walls scores:\n ${u.scoresToString(fartherFromWallsScores, data)}`);
+  // log.status(`Closer to tails scores:\n ${u.scoresToString(closerToTailsScores, data)}`);
   log.status(`\nFinal scores:\n ${u.scoresToString(scores, data)}`);
   log.status(`\nMove: ${k.DIRECTION_ICON[u.highestScoreMove(scores)]}${behaviour !== null ? `  was ${k.BEHAVIOURS[behaviour]}` : ""}\n`);
 

@@ -15,8 +15,7 @@ let moveTimes = [];
 
 // called for every move
 const move = (req, res) => {
-  let date = new Date();
-  let startTime = date.getMilliseconds();
+  let startTime = Date.now();
 
   const data = req.body;
   const health = data.you.health;
@@ -81,8 +80,7 @@ const move = (req, res) => {
     catch (e) { log.error(`ex in main.backupPlan: ${e}`, turn); }
   }
 
-  let date2 = new Date();
-  let endTime = date2.getMilliseconds();
+  let endTime = Date.now();
   let timeTaken = endTime - startTime;
   if (timeTaken > slowest) {
     slowest = timeTaken;
@@ -91,6 +89,8 @@ const move = (req, res) => {
   moveTimes.push(timeTaken);
   log.status(`${health} health remaining.`);
   log.status(`Turn ${data.turn} took ${timeTaken}ms.\n`);
+  console.log(`Turn ${data.turn} took ${timeTaken}ms.\n`);
+
   return { move: move ? keys.DIRECTION[move] : keys.DIRECTION[keys.UP] };
 };
 

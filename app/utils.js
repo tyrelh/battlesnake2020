@@ -101,9 +101,11 @@ const applyMoveToScores = (move, score, scores = [0, 0, 0, 0]) => {
 const combineScores = (scoresA, scoresB) => {
   let scores = [0, 0, 0, 0];
   try {
-    for (let i = 0; i < 4; i++) {
-      scores[i] = scoresA[i] + scoresB[i];
-      if (isNaN(scores[i])) scores[i] = 0;
+    for (let m = 0; m < 4; m++) {
+      if (!isNaN(scoresA[m]) && !isNaN(scoresB[m])) {
+        scores[m] = scoresA[m] + scoresB[m];
+      }
+      if (isNaN(scores[m])) { scores[m] = 0; }
     }
     return scores;
   }
