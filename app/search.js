@@ -557,6 +557,7 @@ const distanceToCenter = (direction, startPos, grid, data) => {
 
 // get distance scores for foods directly from data
 const foodScoresFromData = (urgency = 1, grid, data) => {
+  // log.debug("FOODSCORESFROMDATA");
   let scores = [0, 0, 0, 0];
   try {
     let foodList = data.board.food;
@@ -565,8 +566,10 @@ const foodScoresFromData = (urgency = 1, grid, data) => {
     for (let foodIndex = 0; foodIndex < foodList.length; foodIndex++) {
       let food = foodList[foodIndex];
       // loop over every move
+      let distances = [0, 0, 0, 0];
       for (let m = 0; m < 4; m++) {
         let startPos = u.applyMoveToPos(m, myHead);
+        // log.debug(`Start pos: ${u.pairToString(startPos)}`);
         // if move is valid search path to food
         if (!g.outOfBounds(startPos, grid) && grid[startPos.y][startPos.x] < k.SNAKE_BODY) {
           let movePos = null;
@@ -582,16 +585,25 @@ const foodScoresFromData = (urgency = 1, grid, data) => {
             }
             if (move != null) {
               log.debug(`Distance: ${distance}`);
-              distance = distance / 2;
+              distances[m] = distance;
               if (grid[startPos.y][startPos.x] >= k.SMALL_DANGER) {
-                scores[move] += (urgency * ((p.FOOD_DISTANCE / distance) / 10));
-              }
-              else {
-                scores[move] += (urgency * (p.FOOD_DISTANCE / distance));
+                distances[m] = distances[m] * 2;
               }
             }
           }
         }
+      }
+      const maxDistance = Math.max.apply(Math, distances);
+      log.debug(`Max Distance: ${maxDistance}`);
+      for (let m = 0; m < 4; m++) {
+        log.debug(`Move: ${k.DIRECTION[m]}`);
+        let distance = maxDistance - distances[m];
+        if (distance < 0 || distances[m] <= 0) {
+          distance = 0;
+        }
+        log.debug(`Relative Distance: ${distance}`);
+        scores[m] += (urgency * Math.pow(distance, p.FOOD_DISTANCE_EXP));
+        log.debug(`Score: ${(urgency * Math.pow(distance, p.FOOD_DISTANCE_EXP))}`);
       }
     }
   }
@@ -602,6 +614,7 @@ const foodScoresFromData = (urgency = 1, grid, data) => {
 
 // get distance scores for foods from grid
 const foodScoresFromGrid = (urgency = 1, grid, data) => {
+  // log.debug("got here");
   let scores = [0, 0, 0, 0];
   try {
     const myHead = s.location(data);
@@ -613,6 +626,8 @@ const foodScoresFromGrid = (urgency = 1, grid, data) => {
       if (food == null) {
         break;
       }
+      // let distances = [0, 0, 0, 0];
+
       for (let m = 0; m < 4; m++) {
         let startPos = u.applyMoveToPos(m, myHead);
         if (!g.outOfBounds(startPos, grid) && grid[startPos.y][startPos.x] < k.SMALL_DANGER) {
@@ -630,6 +645,10 @@ const foodScoresFromGrid = (urgency = 1, grid, data) => {
               log.debug(`Distance: ${distance}`);
               distance = distance / 2;
               scores[move] += (urgency * (p.FOOD_DISTANCE / distance));
+              // distances[m] = distance;
+              // if (grid[startPos.y][startPos.x] >= k.SMALL_DANGER) {
+              //   distances[m] = distances[m] * 2;
+              // }
             }
           }
         }

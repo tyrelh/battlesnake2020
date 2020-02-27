@@ -39,7 +39,7 @@ const move = (req, res) => {
   const existsSmallerSnake = s.existsSmallerSnake(data);
   log.status(`Biggest snake ? ${iAmBiggestSnake}`);
   log.status(`Smaller snake ? ${existsSmallerSnake}`);
-  const minHealth = p.SURVIVAL_MIN - Math.floor(data.turn / p.LONG_GAME_ENDURANCE);
+  const minHealth = s.minHealth(data);
   const staySafe = numSnakes > p.SAFE_AMOUNT_OF_SNAKES;
   if (staySafe) log.status(`Keep Safe! ${numSnakes} still alive`);
 
@@ -55,7 +55,17 @@ const move = (req, res) => {
     catch (e) { log.error(`ex in main.initialKillTime: ${e}`, turn); }
   }
 
-  // if there is only one other snake, don't try to be bigger than it, just hunt it
+  else if (turn > p.LONG_GAME_ENDURANCE && numSnakes === 2 && iAmBiggestSnake) {
+    try { move = m.hunt(staySafe, grid, data); }
+    catch (e) { log.error(`ex in main.biggest: ${e}`, turn); }
+  }
+
+  else if (turn > p.LONG_GAME_ENDURANCE && numSnakes === 2 && !iAmBiggestSnake) {
+    try { move = m.eat(staySafe, grid, data); }
+    catch (e) { log.error(`ex in main.notBiggest: ${e}`, turn); }
+  }
+
+  // if there are only p.FINAL_SNAKES other snakes, don't try to be bigger than them, just hunt them
   else if (numSnakes <= p.FINAL_SNAKES) {
     try { move = m.lateHunt(staySafe, grid, data); }
     catch (e) { log.error(`ex in main.lateHunt: ${e}`, turn); }

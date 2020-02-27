@@ -1,4 +1,5 @@
 const log = require("./logger");
+const p = require("./params");
 
 
 // get your head location
@@ -68,6 +69,11 @@ const id = (data) => {
 };
 
 
+const minHealth = (data) => {
+  return (p.SURVIVAL_MIN - Math.floor(data.turn / p.LONG_GAME_ENDURANCE))
+};
+
+
 module.exports = {
   location,
   tailLocation,
@@ -75,5 +81,6 @@ module.exports = {
   existsSmallerSnake,
   health,
   length,
-  id
+  id,
+  minHealth
 };

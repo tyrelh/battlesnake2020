@@ -24,7 +24,7 @@ module.exports = {
   INITIAL_FEEDING: 0, // started @ 5 +++++++-
   SURVIVAL_MIN: 33, // started @ 50 --+++++-------+
   FEEDING_URGENCY_MULTIPLIER: 0.2, // started @ 0.4 -------++
-  LONG_GAME_ENDURANCE: 100, // started @ 80 ++
+  LONG_GAME_ENDURANCE: 500, // started @ 80 ++++
   INITIAL_TIME_KILL: 0, // started @ 70 ---------------
   FINAL_SNAKES: 3, // started @ 2 +
   CONSTRAINED_MOVE_MULTIPLIER: 2.8, // started @ 1.1 +++
@@ -35,6 +35,7 @@ module.exports = {
   KILL_DISTANCE_EXP: 0.8, // started @ 0.8
   WALL_DISTANCE: 2.2, // started @ 2 +++-++----
   FOOD_DISTANCE: 1.0, // started @ 1
+  FOOD_DISTANCE_EXP: 0.9, // started @ 1.1
 
   // scores for moves
   FALLBACK: 5, // started @ 10 -++++
