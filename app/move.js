@@ -18,12 +18,14 @@ const eat = (staySafe, grid, data) => {
 
   let urgencyScore = Math.round((101 - myHealth) * p.FEEDING_URGENCY_MULTIPLIER);
   const distanceToClosestFood = t.distanceToFoodInFoodList(myHead, data);
+  let behaviour = k.EATING;
   let emergency = (distanceToClosestFood >= myHealth || myHealth < (p.SURVIVAL_MIN - 5));
   log.status(`EATING w/ urgency ${urgencyScore} ${emergency ? ", EMERGENCY!" : ""}`);
 
   // if emergency look for closest foods in data list
   if (emergency) {
     try {
+      behaviour = k.EATING_EMERGENCY;
       scores = search.foodScoresFromData(urgencyScore, grid, data);
     }
     catch (e) { log.error(`ex in move.eat.emergency: ${e}`, data.turn); }
@@ -35,7 +37,7 @@ const eat = (staySafe, grid, data) => {
     }
     catch (e) { log.error(`ex in move.eat.non-emergency: ${e}`, data.turn); }
   }
-  return buildMove(scores, staySafe, k.EATING, grid, data);
+  return buildMove(scores, staySafe, behaviour, grid, data);
 };
  
 

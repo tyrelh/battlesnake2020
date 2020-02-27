@@ -36,11 +36,13 @@ module.exports = {
   KILLING_TIME: 1,
   HUNTING: 2,
   LATE_HUNTING: 3,
+  EATING_EMERGENCY: 4,
   BEHAVIOURS: [
     "EATING",
     "KILLING_TIME",
     "HUNTING",
-    "LATE_HUNTING"
+    "LATE_HUNTING",
+    "EATING_EMERGENCY"
   ],
 
   // directions
