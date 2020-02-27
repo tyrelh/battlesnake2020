@@ -155,7 +155,7 @@ const fill = (direction, grid, data, constraints = []) => {
   score += dangers * (p.BASE_DANGER * p.DANGER_FILL_MULTIPLIER);
   score += futures * p.BASE_FUTURE_2;
 
-  log.debug(`area: ${area} ${area * p.BASE_SPACE}\ntails: ${tails} ${tails * p.BASE_TAIL}\nfoods: ${foods} ${foods * p.BASE_FOOD}\nenemyHeads: ${enemyHeads} ${enemyHeads * p.BASE_ENEMY_HEAD}\nkillZones: ${killZones} ${killZones * p.BASE_KILL_ZONE}\nwarnings: ${warnings} ${warnings * p.BASE_WARNING}\nwalls: ${walls} ${walls * (p.BASE_WALL_NEAR * p.WALL_NEAR_FILL_MULTIPLIER)}\ndangers: ${dangers} ${dangers * (p.BASE_DANGER * p.DANGER_FILL_MULTIPLIER)}\nfutures: ${futures} ${futures * p.BASE_FUTURE_2}`);
+  // log.debug(`area: ${area} ${area * p.BASE_SPACE}\ntails: ${tails} ${tails * p.BASE_TAIL}\nfoods: ${foods} ${foods * p.BASE_FOOD}\nenemyHeads: ${enemyHeads} ${enemyHeads * p.BASE_ENEMY_HEAD}\nkillZones: ${killZones} ${killZones * p.BASE_KILL_ZONE}\nwarnings: ${warnings} ${warnings * p.BASE_WARNING}\nwalls: ${walls} ${walls * (p.BASE_WALL_NEAR * p.WALL_NEAR_FILL_MULTIPLIER)}\ndangers: ${dangers} ${dangers * (p.BASE_DANGER * p.DANGER_FILL_MULTIPLIER)}\nfutures: ${futures} ${futures * p.BASE_FUTURE_2}`);
 
   // const myLength = you.body.length;
   // if (area < myLength && tails < 1) {
