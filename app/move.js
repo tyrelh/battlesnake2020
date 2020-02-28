@@ -144,12 +144,12 @@ const buildMove = (scores = [0, 0, 0, 0], staySafe, behaviour = null, grid, data
   scores = u.combineScores(scores, fartherFromWallsScores);
 
   // TAIL BIAS
-  // let closerToTailsScores = search.scoresCloserToTails(grid, data);
-  // if (staySafe) {
-  //   closerToTailsScores = closerToTailsScores.map((x) => x * p.STAY_SAFE_MULTIPLIER);
-  // }
-  // log.status(`Closer to tails scores:\n ${u.scoresToString(closerToTailsScores, data)}`);
-  // scores = u.combineScores(scores, closerToTailsScores);
+  let closerToTailsScores = search.scoresCloserToTails(grid, data);
+  if (staySafe) {
+    closerToTailsScores = closerToTailsScores.map((x) => x * p.STAY_SAFE_MULTIPLIER);
+  }
+  log.status(`Closer to tails scores:\n ${u.scoresToString(closerToTailsScores, data)}`);
+  scores = u.combineScores(scores, closerToTailsScores);
 
   // try {
   //   graph.search(grid, data);
@@ -170,7 +170,7 @@ const buildMove = (scores = [0, 0, 0, 0], staySafe, behaviour = null, grid, data
   log.status(`Farther from danger snakes scores:\n ${u.scoresToString(fartherFromDangerousSnakesScores, data)}`);
   log.status(`Closer to killable snakes scores:\n ${u.scoresToString(closerToKillableSnakesScores, data)}`);
   log.status(`Farther from walls scores:\n ${u.scoresToString(fartherFromWallsScores, data)}`);
-  // log.status(`Closer to tails scores:\n ${u.scoresToString(closerToTailsScores, data)}`);
+  log.status(`Closer to tails scores:\n ${u.scoresToString(closerToTailsScores, data)}`);
   log.status(`\nFinal scores:\n ${u.scoresToString(scores, data)}`);
   log.status(`\nMove: ${k.DIRECTION_ICON[u.highestScoreMove(scores)]}${behaviour !== null ? `  was ${k.BEHAVIOURS[behaviour]}` : ""}\n`);
 

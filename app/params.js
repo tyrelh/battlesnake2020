@@ -45,7 +45,8 @@ module.exports = {
   KILL_ZONE_BASE_MOVE_MULTIPLIER: 1.3, // started @ 3 +---
   BASE_FOOD: 0.4, // started @ 0.8 -
   BASE_TAIL: 11.3, // started @ 0.4 +++++
-  TAIL_DISTANCE_EXP: 0.55, // started @ 0.4
+  TAIL_DISTANCE_SCALAR: 1, // started @ 0.55 +
+  TAIL_DISTANCE_DECAY_RATE: 2.0, // started @ 2.0
   BASE_SPACE: 0.9, // started @ 0.2 -+++--++++
   BASE_WALL_NEAR: -0.4, // started @ -0.1 ------+
   WALL_NEAR_BASE_MOVE_MULTIPLIER: 6.5, // started @ 1.6 ++++++++++++++---
