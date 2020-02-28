@@ -17,13 +17,13 @@ module.exports = {
   // my snake
   HEAD_DESIGN: belugaHead,
   TAIL_DESIGN: boltTail,
-  COLOR: purple,
+  COLOR: pink,
   NAME: /nerper/,
 
   // basic game params
   INITIAL_FEEDING: 0, // started @ 5 +++++++-
   SURVIVAL_MIN: 33, // started @ 50 --+++++-------+
-  FEEDING_URGENCY_MULTIPLIER: 0.2, // started @ 0.4 -------++
+  FEEDING_URGENCY_MULTIPLIER: 0.4, // started @ 0.4 -------+++
   LONG_GAME_ENDURANCE: 500, // started @ 80 ++++
   INITIAL_TIME_KILL: 0, // started @ 70 ---------------
   FINAL_SNAKES: 3, // started @ 2 +
@@ -36,6 +36,7 @@ module.exports = {
   WALL_DISTANCE: 2.2, // started @ 2 +++-++----
   FOOD_DISTANCE: 1.0, // started @ 1
   FOOD_DISTANCE_EXP: 0.9, // started @ 1.1
+  FOOD_DISTANCE_DECAY_RATE: 2.8, // started @ 2.0 ++
 
   // scores for moves
   FALLBACK: 5, // started @ 10 -++++
