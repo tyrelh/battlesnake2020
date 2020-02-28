@@ -9,10 +9,16 @@ const search = (start, destination, grid, avoidThreshold, returnStart = false) =
     log.status("Start or destination is null in astar. Must call with start and destination coords.");
     return null;
   }
+
   if (grid === null) {
     log.status("Grid is null in astar. Must call with full game grid to perform searches on.");
     return null;
   }
+
+  if (u.sameCell(start, destination) && returnStart) {
+    return { distance: 0, pos: start };
+  }
+
   log.status(`Calculating path (astar) from ${u.pairToString(start)} to ${u.pairToString(destination)}.`);
 
   // initialize search fields
@@ -127,7 +133,7 @@ const search = (start, destination, grid, avoidThreshold, returnStart = false) =
 // trace path back to origin to find optimal next move
 const walkback = (astarScoreGrid, start, destination, returnStart = false) => {
   let nextPos = destination;
-  let distance = 1;
+  let distance = 0;
   log.debug(`Astar start pos: ${u.pairToString(start)}`);
 
   if (u.sameCell(start, destination)) {
@@ -186,5 +192,5 @@ class AstarScoreCell {
 
 
 module.exports = {
-  search: search
+  search
 };
