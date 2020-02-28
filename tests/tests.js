@@ -8,13 +8,14 @@ const floodTests = require("./floodTests");
 const dangerTests = require("./dangerTests");
 const trappedTests = require("./trappedTests");
 const killTests = require("./killTests");
+const eatingTests = require("./eatingTests");
 
 let testNumber, testsFailed, testList, failedTests = [];
 
 
 const tests = async () => {
   for (let test of testList) {
-    await sleep(80);
+    await sleep(90);
     // given
     testNumber++;
     let request = { "body": test.json };
@@ -55,7 +56,7 @@ const setup = (loggingEnabled) => {
   testNumber = 0;
   testsFailed = 0;
   // merge all tests into one list
-  testList = floodTests.tests.concat(dangerTests.tests).concat(trappedTests.tests).concat(killTests.tests);
+  testList = floodTests.tests.concat(dangerTests.tests).concat(trappedTests.tests).concat(killTests.tests).concat(eatingTests.tests);
 };
 
 
@@ -119,6 +120,8 @@ const main = async () => {
   } else {
     setup();
   }
+  console.log(`Running ${testList.length} tests.`);
+  await sleep(600);
   await tests();
   if (testsFailed) {
     console.log(consoleRed, `\n${testsFailed / 2} TEST(S) FAILED!\n`)
