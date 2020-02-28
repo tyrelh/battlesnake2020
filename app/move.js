@@ -7,7 +7,7 @@ const search = require("./search");
 const log = require("./logger");
 const astar = require("./astar");
 const u = require("./utils");
-const graph = require("./graph");
+// const graph = require("./graph");
 
 
 // target closest reachable food
