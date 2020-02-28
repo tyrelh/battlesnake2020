@@ -99,7 +99,7 @@ const move = (req, res) => {
   moveTimes.push(timeTaken);
   log.status(`${health} health remaining.`);
   log.status(`Turn ${data.turn} took ${timeTaken}ms.\n`);
-  console.log(`Turn ${data.turn} took ${timeTaken}ms.\n`);
+  // console.log(`Turn ${data.turn} took ${timeTaken}ms.\n`);
 
   return { move: move ? keys.DIRECTION[move] : keys.DIRECTION[keys.UP] };
 };
