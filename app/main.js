@@ -101,7 +101,10 @@ const move = (req, res) => {
   log.status(`Turn ${data.turn} took ${timeTaken}ms.\n`);
   // console.log(`Turn ${data.turn} took ${timeTaken}ms.\n`);
 
-  return { move: move ? keys.DIRECTION[move] : keys.DIRECTION[keys.UP] };
+  return {
+    move: move ? keys.DIRECTION[move] : keys.DIRECTION[keys.UP],
+    shout: "I don't know what we're yelling about!"
+  };
 };
 
 
