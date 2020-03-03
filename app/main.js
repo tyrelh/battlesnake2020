@@ -55,14 +55,20 @@ const move = (req, res) => {
     catch (e) { log.error(`ex in main.initialKillTime: ${e}`, turn); }
   }
 
-  else if (turn > p.LONG_GAME_ENDURANCE && numSnakes === 2 && iAmBiggestSnake) {
+  // else if (turn > p.LONG_GAME_ENDURANCE && numSnakes === 2 && iAmBiggestSnake) {
+  //   try { move = m.hunt(staySafe, grid, data); }
+  //   catch (e) { log.error(`ex in main.biggest: ${e}`, turn); }
+  // }
+  //
+  // else if (turn > p.LONG_GAME_ENDURANCE && numSnakes === 2 && !iAmBiggestSnake) {
+  //   try { move = m.eat(staySafe, grid, data); }
+  //   catch (e) { log.error(`ex in main.notBiggest: ${e}`, turn); }
+  // }
+
+  // if there are smaller snakes than you, hunt
+  else if (iAmBiggestSnake || existsSmallerSnake) {
     try { move = m.hunt(staySafe, grid, data); }
     catch (e) { log.error(`ex in main.biggest: ${e}`, turn); }
-  }
-
-  else if (turn > p.LONG_GAME_ENDURANCE && numSnakes === 2 && !iAmBiggestSnake) {
-    try { move = m.eat(staySafe, grid, data); }
-    catch (e) { log.error(`ex in main.notBiggest: ${e}`, turn); }
   }
 
   // if there are only p.FINAL_SNAKES other snakes, don't try to be bigger than them, just hunt them
@@ -76,12 +82,6 @@ const move = (req, res) => {
   else if (!existsSmallerSnake) {
     try { move = m.eat(staySafe, grid, data); }
     catch (e) { log.error(`ex in main.notBiggest: ${e}`, turn); }
-  }
-
-  // if there are smaller snakes than you, hunt
-  else if (iAmBiggestSnake || existsSmallerSnake) {
-    try { move = m.hunt(staySafe, grid, data); }
-    catch (e) { log.error(`ex in main.biggest: ${e}`, turn); }
   }
 
   // backup plan?
