@@ -18,7 +18,7 @@ module.exports = {
   HEAD_DESIGN: belugaHead,
   TAIL_DESIGN: boltTail,
   COLOR: pink,
-  NAME: /nerper/,
+  NAME: /zerocool/,
 
   // basic game params
   INITIAL_FEEDING: 0, // started @ 5 +++++++-
