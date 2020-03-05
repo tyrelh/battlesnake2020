@@ -2,6 +2,7 @@ const k = require("./keys");
 const log = require("./logger");
 const p = require("./params");
 const u = require("./utils");
+const s = require("./self");
 
 
 const buildGrid = data => {
@@ -50,7 +51,7 @@ const buildGrid = data => {
 
       // fill ENEMY_HEAD locations
       const head = body[0];
-      const snakeSharesMyName = !!(name.toLowerCase().match(p.NAME)) && numberOfSnakes >= 2;
+      const snakeSharesMyName = s.isFriendly(name) && numberOfSnakes >= 2;
       const dangerSnake = body.length >= myLength;
 
       
@@ -100,7 +101,7 @@ const buildGrid = data => {
       if (id == self.id) return;
       let pos = { x: 0, y: 0 };
       const head = body[0];
-      const snakeSharesMyName = !!(name.toLowerCase().match(p.NAME)) && numberOfSnakes >= 2;
+      const snakeSharesMyName = s.isFriendly(name) && numberOfSnakes >= 2;
       let headZone = k.DANGER;
       if (myLength > body.length && !snakeSharesMyName) {
         headZone = k.KILL_ZONE;

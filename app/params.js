@@ -17,8 +17,8 @@ module.exports = {
   // my snake
   HEAD_DESIGN: belugaHead,
   TAIL_DESIGN: boltTail,
-  COLOR: pink,
-  NAME: /zerocool/,
+  COLOR: green,
+  FRIENDS: [/zerocool/, /drunksnake/],
 
   // basic game params
   INITIAL_FEEDING: 0, // started @ 5 +++++++-

@@ -74,6 +74,16 @@ const minHealth = (data) => {
 };
 
 
+const isFriendly = (name) => {
+  for (let friend of p.FRIENDS) {
+    if (!!(name.toLowerCase().match(friend))) {
+      return true;
+    }
+  }
+  return false;
+};
+
+
 module.exports = {
   location,
   tailLocation,
@@ -82,5 +92,6 @@ module.exports = {
   health,
   length,
   id,
-  minHealth
+  minHealth,
+  isFriendly
 };
