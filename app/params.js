@@ -3,6 +3,7 @@ const pink = "#cc4ff1";
 const green = "#2be384";
 const green2 = "#02B07C";
 const purple = "#9557EF";
+const giftbitGreen = "#009b50";
 
 const belugaHead = "beluga";
 const boltTail = "bolt";
@@ -17,8 +18,8 @@ module.exports = {
   // my snake
   HEAD_DESIGN: belugaHead,
   TAIL_DESIGN: boltTail,
-  COLOR: green,
-  FRIENDS: [/zerocool/, /drunksnake/],
+  COLOR: giftbitGreen,
+  FRIENDS: [/crashoverride/],
 
   // basic game params
   INITIAL_FEEDING: 0, // started @ 5 +++++++-
