@@ -45,7 +45,7 @@ module.exports = {
   BASE_KILL_ZONE: 4.5, // started @ 2.1 --++-
   KILL_ZONE_BASE_MOVE_MULTIPLIER: 1.3, // started @ 3 +---
   BASE_FOOD: 0.4, // started @ 0.8 -
-  BASE_TAIL: 11.3, // started @ 0.4 +++++
+  BASE_TAIL: 12.3, // started @ 0.4 ++++++
   TAIL_DISTANCE_SCALAR: 2.0, // started @ 0.55 +++
   TAIL_DISTANCE_DECAY_RATE: 2.0, // started @ 2.0
   BASE_SPACE: 0.9, // started @ 0.2 -+++--++++
@@ -54,7 +54,7 @@ module.exports = {
   WALL_NEAR_FILL_MULTIPLIER: -0.5, // started @ 0.4 ----
   BASE_WARNING: -2.6, // started @ 0.2 -+-
   BASE_SMALL_DANGER: -11.0, // started @ -5 -+--
-  BASE_DANGER: -13.0, // started @ 0.1 -----++
+  BASE_DANGER: -12.0, // started @ 0.1 -----+++
   DANGER_FILL_MULTIPLIER: 0.06, // started @ 0.06
   BASE_ENEMY_HEAD: -5.9, // started @ -2 --+--
   BASE_FUTURE_2: -0.7, // started @ 0.4 -+
