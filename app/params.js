@@ -6,6 +6,7 @@ const purple = "#9557EF";
 
 const belugaHead = "beluga";
 const boltTail = "bolt";
+const gogglesHead = "bwc-ski";
 
 module.exports = {
   // logging
@@ -15,10 +16,10 @@ module.exports = {
   CONSOLE_LOG: true,
 
   // my snake
-  HEAD_DESIGN: belugaHead,
+  HEAD_DESIGN: gogglesHead,
   TAIL_DESIGN: boltTail,
-  COLOR: green,
-  FRIENDS: [/zerocool/, /drunksnake/],
+  COLOR: purple,
+  FRIENDS: [/zerocool/],
 
   // basic game params
   INITIAL_FEEDING: 0, // started @ 5 +++++++-
