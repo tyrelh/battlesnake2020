@@ -76,7 +76,8 @@ const minHealth = (data) => {
 
 const isFriendly = (name) => {
   for (let friend of p.FRIENDS) {
-    if (!!(name.toLowerCase().match(friend))) {
+    const normalizedName = name.trim().replace(/\s+/g, "").toLowerCase();
+    if (!!(normalizedName.match(friend))) {
       return true;
     }
   }
