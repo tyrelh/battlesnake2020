@@ -19,7 +19,7 @@ module.exports = {
   HEAD_DESIGN: belugaHead,
   TAIL_DESIGN: boltTail,
   COLOR: giftbitGreen,
-  FRIENDS: [/crashoverride/, /zerocool/, /acidburn/],
+  FRIENDS: [/crashoverride/, /zerocool/],
 
   // basic game params
   INITIAL_FEEDING: 0, // started @ 5 +++++++-
